@@ -1,0 +1,12 @@
+### 测试 GET /ai/hello
+GET http://127.0.0.1:8081/ai/hello
+
+### 测试 POST /ai/chat（多轮对话）
+POST http://127.0.0.1:8081/ai/chat
+Content-Type: application/json
+
+[
+  {"role": "user", "content": "你好"},
+  {"role": "assistant", "content": "你好！有什么可以帮你？"},
+  {"role": "user", "content": "用一句话解释什么是 RAG"}
+]

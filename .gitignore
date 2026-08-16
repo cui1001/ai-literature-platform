@@ -1,0 +1,23 @@
+# === Python ===
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# === Java ===
+target/
+*.class
+.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties
+
+# === IDE ===
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+
+# === 系统 ===
+.DS_Store
+Thumbs.db

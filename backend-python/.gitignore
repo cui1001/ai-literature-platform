@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# 环境变量（密钥！绝对不能上传）
+.env
+
+# IDE
+.idea/
+
+# 系统文件
+.DS_Store
+Thumbs.db
