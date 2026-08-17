@@ -1,33 +1,34 @@
 package com.aiplatform.backendjava.controller;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.aiplatform.backendjava.service.AiService;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
 import java.util.Map;
 
+/**
+ * AI 接口层：只负责接收 HTTP 请求并转发给 service 层。
+ */
 @RestController
 public class AiController {
 
-    @Value("${ai.python-url}")
-    private String pythonUrl;
+    private final AiService aiService;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    public AiController(AiService aiService) {
+        this.aiService = aiService;
+    }
 
     @GetMapping("/ai/hello")
     public String hello() {
-        return restTemplate.getForObject(pythonUrl + "/hello", String.class);
+        return aiService.hello();
     }
 
     @GetMapping("/ai/ask")
     public String ask(@RequestParam(defaultValue = "用一句话介绍你自己") String question) {
-        return restTemplate.getForObject(
-                pythonUrl + "/ask?question=" + question, String.class);
+        return aiService.ask(question);
     }
 
     @PostMapping("/ai/chat")
-    public String chat(@RequestBody List<Map<String, String>> messages) {
-        return restTemplate.postForObject(pythonUrl + "/chat", messages, String.class);
+    public String chat(@RequestBody Map<String, Object> body) {
+        return aiService.chat(body);
     }
 }
