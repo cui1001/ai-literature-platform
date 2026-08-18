@@ -1,6 +1,7 @@
 package com.aiplatform.backendjava.controller;
 
 import com.aiplatform.backendjava.service.AiService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -8,14 +9,11 @@ import java.util.Map;
 /**
  * AI 接口层：只负责接收 HTTP 请求并转发给 service 层。
  */
+@RequiredArgsConstructor
 @RestController
 public class AiController {
 
     private final AiService aiService;
-
-    public AiController(AiService aiService) {
-        this.aiService = aiService;
-    }
 
     @GetMapping("/ai/hello")
     public String hello() {

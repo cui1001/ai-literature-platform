@@ -1,18 +1,25 @@
 """RAG 编排服务：检索 + 生成的核心逻辑。"""
+import logging
 import math
 from app.services import embedding_service
 from app.services import llm_service
 from app import config
+
+logger = logging.getLogger(__name__)
 
 # 知识库（内存版，后续会换成向量数据库）
 knowledge_base = []
 
 def add_documents(texts: list[str]) -> int:
     """把资料段落存进知识库。"""
-    for text in texts:
-        vector = embedding_service.get_embedding(text)
-        knowledge_base.append({"text": text, "vector": vector})
-    return len(knowledge_base)
+    try:
+        for text in texts:
+            vector = embedding_service.get_embedding(text)
+            knowledge_base.append({"text": text, "vector": vector})
+        return len(knowledge_base)
+    except Exception as e:
+        logger.error("添加知识失败: %s", e)
+        raise
 
 def _cosine_similarity(vec_a: list[float], vec_b: list[float]) -> float:
     """计算两个向量的余弦相似度。"""
