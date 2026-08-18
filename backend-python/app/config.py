@@ -17,3 +17,6 @@ EMBED_MODEL = os.getenv("EMBED_MODEL", "BAAI/bge-m3")
 
 # ===== RAG 参数 =====
 TOP_K = int(os.getenv("TOP_K", "2"))   # 检索返回几段
+
+# ===== Chroma 向量库 =====
+CHROMA_PATH = os.getenv("CHROMA_PATH", "./chroma_data")
