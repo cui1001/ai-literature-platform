@@ -7,7 +7,7 @@ from app.exceptions import ServiceError
 logger = logging.getLogger(__name__)
 
 async def service_error_handler(request: Request, exc: ServiceError):
-    """处理业务异常：返回 500 + 友好错误信息。"""
+    """处理业务异常：返回 502 + 友好错误信息。"""
     logger.error("请求 %s %s 失败: %s", request.method, request.url.path, exc.message)
     return JSONResponse(
         status_code=502,
