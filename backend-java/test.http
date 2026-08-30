@@ -48,3 +48,15 @@ POST http://127.0.0.1:8081/ai/chat
 Content-Type: application/json
 
 {"messages": [{"role": "user", "content": "你好"}]}
+
+### 添加知识
+POST http://127.0.0.1:8081/ai/knowledge/add
+Content-Type: application/json
+
+{"texts": ["考研复试一般包括专业课笔试、综合面试和英语口语三个环节。", "RAG是检索增强生成技术。"]}
+
+### RAG问答
+POST http://127.0.0.1:8081/ai/rag
+Content-Type: application/json
+
+{"question": "考研复试包括哪些环节？"}

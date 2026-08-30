@@ -29,4 +29,14 @@ public class AiController {
     public String chat(@RequestBody Map<String, Object> body) {
         return aiService.chat(body);
     }
+
+    @PostMapping("/ai/rag")
+    public String rag(@RequestBody Map<String, Object> body) {
+        return aiService.rag(body);
+    }
+
+    @PostMapping("/ai/knowledge/add")
+    public String addKnowledge(@RequestBody Map<String, Object> body) {
+        return aiService.addKnowledge(body);
+    }
 }

@@ -12,4 +12,14 @@ public interface AiService {
     String ask(String question);
 
     String chat(Map<String, Object> body);
+
+    /**
+     * RAG 问答：转发到 Python /rag。
+     */
+    String rag(Map<String, Object> body);
+
+    /**
+     * 添加知识：转发到 Python /knowledge/add。
+     */
+    String addKnowledge(Map<String, Object> body);
 }

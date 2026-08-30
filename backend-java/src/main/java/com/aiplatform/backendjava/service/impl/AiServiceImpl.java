@@ -54,4 +54,24 @@ public class AiServiceImpl implements AiService {
             throw new BusinessException("AI 服务调用失败，请稍后重试");
         }
     }
+
+    @Override
+    public String rag(Map<String, Object> body) {
+        try {
+            return restTemplate.postForObject(pythonUrl + "/rag", body, String.class);
+        } catch (RestClientException e) {
+            log.error("调用 Python /rag 失败: {}", e.getMessage());
+            throw new BusinessException("AI 服务调用失败，请稍后重试");
+        }
+    }
+
+    @Override
+    public String addKnowledge(Map<String, Object> body) {
+        try {
+            return restTemplate.postForObject(pythonUrl + "/knowledge/add", body, String.class);
+        } catch (RestClientException e) {
+            log.error("调用 Python /knowledge/add 失败: {}", e.getMessage());
+            throw new BusinessException("AI 服务调用失败，请稍后重试");
+        }
+    }
 }
