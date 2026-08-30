@@ -20,8 +20,8 @@ def answer(question: str) -> str:
     # 1. 问题转向量
     question_vector = embedding_service.get_embedding(question)
 
-    # 2. 从 Chroma 检索最相关的 TOP_K 段
-    top_texts = vector_store.search(question_vector, config.TOP_K)
+    # 2. 混合检索（向量 + 关键词）取 TOP_K 段
+    top_texts = vector_store.search(question, question_vector, config.TOP_K)
 
     if not top_texts:
         return "知识库为空，请先添加资料"

@@ -16,3 +16,4 @@ Thumbs.db
 
 # 向量数据库数据（本地数据，不入库）
 chroma_data/
+**/chroma_data/
