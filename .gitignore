@@ -5,12 +5,6 @@ __pycache__/
 venv/
 .env
 
-# === Java ===
-target/
-*.class
-.mvn/wrapper/maven-wrapper.jar
-!.mvn/wrapper/maven-wrapper.properties
-
 # === IDE ===
 .idea/
 *.iml

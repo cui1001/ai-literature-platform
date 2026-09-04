@@ -1,9 +1,0 @@
-spring:
-  application:
-    name: backend-java
-
-server:
-  port: 8081
-
-ai:
-  python-url: http://127.0.0.1:8000
