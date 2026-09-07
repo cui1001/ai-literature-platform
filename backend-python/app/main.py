@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from app.exceptions import ServiceError
 from app.handlers import global_error_handler, service_error_handler
 from app.logging_config import setup_logging
-from app.routers import chat, rag
+from app.routers import agent, chat, rag
 
 # 配置日志（集中管理，见 logging_config.py）
 setup_logging()
@@ -18,3 +18,4 @@ app.add_exception_handler(Exception, global_error_handler)
 # 注册路由
 app.include_router(chat.router)
 app.include_router(rag.router)
+app.include_router(agent.router)
