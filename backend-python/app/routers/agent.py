@@ -1,21 +1,16 @@
-"""Agent 相关接口：把单 Agent 和 Multi-Agent 能力暴露成 HTTP。"""
+"""Agent 相关接口：把单 Agent 和 Supervisor 能力暴露成 HTTP。"""
 from fastapi import APIRouter
 from pydantic import BaseModel
 
 from app.agent.agent import run_agent
-from app.agent.multi_agent import analyze_topic
+from app.agent.supervisor import run_supervisor
 
 router = APIRouter()
 
 
 class AgentAskRequest(BaseModel):
-    """单 Agent 问答请求。"""
+    """Agent 问答请求。"""
     question: str
-
-
-class AnalyzeTopicRequest(BaseModel):
-    """Multi-Agent 主题分析请求。"""
-    topic: str
 
 
 @router.post("/agent/ask")
@@ -25,8 +20,8 @@ def agent_ask(req: AgentAskRequest):
     return {"answer": answer}
 
 
-@router.post("/agent/analyze")
-def agent_analyze(req: AnalyzeTopicRequest):
-    """Multi-Agent 主题分析（检索→分析→总结）。"""
-    report = analyze_topic(req.topic)
-    return {"report": report}
+@router.post("/agent/supervisor")
+def agent_supervisor(req: AgentAskRequest):
+    """Supervisor 自主编排：主管 Agent 动态决定派哪个 Worker。"""
+    answer = run_supervisor(req.question)
+    return {"answer": answer}
