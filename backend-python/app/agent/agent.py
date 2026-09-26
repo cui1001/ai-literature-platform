@@ -7,6 +7,7 @@ import json
 from openai import OpenAI
 
 from app import config
+from app.agent.prompts import FORMAT_GUIDELINES
 from app.agent.tools import TOOLS, execute_tool
 
 _client = OpenAI(
@@ -28,7 +29,8 @@ def run_agent(question: str, max_rounds: int = 5) -> str:
         "如果你决定检索，检索到相关资料后必须严格基于资料回答，"
         "不得编造资料中不存在的事实；\n"
         "如果检索结果不包含用户问题的答案，"
-        "明确告知用户'资料中没有找到相关内容'，而不是虚构答案。"
+        "明确告知用户'资料中没有找到相关内容'，而不是虚构答案。\n"
+        + FORMAT_GUIDELINES
     )
     messages = [
         {"role": "system", "content": system_prompt},

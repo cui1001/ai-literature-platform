@@ -9,6 +9,7 @@ from openai import OpenAI
 
 from app import config
 from app.agent import workers
+from app.agent.prompts import FORMAT_GUIDELINES
 
 _client = OpenAI(
     api_key=config.DEEPSEEK_API_KEY,
@@ -91,7 +92,8 @@ SUPERVISOR_SYSTEM = (
     "3. 如果检索到了相关资料，基于资料回答；需要提炼或总结时，"
     "再派分析Worker或总结Worker。\n"
     "4. 每一步只调用一个工具，观察结果后再决定。\n"
-    "5. 只有当你认为任务已完成，才调用 finish。"
+    "5. 只有当你认为任务已完成，才调用 finish。\n"
+    + FORMAT_GUIDELINES
 )
 
 
