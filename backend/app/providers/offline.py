@@ -360,8 +360,7 @@ def task_caption(payload: dict[str, Any]) -> LLMResult:
         parts.append(f"Figure summarises {y_label} across {x_label}.")
     if stats.get("max_series") and stats.get("max_value") is not None:
         parts.append(
-            f"The highest value is observed for {stats['max_series']} at {stats['max_x']} "
-            f"({stats['max_value']:.2f} {y_label})."
+            f"The peak value is {stats['max_value']:.2f} ({stats['max_series']}) at {x_label} = {stats['max_x']}."
         )
     if stats.get("crossover"):
         parts.append(f"A crossing point appears near {x_label}={stats['crossover']}, indicating a trade-off between series.")

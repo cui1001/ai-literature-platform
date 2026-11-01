@@ -34,14 +34,31 @@ def table_to_markdown(header: list[str], rows: list[list[str]]) -> str:
     return "\n".join(lines)
 
 
+_TABLE_CAPTION_RE = re.compile(r"^\s*(?:table|表)\s*(\d{1,3})\s*[:：.]?\s*", re.I)
+
+
 def extract_tables(page: Any, page_no: int, blocks: Sequence[TextBlock]) -> list[TableData]:
+    """抽取表格。
+
+    两路来源，互为补充：
+
+    1. ``page.find_tables()`` —— 对真实论文中带边框/留白的表格有效；
+    2. ``_tables_from_captions`` —— 面向「用文字排版的表格」（无边框、列对齐），
+       先定位 ``Table N:`` 说明，再在说明下方的文本带中按列间距切分单元格。
+
+    合成语料与大量 arXiv 论文的表格都属于第 2 类，仅靠 find_tables 会全部漏掉。
+    """
     tables: list[TableData] = []
+    page_area = max(1.0, float(page.rect.width) * float(page.rect.height))
+    seen: list[BBox] = []
+
     try:
         finder = page.find_tables()
         raw_tables = list(getattr(finder, "tables", []) or [])
     except Exception as exc:  # pragma: no cover - 依赖具体 PDF
         log.debug("find_tables failed on page %s: %s", page_no, exc)
         raw_tables = []
+
     for index, table in enumerate(raw_tables, start=1):
         try:
             rows = table.extract() or []
@@ -50,19 +67,14 @@ def extract_tables(page: Any, page_no: int, blocks: Sequence[TextBlock]) -> list
         rows = [[_clean_cell(cell) for cell in row] for row in rows if row]
         if len(rows) < 2:
             continue
+        bbox = BBox.from_list(table.bbox)
+        if bbox.area > page_area * 0.55:  # 整页误检（find_tables 对纯文本页的典型误判）
+            continue
         width = max(len(row) for row in rows)
         rows = [row + [""] * (width - len(row)) for row in rows]
-        bbox = BBox.from_list(table.bbox)
         caption, caption_block = _find_caption(blocks, bbox, page_no, "table")
         number_match = _CAPTION_RE.match(caption) if caption else None
         number = number_match.group(2) if number_match else str(index)
-        if not caption:
-            # 尝试用表头上方紧邻的文本行做说明
-            above = _nearest_text(blocks, bbox, prefer="above", max_gap=28)
-            if above and len(above.text) < 200:
-                caption = above.text
-        header = rows[0]
-        body_rows = rows[1:]
         tables.append(
             TableData(
                 id=f"t{page_no}-{index}",
@@ -70,13 +82,150 @@ def extract_tables(page: Any, page_no: int, blocks: Sequence[TextBlock]) -> list
                 bbox=bbox,
                 number=number,
                 caption=caption,
-                header=header,
-                rows=body_rows,
-                markdown=table_to_markdown(header, body_rows),
+                header=rows[0],
+                rows=rows[1:],
+                markdown=table_to_markdown(rows[0], rows[1:]),
                 caption_block=caption_block,
+                source="lines",
             )
         )
+        seen.append(bbox)
+
+    for item in _tables_from_captions(page, page_no, blocks):
+        if any(item.bbox.intersects(box) and item.bbox.union(box).area < item.bbox.area * 1.15 for box in seen):
+            continue
+        tables.append(item)
+        seen.append(item.bbox)
     return tables
+
+
+def _tables_from_captions(page: Any, page_no: int, blocks: Sequence[TextBlock]) -> list[TableData]:
+    """按 ``Table N`` 说明 + 下方对齐文本行还原无边框表格。"""
+    captions = [
+        block
+        for block in blocks
+        if block.page == page_no and block.kind != "header" and _TABLE_CAPTION_RE.match(block.text.strip())
+    ]
+    if not captions:
+        return []
+    try:
+        words = page.get_text("words")
+    except Exception:  # pragma: no cover
+        return []
+    items = [
+        (BBox(float(w[0]), float(w[1]), float(w[2]), float(w[3])), str(w[4]))
+        for w in words
+        if len(w) >= 5 and str(w[4]).strip()
+    ]
+    results: list[TableData] = []
+    for caption in captions:
+        left, right = _column_bounds(caption, blocks, page)
+        lower = caption.bbox.y1 - 1.0
+        limit = min(float(page.rect.height) - 36.0, lower + 260.0)
+        for block in blocks:
+            if block.page != page_no or block.id == caption.id or block.kind != "heading":
+                continue
+            if block.bbox.y0 > lower + 2 and block.bbox.y0 < limit and block.bbox.x0 < right and block.bbox.x1 > left:
+                limit = min(limit, block.bbox.y0)
+        band = [
+            (bbox, text)
+            for bbox, text in items
+            if bbox.y0 >= lower and bbox.y1 <= limit + 2 and bbox.x0 >= left - 6 and bbox.x1 <= right + 6
+        ]
+        rows = _group_rows(band)
+        rows = _trim_table_rows(rows)
+        if len(rows) < 2 or max(len(row) for row in rows) < 2:
+            continue
+        header = rows[0]
+        body = [(row + [""] * len(header))[: len(header)] for row in rows[1:]]
+        bbox = BBox(min(r[0].x0 for r in band), lower, max(r[0].x1 for r in band), limit)
+        match = _TABLE_CAPTION_RE.match(caption.text.strip())
+        number = match.group(1) if match else ""
+        results.append(
+            TableData(
+                id=f"t{page_no}-c{number or len(results) + 1}",
+                page=page_no,
+                bbox=bbox,
+                number=number,
+                caption=caption.text.strip(),
+                header=header,
+                rows=body,
+                markdown=table_to_markdown(header, body),
+                caption_block=caption.id,
+                source="caption",
+            )
+        )
+    return results
+
+
+def _column_bounds(caption: TextBlock, blocks: Sequence[TextBlock], page: Any) -> tuple[float, float]:
+    """依据同栏文本块的横向范围推断表格可用宽度。"""
+    same = [
+        block
+        for block in blocks
+        if block.page == caption.page
+        and block.kind in {"paragraph", "caption", "heading", "reference", "table_text"}
+        and block.bbox.width > 60
+        and block.column == caption.column
+    ]
+    if not same:
+        margin = min(64.0, float(page.rect.width) * 0.12)
+        return margin, float(page.rect.width) - margin
+    left = min(block.bbox.x0 for block in same)
+    right = max(block.bbox.x1 for block in same)
+    return max(0.0, left - 2.0), min(float(page.rect.width), right + 2.0)
+
+
+def _group_rows(band: list[tuple[BBox, str]]) -> list[list[str]]:
+    """按纵坐标聚成行，再按横向间距切成单元格。"""
+    if not band:
+        return []
+    entries = sorted(band, key=lambda item: ((item[0].y0 + item[0].y1) / 2, item[0].x0))
+    rows: list[list[tuple[BBox, str]]] = []
+    for bbox, text in entries:
+        if rows:
+            last_center = sum((b.y0 + b.y1) / 2 for b, _text in rows[-1]) / len(rows[-1])
+            center = (bbox.y0 + bbox.y1) / 2
+            if abs(center - last_center) <= 3.0:
+                rows[-1].append((bbox, text))
+                continue
+        rows.append([(bbox, text)])
+    out: list[list[str]] = []
+    for row in rows:
+        row.sort(key=lambda item: item[0].x0)
+        cells: list[str] = []
+        buffer: list[str] = []
+        last_x1 = None
+        for bbox, text in row:
+            if last_x1 is not None and bbox.x0 - last_x1 > 7.0:
+                cells.append(" ".join(buffer).strip())
+                buffer = []
+            buffer.append(text)
+            last_x1 = bbox.x1
+        if buffer:
+            cells.append(" ".join(buffer).strip())
+        out.append([cell for cell in cells if cell])
+    return out
+
+
+def _trim_table_rows(rows: list[list[str]]) -> list[list[str]]:
+    """去掉表头前/表尾后的普通段落行。"""
+    start = 0
+    while start < len(rows) and len(rows[start]) < 2:
+        start += 1
+    if start >= len(rows):
+        return []
+    trimmed: list[list[str]] = []
+    empty_run = 0
+    for row in rows[start:]:
+        if len(row) < 2:
+            empty_run += 1
+            if empty_run >= 2:
+                break
+            continue
+        empty_run = 0
+        trimmed.append(row)
+    return trimmed
 
 
 def _clean_cell(cell: Any) -> str:

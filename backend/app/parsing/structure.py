@@ -13,6 +13,7 @@ from ..core.textutil import (
     CITATION_MARK_RE,
     DOI_RE,
     YEAR_RE,
+    extract_numbers,
     looks_like_heading,
     normalize_ws,
     slugify,
@@ -69,13 +70,31 @@ _SENT_END_RE = re.compile(r"[.。;；!?！？,，]$")
 
 
 def _heading_text_ok(text: str) -> bool:
-    """过滤「1. Chunking: …回…」这类被编号误判成标题的正文句子。"""
+    """过滤「1. Chunking: …回…」这类被编号误判成标题的正文句子。
+
+    同时排除「1 conv 11x11x3, 96 4 55x55x96」这类以数字开头的表格数据行：
+    真正的章节标题几乎不会在同一行堆叠三个以上数字。
+    """
     stripped = text.strip()
     if not stripped:
         return False
     if _SENT_END_RE.search(stripped) and len(stripped) > 32:
         return False
+    if len(extract_numbers(stripped)) >= 3:
+        return False
     return True
+
+
+def _heading_size_ok(raw_block: RawBlock, body_size: float) -> bool:
+    """标题字号不应明显小于正文。
+
+    表格数据行/表头常被字号规则误判成「标题」：AlexNet 的 ``Method Top-1 Top-5``
+    只有 8pt（正文 9.5pt），靠 bold 不能区分，必须用字号下限拦住。
+    """
+    size = float(raw_block.size or 0.0)
+    if size <= 0:
+        return True
+    return size >= body_size * 0.90
 
 
 def order_page_blocks(page: PageText) -> list[RawBlock]:
@@ -185,7 +204,8 @@ def classify_blocks(pages: Sequence[PageText], body_size: float) -> list[TextBlo
             if kind == "paragraph":
                 big = raw_block.size >= max(body_size * 1.06, body_size + 0.4)
                 short = len(text) <= 140 and _heading_text_ok(text)
-                if (heading_hint and short) or (big and short and raw_block.bold):
+                size_ok = _heading_size_ok(raw_block, body_size)
+                if (heading_hint and short and size_ok) or (big and short and raw_block.bold):
                     kind = "heading"
                     level = _heading_level(text, hint_number or "")
                     number = hint_number or ""
@@ -255,9 +275,15 @@ def extract_metadata(blocks: list[TextBlock], pages: Sequence[PageText], body_si
         meta["arxiv_id"] = arxiv.group(0)
         version = re.search(r"v(\d+)$", arxiv.group(0))
         meta["arxiv_version"] = f"v{version.group(1)}" if version else ""
-    year = YEAR_RE.search(joined)
-    if year:
-        meta["year"] = int(year.group(0))
+    # 年份优先从 arXiv 编号的 YYMM 推导（2005.14165 → 2020），避免把编号前缀误当出版年
+    if arxiv and re.match(r"^(\d{2})(\d{2})\.\d{4,5}", arxiv.group(0)):
+        yy, mm = int(arxiv.group(0)[:2]), int(arxiv.group(0)[2:4])
+        if 1 <= mm <= 12:
+            meta["year"] = 2000 + yy if yy < 90 else 1900 + yy
+    if not meta["year"]:
+        year = YEAR_RE.search(joined)
+        if year:
+            meta["year"] = int(year.group(0))
     doi = DOI_RE.search(" ".join(b.text for b in page1))
     if doi:
         meta["doi"] = doi.group(0)
