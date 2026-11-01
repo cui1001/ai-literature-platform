@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-01T13:22:22Z",
+  "generated_at": "2026-11-01T13:33:39Z",
   "modules": {
     "ingest_parse": {
       "ingested": 14,
@@ -321,7 +321,7 @@
           "paper_id": "736cd837318adc42",
           "duplicate_kind": "none",
           "index": 15,
-          "elapsed_ms": 20555.3
+          "elapsed_ms": 17897.3
         },
         {
           "key": "transformer_v1",
@@ -329,7 +329,7 @@
           "paper_id": "5d92863e30f96952",
           "duplicate_kind": "none",
           "index": 51,
-          "elapsed_ms": 1545.8
+          "elapsed_ms": 2425.7
         },
         {
           "key": "transformer_v7",
@@ -337,7 +337,7 @@
           "paper_id": "6a22909f7036c893",
           "duplicate_kind": "version",
           "index": 54,
-          "elapsed_ms": 2062.1
+          "elapsed_ms": 2546.7
         },
         {
           "key": "bert",
@@ -345,7 +345,7 @@
           "paper_id": "12448426a1216329",
           "duplicate_kind": "none",
           "index": 39,
-          "elapsed_ms": 1172.1
+          "elapsed_ms": 1603.4
         },
         {
           "key": "gpt1",
@@ -353,7 +353,7 @@
           "paper_id": "3d225922b11e6a1d",
           "duplicate_kind": "none",
           "index": 38,
-          "elapsed_ms": 997.0
+          "elapsed_ms": 1483.4
         },
         {
           "key": "gpt2",
@@ -361,7 +361,7 @@
           "paper_id": "b927beae26b553c9",
           "duplicate_kind": "none",
           "index": 30,
-          "elapsed_ms": 883.0
+          "elapsed_ms": 1337.6
         },
         {
           "key": "gpt3",
@@ -369,7 +369,7 @@
           "paper_id": "1392672e8e90e8b8",
           "duplicate_kind": "none",
           "index": 35,
-          "elapsed_ms": 912.8
+          "elapsed_ms": 1285.0
         },
         {
           "key": "resnet",
@@ -377,7 +377,7 @@
           "paper_id": "a245cfbec8a8a9ff",
           "duplicate_kind": "none",
           "index": 32,
-          "elapsed_ms": 995.7
+          "elapsed_ms": 1439.0
         },
         {
           "key": "alexnet",
@@ -385,7 +385,7 @@
           "paper_id": "fbd960070570c3a1",
           "duplicate_kind": "none",
           "index": 36,
-          "elapsed_ms": 1071.4
+          "elapsed_ms": 1514.5
         },
         {
           "key": "vit",
@@ -393,7 +393,7 @@
           "paper_id": "e26ef756d4dba4f2",
           "duplicate_kind": "none",
           "index": 35,
-          "elapsed_ms": 922.6
+          "elapsed_ms": 1273.8
         },
         {
           "key": "lora",
@@ -401,7 +401,7 @@
           "paper_id": "f79400f00f51eda7",
           "duplicate_kind": "none",
           "index": 33,
-          "elapsed_ms": 874.2
+          "elapsed_ms": 1197.5
         },
         {
           "key": "rag",
@@ -409,7 +409,7 @@
           "paper_id": "1f6fecfd9d16c6c2",
           "duplicate_kind": "none",
           "index": 30,
-          "elapsed_ms": 802.4
+          "elapsed_ms": 1079.4
         },
         {
           "key": "chain_of_thought",
@@ -417,7 +417,7 @@
           "paper_id": "ec284b625de82465",
           "duplicate_kind": "none",
           "index": 31,
-          "elapsed_ms": 868.5
+          "elapsed_ms": 1259.4
         },
         {
           "key": "survey",
@@ -425,7 +425,7 @@
           "paper_id": "cfadd787abd07555",
           "duplicate_kind": "none",
           "index": 52,
-          "elapsed_ms": 1505.7
+          "elapsed_ms": 2243.7
         }
       ],
       "metrics": {
@@ -2532,15 +2532,16 @@
       ],
       "coverage": 1.0,
       "verified": true,
-      "cells_anchored": 0,
+      "cells_anchored": 12,
+      "cells_total": 12,
       "expectations": {
-        "117M": false,
-        "1.5B": false,
-        "175B": false,
+        "117M": true,
+        "1.5B": true,
+        "175B": true,
         "1024": true,
         "2048": true
       },
-      "markdown": "| 维度 | Improving Language Understanding by Generative Pre-Training | Language Models are Unsupervised Multitask Learners | Language Models are Few-Shot Learners |\n| --- | --- | --- | --- |\n| 模型参数量 | Given an unsupervised corpus of tokens, we use a standard language modeling objective to maximize the likelihood given in Equation (1), where k is the size of the context window and P is modeled by a neural network with… | The largest model achieves 87.65 percent accuracy on the common nouns category, which is close to human performance and well above the previous best result. | GPT-3 is an autoregressive Transformer language model with 175 billion parameters, 96 layers, a hidden size of 12288, and 96 attention heads. |\n| 层数与结构 | Given an unsupervised corpus of tokens, we use a standard language modeling objective to maximize the likelihood given in Equation (1), where k is the size of the context window and P is modeled by a neural network with… | The model is a Transformer decoder with 48 layers, a hidden size of 1600, 24 attention heads, and 1.5 billion parameters. | GPT-3 is an autoregressive Transformer language model with 175 billion parameters, 96 layers, a hidden size of 12288, and 96 attention heads. |\n| 上下文窗口 | Given an unsupervised corpus of tokens, we use a standard language modeling objective to maximize the likelihood given in Equation (1), where k is the size of the context window and P is modeled by a neural network with… | We created a new dataset called WebText by scraping web pages that were linked to from Reddit posts with at least 3 karma, which serves as a heuristic for whether a page is interesting or useful. | alternating dense and locally banded sparse attention layers, and the context window is 2048 tokens. |\n| 训练硬件 | Training takes 30 days on a single machine with 8 GPUs. | The context window is 1024 tokens, and the tokenizer is a byte-level byte pair encoding with a vocabulary of 50,257 tokens. | The largest model has 96 layers, a hidden size of 12288, 96 attention heads, and 175 billion parameters, and was trained on 10000 NVIDIA V100 GPUs with a batch size of 3.2 million tokens. |\n\n- **模型参数量**：模型参数量：Improving Language Understanding by Generative Pre-Training 为「Given an unsupervised corpus of tokens, we use a standard l…」；Language Models are Unsupervised Multitask Learners 为「The largest model achieves 87.65 percent accuracy on the co…」；Language Models are Few-Shot Learners 为「GPT-3 is an autoregressive Transformer language model with…」。\n- **层数与结构**：层数与结构：Improving Language Understanding by Generative Pre-Training 为「Given an unsupervised corpus of tokens, we use a standard l…」；Language Models are Unsupervised Multitask Learners 为「The model is a Transformer decoder with 48 layers, a hidden…」；Language Models are Few-Shot Learners 为「GPT-3 is an autoregressive Transformer language model with…」。\n- **上下文窗口**：上下文窗口：Improving Language Understanding by Generative Pre-Training 为「Given an unsupervised corpus of tokens, we use a standard l…」；Language Models are Unsupervised Multitask Learners 为「We created a new dataset called WebText by scraping web pag…」；Language Models are Few-Shot Learners 为「alternating dense and locally banded sparse attention layer…」。\n- **训练硬件**：训练硬件：Improving Language Understanding by Generative Pre-Training 为「Training takes 30 days on a single machine with 8 GPUs.」；Language Models are Unsupervised Multitask Learners 为「The context window is 1024 tokens, and the tokenizer is a b…」；Language Models are Few-Shot Learners 为「The largest model has 96 layers, a hidden size of 12288, 96…」。"
+      "markdown": "| 维度 | Improving Language Understanding by Generative Pre-Training | Language Models are Unsupervised Multitask Learners | Language Models are Few-Shot Learners |\n| --- | --- | --- | --- |\n| 模型参数量 | Our model is a 12-layer Transformer decoder with 768 hidden units, 12 attention heads, a context window of 512 tokens, and 117 million parameters. | Accuracy increases monotonically with model size, from 83.1 percent for the 117 million parameter model to 87.65 percent for the 1.5 billion parameter model. | The largest model has 96 layers, a hidden size of 12288, 96 attention heads, and 175 billion parameters, and was trained on 10000 NVIDIA V100 GPUs with a batch size of 3.2 million tokens. |\n| 层数与结构 | Our model is a 12-layer Transformer decoder with 768 hidden units, 12 attention heads, a context window of 512 tokens, and 117 million parameters. | Table 1: Model sizes and zero-shot results. | GPT-3 is an autoregressive Transformer language model with 175 billion parameters, 96 layers, a hidden size of 12288, and 96 attention heads. |\n| 上下文窗口 | Our model is a 12-layer Transformer decoder with 768 hidden units, 12 attention heads, a context window of 512 tokens, and 117 million parameters. | The context window is 1024 tokens, and the tokenizer is a byte-level byte pair encoding with a vocabulary of 50,257 tokens. | alternating dense and locally banded sparse attention layers, and the context window is 2048 tokens. |\n| 训练硬件 | Training takes 30 days on a single machine with 8 GPUs. | The largest model is trained with a batch size of 512 sequences, a learning rate that is warmed up o | The largest model has 96 layers, a hidden size of 12288, 96 attention heads, and 175 billion parameters, and was trained on 10000 NVIDIA V100 GPUs with a batch size of 3.2 million tokens. |\n\n- **模型参数量**：模型参数量：Improving Language Understanding by Generative Pre-Training 为「Our model is a 12-layer Transformer decoder with 768 hidden…」；Language Models are Unsupervised Multitask Learners 为「Accuracy increases monotonically with model size, from 83.1…」；Language Models are Few-Shot Learners 为「The largest model has 96 layers, a hidden size of 12288, 96…」。\n- **层数与结构**：层数与结构：Improving Language Understanding by Generative Pre-Training 为「Our model is a 12-layer Transformer decoder with 768 hidden…」；Language Models are Unsupervised Multitask Learners 为「Table 1: Model sizes and zero-shot results.」；Language Models are Few-Shot Learners 为「GPT-3 is an autoregressive Transformer language model with…」。\n- **上下文窗口**：上下文窗口：Improving Language Understanding by Generative Pre-Training 为「Our model is a 12-layer Transformer decoder with 768 hidden…」；Language Models are Unsupervised Multitask Learners 为「The context window is 1024 tokens, and the tokenizer is a b…」；Language Models are Few-Shot Learners 为「alternating dense and locally banded sparse attention layer…」。\n- **训练硬件**：训练硬件：Improving Language Understanding by Generative Pre-Training 为「Training takes 30 days on a single machine with 8 GPUs.」；Language Models are Unsupervised Multitask Learners 为「The largest model is trained with a batch size of 512 seque…」；Language Models are Few-Shot Learners 为「The largest model has 96 layers, a hidden size of 12288, 96…」。"
     },
     "reader": {
       "paper_id": "6a22909f7036c893",
@@ -2554,10 +2555,10 @@
       "sample_anchors": []
     },
     "discovery": {
-      "search_items": 0,
-      "top_hit": null,
-      "top_has_reason": false,
-      "recommend_items": 0,
+      "search_items": 1,
+      "top_hit": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+      "top_has_reason": true,
+      "recommend_items": 1,
       "degraded": true,
       "sources": []
     },
@@ -2694,7 +2695,7 @@
     "foundation_count": 2,
     "outline_checks_passed": true,
     "chart_deterministic": true,
-    "elapsed_s": 43.8
+    "elapsed_s": 50.0
   },
-  "elapsed_s": 43.8
+  "elapsed_s": 50.0
 }
