@@ -1,0 +1,2701 @@
+{
+  "generated_at": "2026-11-01T13:33:39Z",
+  "modules": {
+    "ingest_parse": {
+      "ingested": 14,
+      "expected": 14,
+      "parse_rows": [
+        {
+          "key": "udl_scan",
+          "paper_id": "736cd837318adc42",
+          "title": "Understanding Deep Learning: Chapter 1 - lntroduction",
+          "year": 2023,
+          "layout": "single",
+          "ocr": true,
+          "ocr_engine": "winrt",
+          "pages": 5,
+          "sections": 9,
+          "tables": 0,
+          "figures": 0,
+          "equations": 1,
+          "references": 0,
+          "chars": 16342,
+          "quality": 0.66,
+          "fact_hits": {
+            "gpu": true,
+            "params": false,
+            "training_time": false
+          }
+        },
+        {
+          "key": "transformer_v1",
+          "paper_id": "5d92863e30f96952",
+          "title": "Attention Is All You Need",
+          "year": 2017,
+          "layout": "double",
+          "ocr": false,
+          "ocr_engine": "",
+          "pages": 6,
+          "sections": 25,
+          "tables": 2,
+          "figures": 1,
+          "equations": 8,
+          "references": 12,
+          "chars": 24802,
+          "quality": 1.0,
+          "fact_hits": {
+            "gpu": true,
+            "params": false,
+            "training_time": true
+          }
+        },
+        {
+          "key": "transformer_v7",
+          "paper_id": "6a22909f7036c893",
+          "title": "Attention Is All You Need",
+          "year": 2017,
+          "layout": "double",
+          "ocr": false,
+          "ocr_engine": "",
+          "pages": 6,
+          "sections": 26,
+          "tables": 2,
+          "figures": 1,
+          "equations": 8,
+          "references": 12,
+          "chars": 27416,
+          "quality": 1.0,
+          "fact_hits": {
+            "gpu": true,
+            "params": false,
+            "training_time": true
+          }
+        },
+        {
+          "key": "bert",
+          "paper_id": "12448426a1216329",
+          "title": "BERT: Pre-training of Deep Bidirectional Transformers",
+          "year": 2018,
+          "layout": "double",
+          "ocr": false,
+          "ocr_engine": "",
+          "pages": 4,
+          "sections": 17,
+          "tables": 2,
+          "figures": 2,
+          "equations": 2,
+          "references": 12,
+          "chars": 15758,
+          "quality": 1.0,
+          "fact_hits": {
+            "gpu": true,
+            "params": false,
+            "training_time": true
+          }
+        },
+        {
+          "key": "gpt1",
+          "paper_id": "3d225922b11e6a1d",
+          "title": "Improving Language Understanding by Generative Pre-Training",
+          "year": 2018,
+          "layout": "single",
+          "ocr": false,
+          "ocr_engine": "",
+          "pages": 4,
+          "sections": 20,
+          "tables": 2,
+          "figures": 1,
+          "equations": 3,
+          "references": 12,
+          "chars": 13891,
+          "quality": 1.0,
+          "fact_hits": {
+            "gpu": true,
+            "params": false,
+            "training_time": true
+          }
+        },
+        {
+          "key": "gpt2",
+          "paper_id": "b927beae26b553c9",
+          "title": "Language Models are Unsupervised Multitask Learners",
+          "year": 2019,
+          "layout": "single",
+          "ocr": false,
+          "ocr_engine": "",
+          "pages": 4,
+          "sections": 17,
+          "tables": 1,
+          "figures": 1,
+          "equations": 1,
+          "references": 10,
+          "chars": 11339,
+          "quality": 1.0,
+          "fact_hits": {
+            "gpu": false,
+            "params": false,
+            "training_time": false
+          }
+        },
+        {
+          "key": "gpt3",
+          "paper_id": "1392672e8e90e8b8",
+          "title": "Language Models are Few-Shot Learners",
+          "year": 2020,
+          "layout": "double",
+          "ocr": false,
+          "ocr_engine": "",
+          "pages": 3,
+          "sections": 18,
+          "tables": 2,
+          "figures": 1,
+          "equations": 2,
+          "references": 10,
+          "chars": 11856,
+          "quality": 1.0,
+          "fact_hits": {
+            "gpu": true,
+            "params": false,
+            "training_time": true
+          }
+        },
+        {
+          "key": "resnet",
+          "paper_id": "a245cfbec8a8a9ff",
+          "title": "Deep Residual Learning for Image Recognition",
+          "year": 2015,
+          "layout": "double",
+          "ocr": false,
+          "ocr_engine": "",
+          "pages": 4,
+          "sections": 16,
+          "tables": 3,
+          "figures": 2,
+          "equations": 2,
+          "references": 10,
+          "chars": 12462,
+          "quality": 1.0,
+          "fact_hits": {
+            "gpu": true,
+            "params": false,
+            "training_time": true
+          }
+        },
+        {
+          "key": "alexnet",
+          "paper_id": "fbd960070570c3a1",
+          "title": "ImageNet Classification with Deep Convolutional Neural",
+          "year": 2012,
+          "layout": "double",
+          "ocr": false,
+          "ocr_engine": "",
+          "pages": 4,
+          "sections": 19,
+          "tables": 3,
+          "figures": 1,
+          "equations": 2,
+          "references": 10,
+          "chars": 13226,
+          "quality": 1.0,
+          "fact_hits": {
+            "gpu": true,
+            "params": false,
+            "training_time": true
+          }
+        },
+        {
+          "key": "vit",
+          "paper_id": "e26ef756d4dba4f2",
+          "title": "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale",
+          "year": 2020,
+          "layout": "single",
+          "ocr": false,
+          "ocr_engine": "",
+          "pages": 4,
+          "sections": 17,
+          "tables": 2,
+          "figures": 2,
+          "equations": 2,
+          "references": 10,
+          "chars": 11320,
+          "quality": 1.0,
+          "fact_hits": {
+            "gpu": true,
+            "params": true,
+            "training_time": true
+          }
+        },
+        {
+          "key": "lora",
+          "paper_id": "f79400f00f51eda7",
+          "title": "LoRA: Low-Rank Adaptation of Large Language Models",
+          "year": 2021,
+          "layout": "double",
+          "ocr": false,
+          "ocr_engine": "",
+          "pages": 3,
+          "sections": 16,
+          "tables": 2,
+          "figures": 0,
+          "equations": 4,
+          "references": 10,
+          "chars": 11198,
+          "quality": 0.94,
+          "fact_hits": {
+            "gpu": true,
+            "params": true,
+            "training_time": false
+          }
+        },
+        {
+          "key": "rag",
+          "paper_id": "1f6fecfd9d16c6c2",
+          "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+          "year": 2020,
+          "layout": "single",
+          "ocr": false,
+          "ocr_engine": "",
+          "pages": 3,
+          "sections": 16,
+          "tables": 2,
+          "figures": 1,
+          "equations": 2,
+          "references": 10,
+          "chars": 9465,
+          "quality": 1.0,
+          "fact_hits": {
+            "gpu": true,
+            "params": false,
+            "training_time": false
+          }
+        },
+        {
+          "key": "chain_of_thought",
+          "paper_id": "ec284b625de82465",
+          "title": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+          "year": 2022,
+          "layout": "single",
+          "ocr": false,
+          "ocr_engine": "",
+          "pages": 4,
+          "sections": 18,
+          "tables": 2,
+          "figures": 1,
+          "equations": 1,
+          "references": 9,
+          "chars": 10455,
+          "quality": 1.0,
+          "fact_hits": {
+            "gpu": true,
+            "params": true,
+            "training_time": true
+          }
+        },
+        {
+          "key": "survey",
+          "paper_id": "cfadd787abd07555",
+          "title": "A Survey of Large Language Models: Progress, Challenges and Future Directions",
+          "year": 2024,
+          "layout": "double",
+          "ocr": false,
+          "ocr_engine": "",
+          "pages": 6,
+          "sections": 25,
+          "tables": 2,
+          "figures": 1,
+          "equations": 3,
+          "references": 18,
+          "chars": 22161,
+          "quality": 1.0,
+          "fact_hits": {
+            "gpu": true,
+            "params": true,
+            "training_time": false
+          }
+        }
+      ],
+      "ingest_results": [
+        {
+          "key": "udl_scan",
+          "status": "imported",
+          "paper_id": "736cd837318adc42",
+          "duplicate_kind": "none",
+          "index": 15,
+          "elapsed_ms": 17897.3
+        },
+        {
+          "key": "transformer_v1",
+          "status": "imported",
+          "paper_id": "5d92863e30f96952",
+          "duplicate_kind": "none",
+          "index": 51,
+          "elapsed_ms": 2425.7
+        },
+        {
+          "key": "transformer_v7",
+          "status": "replaced",
+          "paper_id": "6a22909f7036c893",
+          "duplicate_kind": "version",
+          "index": 54,
+          "elapsed_ms": 2546.7
+        },
+        {
+          "key": "bert",
+          "status": "imported",
+          "paper_id": "12448426a1216329",
+          "duplicate_kind": "none",
+          "index": 39,
+          "elapsed_ms": 1603.4
+        },
+        {
+          "key": "gpt1",
+          "status": "imported",
+          "paper_id": "3d225922b11e6a1d",
+          "duplicate_kind": "none",
+          "index": 38,
+          "elapsed_ms": 1483.4
+        },
+        {
+          "key": "gpt2",
+          "status": "imported",
+          "paper_id": "b927beae26b553c9",
+          "duplicate_kind": "none",
+          "index": 30,
+          "elapsed_ms": 1337.6
+        },
+        {
+          "key": "gpt3",
+          "status": "imported",
+          "paper_id": "1392672e8e90e8b8",
+          "duplicate_kind": "none",
+          "index": 35,
+          "elapsed_ms": 1285.0
+        },
+        {
+          "key": "resnet",
+          "status": "imported",
+          "paper_id": "a245cfbec8a8a9ff",
+          "duplicate_kind": "none",
+          "index": 32,
+          "elapsed_ms": 1439.0
+        },
+        {
+          "key": "alexnet",
+          "status": "imported",
+          "paper_id": "fbd960070570c3a1",
+          "duplicate_kind": "none",
+          "index": 36,
+          "elapsed_ms": 1514.5
+        },
+        {
+          "key": "vit",
+          "status": "imported",
+          "paper_id": "e26ef756d4dba4f2",
+          "duplicate_kind": "none",
+          "index": 35,
+          "elapsed_ms": 1273.8
+        },
+        {
+          "key": "lora",
+          "status": "imported",
+          "paper_id": "f79400f00f51eda7",
+          "duplicate_kind": "none",
+          "index": 33,
+          "elapsed_ms": 1197.5
+        },
+        {
+          "key": "rag",
+          "status": "imported",
+          "paper_id": "1f6fecfd9d16c6c2",
+          "duplicate_kind": "none",
+          "index": 30,
+          "elapsed_ms": 1079.4
+        },
+        {
+          "key": "chain_of_thought",
+          "status": "imported",
+          "paper_id": "ec284b625de82465",
+          "duplicate_kind": "none",
+          "index": 31,
+          "elapsed_ms": 1259.4
+        },
+        {
+          "key": "survey",
+          "status": "imported",
+          "paper_id": "cfadd787abd07555",
+          "duplicate_kind": "none",
+          "index": 52,
+          "elapsed_ms": 2243.7
+        }
+      ],
+      "metrics": {
+        "parse_success_rate": 1.0,
+        "avg_quality": 0.971,
+        "papers_with_tables": 13,
+        "papers_with_references": 13,
+        "ocr_engine": "winrt",
+        "ocr_chars": 16342,
+        "ocr_quality": 0.66,
+        "fact_coverage": 0.619
+      }
+    },
+    "dedupe": {
+      "kind": "version",
+      "action": "replace-existing",
+      "similarity": 1.0,
+      "reason": "arXiv 编号同为 1706.03762，检测到版本关系：库中已有 v1，本次为 v7。建议保留本次上传的最新版本。",
+      "text_similarity": 0.991,
+      "sections_added": [
+        "B Appendix: Additional Ablations"
+      ],
+      "verdict": "identical",
+      "chars_v1": null,
+      "chars_v7": null
+    },
+    "qa": {
+      "total": 115,
+      "matched": 104,
+      "accuracy": 0.904,
+      "answer_rate": 1.0,
+      "verified_rate": 0.626,
+      "anchor_rate": 1.0,
+      "by_kind": {
+        "author": {
+          "total": 14,
+          "matched": 14
+        },
+        "affiliation": {
+          "total": 14,
+          "matched": 14
+        },
+        "hyperparameter": {
+          "total": 29,
+          "matched": 29
+        },
+        "hardware": {
+          "total": 10,
+          "matched": 10
+        },
+        "metric": {
+          "total": 18,
+          "matched": 18
+        },
+        "comparison": {
+          "total": 14,
+          "matched": 11
+        },
+        "citation": {
+          "total": 13,
+          "matched": 7
+        },
+        "future_work": {
+          "total": 3,
+          "matched": 1
+        }
+      },
+      "rows": [
+        {
+          "key": "transformer_v1",
+          "question": "Who are the authors of the Transformer paper?",
+          "gold": "Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, Illia Polosukhin",
+          "kind": "author",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            5,
+            6
+          ]
+        },
+        {
+          "key": "transformer_v1",
+          "question": "Which institutions are the authors affiliated with?",
+          "gold": "Google Brain, Google Research, and University of Toronto",
+          "kind": "affiliation",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "key": "transformer_v1",
+          "question": "What warmup step count is used by the learning rate schedule?",
+          "gold": "4000",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            4,
+            6
+          ]
+        },
+        {
+          "key": "transformer_v1",
+          "question": "What beta_2 value is used for the Adam optimizer?",
+          "gold": "0.98",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            4,
+            6
+          ]
+        },
+        {
+          "key": "transformer_v1",
+          "question": "How many NVIDIA P100 GPUs were used to train the model?",
+          "gold": "8",
+          "kind": "hardware",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 3,
+          "anchored": 3,
+          "pages": [
+            1,
+            4
+          ]
+        },
+        {
+          "key": "transformer_v1",
+          "question": "What BLEU score does the big Transformer achieve on newstest2014 English-German?",
+          "gold": "28.4",
+          "kind": "metric",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            4,
+            5
+          ]
+        },
+        {
+          "key": "transformer_v1",
+          "question": "What BLEU score is reported for the WMT 2014 English-French task?",
+          "gold": "41.8",
+          "kind": "metric",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            4,
+            5
+          ]
+        },
+        {
+          "key": "transformer_v1",
+          "question": "How long does training the big model take compared with the base model?",
+          "gold": "12 hours for the base model and 3.5 days for the big model",
+          "kind": "comparison",
+          "hit": 0.333,
+          "matched": false,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            4,
+            5
+          ]
+        },
+        {
+          "key": "transformer_v1",
+          "question": "Which optimizer does the paper use, and which reference is cited for it?",
+          "gold": "Adam, cited as Kingma and Ba (2015)",
+          "kind": "citation",
+          "hit": 0.2,
+          "matched": false,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 5,
+          "anchored": 5,
+          "pages": [
+            4,
+            5,
+            6
+          ]
+        },
+        {
+          "key": "transformer_v7",
+          "question": "Who are the authors of the Transformer paper?",
+          "gold": "Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N. Gomez, Lukasz Kaiser, Illia Polosukhin",
+          "kind": "author",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            5,
+            6
+          ]
+        },
+        {
+          "key": "transformer_v7",
+          "question": "Which institutions are the authors affiliated with?",
+          "gold": "Google Brain, Google Research, and University of Toronto",
+          "kind": "affiliation",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "key": "transformer_v7",
+          "question": "What warmup step count is used by the learning rate schedule?",
+          "gold": "4000",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            4,
+            5,
+            6
+          ]
+        },
+        {
+          "key": "transformer_v7",
+          "question": "What beta_2 value is used for the Adam optimizer?",
+          "gold": "0.98",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            4,
+            5,
+            6
+          ]
+        },
+        {
+          "key": "transformer_v7",
+          "question": "How many NVIDIA P100 GPUs were used to train the model?",
+          "gold": "8",
+          "kind": "hardware",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 3,
+          "anchored": 3,
+          "pages": [
+            1,
+            4
+          ]
+        },
+        {
+          "key": "transformer_v7",
+          "question": "What BLEU score does the big Transformer achieve on newstest2014 English-German?",
+          "gold": "28.4",
+          "kind": "metric",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 3,
+          "anchored": 3,
+          "pages": [
+            1,
+            5,
+            6
+          ]
+        },
+        {
+          "key": "transformer_v7",
+          "question": "What BLEU score is reported for the WMT 2014 English-French task?",
+          "gold": "41.8",
+          "kind": "metric",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            5,
+            6
+          ]
+        },
+        {
+          "key": "transformer_v7",
+          "question": "How long does training the big model take compared with the base model?",
+          "gold": "12 hours for the base model and 3.5 days for the big model",
+          "kind": "comparison",
+          "hit": 0.333,
+          "matched": false,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            4,
+            5
+          ]
+        },
+        {
+          "key": "transformer_v7",
+          "question": "Which optimizer does the paper use, and which reference is cited for it?",
+          "gold": "Adam, cited as Kingma and Ba (2015)",
+          "kind": "citation",
+          "hit": 0.2,
+          "matched": false,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 5,
+          "anchored": 5,
+          "pages": [
+            4,
+            5,
+            6
+          ]
+        },
+        {
+          "key": "bert",
+          "question": "Who are the authors of the BERT paper?",
+          "gold": "Jacob Devlin, Ming-Wei Chang, Kenton Lee, Kristina Toutanova",
+          "kind": "author",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "key": "bert",
+          "question": "Which organization are the authors affiliated with?",
+          "gold": "Google AI Language",
+          "kind": "affiliation",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "key": "bert",
+          "question": "What fraction of WordPiece tokens is masked during pre-training?",
+          "gold": "15 percent",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "key": "bert",
+          "question": "How many layers and attention heads does BERT-base have?",
+          "gold": "12 layers and 12 attention heads",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "key": "bert",
+          "question": "What hidden size does BERT-large use?",
+          "gold": "1024",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "key": "bert",
+          "question": "How many TPU chips were used to pre-train BERT?",
+          "gold": "64 TPU chips",
+          "kind": "hardware",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 5,
+          "anchored": 5,
+          "pages": [
+            1,
+            3,
+            4
+          ]
+        },
+        {
+          "key": "bert",
+          "question": "How many parameters do BERT-base and BERT-large have?",
+          "gold": "110 million and 340 million",
+          "kind": "comparison",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 5,
+          "anchored": 5,
+          "pages": [
+            2,
+            3
+          ]
+        },
+        {
+          "key": "bert",
+          "question": "What SQuAD v1.1 test F1 does BERT-large achieve?",
+          "gold": "93.2",
+          "kind": "metric",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 5,
+          "anchored": 5,
+          "pages": [
+            1,
+            3
+          ]
+        },
+        {
+          "key": "bert",
+          "question": "Where is layer normalization applied in each BERT Transformer block?",
+          "gold": "after the residual connection",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 6,
+          "anchored": 6,
+          "pages": [
+            1,
+            2,
+            4
+          ]
+        },
+        {
+          "key": "bert",
+          "question": "Which paper introduced the Transformer architecture that BERT builds on?",
+          "gold": "Vaswani et al. (2017), Attention Is All You Need",
+          "kind": "citation",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 5,
+          "anchored": 5,
+          "pages": [
+            1,
+            2,
+            4
+          ]
+        },
+        {
+          "key": "gpt1",
+          "question": "Who are the authors of the GPT-1 paper?",
+          "gold": "Alec Radford, Karthik Narasimhan, Tim Salimans, Ilya Sutskever",
+          "kind": "author",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1
+          ]
+        },
+        {
+          "key": "gpt1",
+          "question": "Which organization are the authors affiliated with?",
+          "gold": "OpenAI",
+          "kind": "affiliation",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "key": "gpt1",
+          "question": "How many layers does the GPT-1 model have?",
+          "gold": "12",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            4
+          ]
+        },
+        {
+          "key": "gpt1",
+          "question": "How many GPUs were used to train GPT-1, and for how long?",
+          "gold": "8 GPUs for 30 days",
+          "kind": "hardware",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 5,
+          "anchored": 5,
+          "pages": [
+            1,
+            2,
+            4
+          ]
+        },
+        {
+          "key": "gpt1",
+          "question": "How many books are in the BooksCorpus used for pre-training?",
+          "gold": "over 7000 books",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 3,
+          "anchored": 3,
+          "pages": [
+            1,
+            2,
+            4
+          ]
+        },
+        {
+          "key": "gpt1",
+          "question": "How many parameters does GPT-1 have?",
+          "gold": "117 million",
+          "kind": "comparison",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 5,
+          "anchored": 5,
+          "pages": [
+            1,
+            2,
+            4
+          ]
+        },
+        {
+          "key": "gpt1",
+          "question": "What Story Cloze Test accuracy does GPT-1 achieve?",
+          "gold": "86.5",
+          "kind": "metric",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            3
+          ]
+        },
+        {
+          "key": "gpt1",
+          "question": "Which Transformer paper does GPT-1 build its architecture on?",
+          "gold": "Vaswani et al. (2017), Attention Is All You Need",
+          "kind": "citation",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            4
+          ]
+        },
+        {
+          "key": "gpt2",
+          "question": "Who are the authors of the GPT-2 paper?",
+          "gold": "Alec Radford, Jeffrey Wu, Rewon Child, David Luan, Dario Amodei, Ilya Sutskever",
+          "kind": "author",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "key": "gpt2",
+          "question": "Which organization produced GPT-2?",
+          "gold": "OpenAI",
+          "kind": "affiliation",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1
+          ]
+        },
+        {
+          "key": "gpt2",
+          "question": "How many layers and attention heads does GPT-2 have?",
+          "gold": "48 layers and 24 attention heads",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            4
+          ]
+        },
+        {
+          "key": "gpt2",
+          "question": "What is the context window size of GPT-2?",
+          "gold": "1024 tokens",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            4
+          ]
+        },
+        {
+          "key": "gpt2",
+          "question": "How large is the WebText dataset used to train GPT-2?",
+          "gold": "8 million documents totaling 40GB of text",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "key": "gpt2",
+          "question": "How many parameters does the largest GPT-2 model have?",
+          "gold": "1.5 billion",
+          "kind": "comparison",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 5,
+          "anchored": 5,
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "key": "gpt2",
+          "question": "What is GPT-2's zero-shot accuracy on LAMBADA?",
+          "gold": "63.24",
+          "kind": "metric",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "key": "gpt2",
+          "question": "Which Transformer architecture does GPT-2 use?",
+          "gold": "the Transformer decoder, following Vaswani et al. (2017)",
+          "kind": "citation",
+          "hit": 0.857,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.64,
+          "citations": 5,
+          "anchored": 5,
+          "pages": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "key": "gpt3",
+          "question": "Who are the authors of the GPT-3 paper?",
+          "gold": "Tom B. Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, Sandhini Agarwal, Dario Amodei",
+          "kind": "author",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "key": "gpt3",
+          "question": "Which organization developed GPT-3?",
+          "gold": "OpenAI",
+          "kind": "affiliation",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "key": "gpt3",
+          "question": "How many parameters does GPT-3 have?",
+          "gold": "175 billion",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1
+          ]
+        },
+        {
+          "key": "gpt3",
+          "question": "How many layers and attention heads does GPT-3 use?",
+          "gold": "96 layers and 96 attention heads",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 6,
+          "anchored": 6,
+          "pages": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "key": "gpt3",
+          "question": "What is the context window size of GPT-3?",
+          "gold": "2048 tokens",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "key": "gpt3",
+          "question": "How many NVIDIA V100 GPUs were used to train GPT-3?",
+          "gold": "10000",
+          "kind": "hardware",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "key": "gpt3",
+          "question": "Does GPT-3 require task-specific fine-tuning?",
+          "gold": "No; all tasks are performed in the few-shot setting without gradient updates",
+          "kind": "comparison",
+          "hit": 0.6,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "key": "gpt3",
+          "question": "What few-shot accuracy does GPT-3 achieve on TriviaQA?",
+          "gold": "71.2",
+          "kind": "metric",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 5,
+          "anchored": 5,
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "key": "gpt3",
+          "question": "Which Transformer architecture does GPT-3 build on?",
+          "gold": "the Transformer, following Vaswani et al. (2017)",
+          "kind": "citation",
+          "hit": 0.5,
+          "matched": false,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 5,
+          "anchored": 5,
+          "pages": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "key": "resnet",
+          "question": "Who are the authors of the ResNet paper?",
+          "gold": "Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun",
+          "kind": "author",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            4
+          ]
+        },
+        {
+          "key": "resnet",
+          "question": "Which institution are the ResNet authors affiliated with?",
+          "gold": "Microsoft Research",
+          "kind": "affiliation",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "key": "resnet",
+          "question": "How many layers does the deepest ImageNet residual network in the paper have?",
+          "gold": "152",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "key": "resnet",
+          "question": "What top-5 error does the ResNet ensemble achieve on ImageNet?",
+          "gold": "3.57",
+          "kind": "metric",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "key": "resnet",
+          "question": "How many GPUs are used to train the ImageNet models?",
+          "gold": "8",
+          "kind": "hardware",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 6,
+          "anchored": 6,
+          "pages": [
+            1,
+            2,
+            4
+          ]
+        },
+        {
+          "key": "resnet",
+          "question": "What is the depth of the residual baseline used to demonstrate the degradation problem?",
+          "gold": "34 layers",
+          "kind": "comparison",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 5,
+          "anchored": 5,
+          "pages": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "key": "resnet",
+          "question": "Which earlier deep convolutional network is cited as a motivation for depth?",
+          "gold": "AlexNet (Krizhevsky et al., 2012)",
+          "kind": "citation",
+          "hit": 0.4,
+          "matched": false,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 5,
+          "anchored": 5,
+          "pages": [
+            1,
+            3,
+            4
+          ]
+        },
+        {
+          "key": "resnet",
+          "question": "What batch size is used for ImageNet training?",
+          "gold": "256",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            2,
+            4
+          ]
+        },
+        {
+          "key": "alexnet",
+          "question": "Who are the authors of the AlexNet paper?",
+          "gold": "Alex Krizhevsky, Ilya Sutskever, Geoffrey E. Hinton",
+          "kind": "author",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            3,
+            4
+          ]
+        },
+        {
+          "key": "alexnet",
+          "question": "Which university are the authors affiliated with?",
+          "gold": "University of Toronto",
+          "kind": "affiliation",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            4
+          ]
+        },
+        {
+          "key": "alexnet",
+          "question": "What GPUs were used to train AlexNet?",
+          "gold": "two GTX 580 3GB GPUs",
+          "kind": "hardware",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.64,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "key": "alexnet",
+          "question": "How long did training AlexNet take?",
+          "gold": "five to six days",
+          "kind": "hardware",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            4
+          ]
+        },
+        {
+          "key": "alexnet",
+          "question": "What top-5 error does AlexNet achieve on ImageNet?",
+          "gold": "15.3",
+          "kind": "metric",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            3
+          ]
+        },
+        {
+          "key": "alexnet",
+          "question": "What dropout rate is used in the fully-connected layers?",
+          "gold": "0.5",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            3,
+            4
+          ]
+        },
+        {
+          "key": "alexnet",
+          "question": "Which nonlinearity is used instead of tanh?",
+          "gold": "ReLU (max(0, x))",
+          "kind": "comparison",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            4
+          ]
+        },
+        {
+          "key": "alexnet",
+          "question": "How many parameters does the network have?",
+          "gold": "60 million",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 6,
+          "anchored": 6,
+          "pages": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "key": "vit",
+          "question": "Who are the authors of the ViT paper?",
+          "gold": "Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn, Xiaohua Zhai, Thomas Unterthiner, Mostafa Dehghani, Matthias Minderer, Georg Heigold, Sylvain Gelly, Jakob Uszkoreit, Neil Houlsby",
+          "kind": "author",
+          "hit": 0.958,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.64,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "key": "vit",
+          "question": "Which organization produced ViT?",
+          "gold": "Google Research, Brain Team",
+          "kind": "affiliation",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "key": "vit",
+          "question": "What patch size is used by the Vision Transformer?",
+          "gold": "16x16",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            3
+          ]
+        },
+        {
+          "key": "vit",
+          "question": "How many parameters does ViT-H/14 have?",
+          "gold": "632 million",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 5,
+          "anchored": 5,
+          "pages": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "key": "vit",
+          "question": "How many TPUv3 cores were used to train ViT-H/14?",
+          "gold": "32",
+          "kind": "hardware",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "key": "vit",
+          "question": "What top-1 accuracy does ViT-H/14 achieve on ImageNet?",
+          "gold": "88.55",
+          "kind": "metric",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "key": "vit",
+          "question": "How many patches are produced from a 224x224 image with 16x16 patches?",
+          "gold": "196",
+          "kind": "comparison",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 6,
+          "anchored": 6,
+          "pages": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "key": "vit",
+          "question": "Which architecture does ViT adapt to images?",
+          "gold": "the Transformer encoder of Vaswani et al. (2017)",
+          "kind": "citation",
+          "hit": 0.667,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 3,
+          "anchored": 3,
+          "pages": [
+            1,
+            3,
+            4
+          ]
+        },
+        {
+          "key": "lora",
+          "question": "Who are the authors of the LoRA paper?",
+          "gold": "Edward J. Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Lu Wang, Weizhu Chen",
+          "kind": "author",
+          "hit": 0.941,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "key": "lora",
+          "question": "Which organization are the LoRA authors affiliated with?",
+          "gold": "Microsoft",
+          "kind": "affiliation",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "key": "lora",
+          "question": "How many trainable parameters does LoRA use on GPT-3 175B?",
+          "gold": "4.7 million",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 3,
+          "anchored": 3,
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "key": "lora",
+          "question": "What rank r and scaling alpha are used in the main GPT-3 experiments?",
+          "gold": "r = 8 and alpha = 16",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "key": "lora",
+          "question": "By how much does LoRA reduce GPU memory compared with full fine-tuning on GPT-3 175B?",
+          "gold": "3 times",
+          "kind": "metric",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "key": "lora",
+          "question": "Does LoRA add inference latency?",
+          "gold": "No, because the learned update can be merged into the pre-trained weights",
+          "kind": "comparison",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            3
+          ]
+        },
+        {
+          "key": "lora",
+          "question": "Which large model is used as the main testbed for LoRA?",
+          "gold": "GPT-3 175B, introduced by Brown et al. (2020)",
+          "kind": "citation",
+          "hit": 0.125,
+          "matched": false,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 5,
+          "anchored": 5,
+          "pages": [
+            1,
+            3
+          ]
+        },
+        {
+          "key": "lora",
+          "question": "Which weight matrices are adapted in the Transformer?",
+          "gold": "W_q and W_v in the self-attention module",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "key": "rag",
+          "question": "Who are the authors of the RAG paper?",
+          "gold": "Patrick Lewis, Ethan Perez, Aleksandra Piktus, Fabio Petroni, Vladimir Karpukhin, Naman Goyal, Heinrich Kuttler, Mike Lewis, Wen-tau Yih, Tim Rocktaschel, Sebastian Riedel, Douwe Kiela",
+          "kind": "author",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "key": "rag",
+          "question": "Which organizations are the RAG authors affiliated with?",
+          "gold": "Facebook AI Research, University College London, and New York University",
+          "kind": "affiliation",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "key": "rag",
+          "question": "What exact match does RAG achieve on Natural Questions?",
+          "gold": "44.5",
+          "kind": "metric",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "key": "rag",
+          "question": "What type of generator does RAG use?",
+          "gold": "a FiD-style sequence-to-sequence generator",
+          "kind": "comparison",
+          "hit": 0.75,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "key": "rag",
+          "question": "What retriever does RAG use?",
+          "gold": "a DPR dual-encoder retriever",
+          "kind": "citation",
+          "hit": 0.75,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "key": "rag",
+          "question": "How many documents are retrieved in the main experiments?",
+          "gold": "5",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 6,
+          "anchored": 6,
+          "pages": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "key": "rag",
+          "question": "Which encoder architecture does the retriever build on?",
+          "gold": "BERT, cited as Devlin et al. (2019)",
+          "kind": "citation",
+          "hit": 0.667,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 5,
+          "anchored": 5,
+          "pages": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "key": "rag",
+          "question": "What future direction do the authors suggest for RAG?",
+          "gold": "Extending retrieval-augmented generation to multimodal memory and updating the index without retraining the generator",
+          "kind": "future_work",
+          "hit": 0.273,
+          "matched": false,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "key": "chain_of_thought",
+          "question": "Who are the authors of the chain-of-thought paper?",
+          "gold": "Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Brian Ichter, Fei Xia, Ed Chi, Quoc Le, Denny Zhou",
+          "kind": "author",
+          "hit": 0.944,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "key": "chain_of_thought",
+          "question": "Which organization are the authors affiliated with?",
+          "gold": "Google Research and Google Brain Team",
+          "kind": "affiliation",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.64,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            4
+          ]
+        },
+        {
+          "key": "chain_of_thought",
+          "question": "What solve rate does chain-of-thought prompting achieve on GSM8K with PaLM 540B?",
+          "gold": "56.9 percent",
+          "kind": "metric",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "key": "chain_of_thought",
+          "question": "What solve rate does standard prompting achieve on GSM8K with PaLM 540B?",
+          "gold": "17.9 percent",
+          "kind": "metric",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "key": "chain_of_thought",
+          "question": "How many exemplars are used in each prompt?",
+          "gold": "8",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.64,
+          "citations": 5,
+          "anchored": 5,
+          "pages": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "key": "chain_of_thought",
+          "question": "How does chain-of-thought prompting compare with standard prompting as model scale changes?",
+          "gold": "The gains are small for models under about 100 billion parameters and large for models of 100 billion parameters or more",
+          "kind": "comparison",
+          "hit": 0.8,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "key": "chain_of_thought",
+          "question": "Which large language model paper introduced the few-shot prompting setting that this work builds on?",
+          "gold": "GPT-3, cited as Brown et al. (2020)",
+          "kind": "citation",
+          "hit": 0.571,
+          "matched": false,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 5,
+          "anchored": 5,
+          "pages": [
+            1,
+            3
+          ]
+        },
+        {
+          "key": "chain_of_thought",
+          "question": "What do the authors suggest as future work on reasoning traces?",
+          "gold": "Studying whether generated reasoning traces are faithful and using them to verify model outputs",
+          "kind": "future_work",
+          "hit": 0.111,
+          "matched": false,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            3
+          ]
+        },
+        {
+          "key": "survey",
+          "question": "Who are the authors of this survey?",
+          "gold": "Wei Zhang, Maria Sanchez, Ravi Patel, Yuki Tanaka, Anna Kowalski",
+          "kind": "author",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            6
+          ]
+        },
+        {
+          "key": "survey",
+          "question": "Which institutions are the survey authors affiliated with?",
+          "gold": "Institute for AI Research, University of Cambridge, and Tsinghua University",
+          "kind": "affiliation",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.61,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            5,
+            6
+          ]
+        },
+        {
+          "key": "survey",
+          "question": "How many future research directions does the survey propose?",
+          "gold": "Five",
+          "kind": "future_work",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 5,
+          "anchored": 5,
+          "pages": [
+            1,
+            6
+          ]
+        },
+        {
+          "key": "survey",
+          "question": "What GSM8K solve rate does chain-of-thought prompting achieve with PaLM 540B?",
+          "gold": "56.9 percent, compared with 17.9 percent for standard prompting",
+          "kind": "metric",
+          "hit": 0.667,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            3,
+            5
+          ]
+        },
+        {
+          "key": "survey",
+          "question": "How many trainable parameters does LoRA use on GPT-3 175B?",
+          "gold": "4.7 million",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 5,
+          "anchored": 5,
+          "pages": [
+            2,
+            3,
+            5
+          ]
+        },
+        {
+          "key": "survey",
+          "question": "What exact match does RAG achieve on Natural Questions?",
+          "gold": "44.5",
+          "kind": "metric",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            3,
+            5
+          ]
+        },
+        {
+          "key": "survey",
+          "question": "Which paper introduced the Transformer architecture cited by this survey?",
+          "gold": "Attention Is All You Need, by Vaswani et al. (2017)",
+          "kind": "citation",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 5,
+          "anchored": 5,
+          "pages": [
+            1,
+            3,
+            5
+          ]
+        },
+        {
+          "key": "survey",
+          "question": "How do encoder-only and decoder-only models differ in their pre-training objectives?",
+          "gold": "Encoder-only models use masked language modeling, while decoder-only models predict the next token on a left-to-right prefix",
+          "kind": "comparison",
+          "hit": 0.769,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "key": "udl_scan",
+          "question": "Who is the author of Understanding Deep Learning?",
+          "gold": "Simon J. D. Prince",
+          "kind": "author",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "key": "udl_scan",
+          "question": "Which institution is the author affiliated with?",
+          "gold": "University of Bath",
+          "kind": "affiliation",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2
+          ]
+        },
+        {
+          "key": "udl_scan",
+          "question": "How many parts is the book organized into?",
+          "gold": "Four",
+          "kind": "hyperparameter",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "key": "udl_scan",
+          "question": "What top-5 error rate did AlexNet achieve on ImageNet in 2012?",
+          "gold": "15.3 percent",
+          "kind": "metric",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 3,
+          "anchored": 3,
+          "pages": [
+            2,
+            4,
+            5
+          ]
+        },
+        {
+          "key": "udl_scan",
+          "question": "Why does depth help according to this chapter?",
+          "gold": "Because many functions have a compositional structure, and depth enables abstraction and reuse of intermediate representations",
+          "kind": "comparison",
+          "hit": 0.091,
+          "matched": false,
+          "refused": false,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            3
+          ]
+        },
+        {
+          "key": "udl_scan",
+          "question": "How many GPUs were used to train AlexNet?",
+          "gold": "Two GTX 580 GPUs",
+          "kind": "hardware",
+          "hit": 1.0,
+          "matched": true,
+          "refused": false,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
+          "pages": [
+            1,
+            2,
+            4,
+            5
+          ]
+        }
+      ]
+    },
+    "compare": {
+      "papers": [
+        "Improving Language Understanding by Generative Pre-Training",
+        "Language Models are Unsupervised Multitask Learners",
+        "Language Models are Few-Shot Learners"
+      ],
+      "coverage": 1.0,
+      "verified": true,
+      "cells_anchored": 12,
+      "cells_total": 12,
+      "expectations": {
+        "117M": true,
+        "1.5B": true,
+        "175B": true,
+        "1024": true,
+        "2048": true
+      },
+      "markdown": "| 维度 | Improving Language Understanding by Generative Pre-Training | Language Models are Unsupervised Multitask Learners | Language Models are Few-Shot Learners |\n| --- | --- | --- | --- |\n| 模型参数量 | Our model is a 12-layer Transformer decoder with 768 hidden units, 12 attention heads, a context window of 512 tokens, and 117 million parameters. | Accuracy increases monotonically with model size, from 83.1 percent for the 117 million parameter model to 87.65 percent for the 1.5 billion parameter model. | The largest model has 96 layers, a hidden size of 12288, 96 attention heads, and 175 billion parameters, and was trained on 10000 NVIDIA V100 GPUs with a batch size of 3.2 million tokens. |\n| 层数与结构 | Our model is a 12-layer Transformer decoder with 768 hidden units, 12 attention heads, a context window of 512 tokens, and 117 million parameters. | Table 1: Model sizes and zero-shot results. | GPT-3 is an autoregressive Transformer language model with 175 billion parameters, 96 layers, a hidden size of 12288, and 96 attention heads. |\n| 上下文窗口 | Our model is a 12-layer Transformer decoder with 768 hidden units, 12 attention heads, a context window of 512 tokens, and 117 million parameters. | The context window is 1024 tokens, and the tokenizer is a byte-level byte pair encoding with a vocabulary of 50,257 tokens. | alternating dense and locally banded sparse attention layers, and the context window is 2048 tokens. |\n| 训练硬件 | Training takes 30 days on a single machine with 8 GPUs. | The largest model is trained with a batch size of 512 sequences, a learning rate that is warmed up o | The largest model has 96 layers, a hidden size of 12288, 96 attention heads, and 175 billion parameters, and was trained on 10000 NVIDIA V100 GPUs with a batch size of 3.2 million tokens. |\n\n- **模型参数量**：模型参数量：Improving Language Understanding by Generative Pre-Training 为「Our model is a 12-layer Transformer decoder with 768 hidden…」；Language Models are Unsupervised Multitask Learners 为「Accuracy increases monotonically with model size, from 83.1…」；Language Models are Few-Shot Learners 为「The largest model has 96 layers, a hidden size of 12288, 96…」。\n- **层数与结构**：层数与结构：Improving Language Understanding by Generative Pre-Training 为「Our model is a 12-layer Transformer decoder with 768 hidden…」；Language Models are Unsupervised Multitask Learners 为「Table 1: Model sizes and zero-shot results.」；Language Models are Few-Shot Learners 为「GPT-3 is an autoregressive Transformer language model with…」。\n- **上下文窗口**：上下文窗口：Improving Language Understanding by Generative Pre-Training 为「Our model is a 12-layer Transformer decoder with 768 hidden…」；Language Models are Unsupervised Multitask Learners 为「The context window is 1024 tokens, and the tokenizer is a b…」；Language Models are Few-Shot Learners 为「alternating dense and locally banded sparse attention layer…」。\n- **训练硬件**：训练硬件：Improving Language Understanding by Generative Pre-Training 为「Training takes 30 days on a single machine with 8 GPUs.」；Language Models are Unsupervised Multitask Learners 为「The largest model is trained with a batch size of 512 seque…」；Language Models are Few-Shot Learners 为「The largest model has 96 layers, a hidden size of 12288, 96…」。"
+    },
+    "reader": {
+      "paper_id": "6a22909f7036c893",
+      "pages": 6,
+      "blocks": 126,
+      "sections": 26,
+      "reference_links": 0,
+      "unresolved": 0,
+      "uncited": 12,
+      "page_images": 6,
+      "sample_anchors": []
+    },
+    "discovery": {
+      "search_items": 1,
+      "top_hit": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+      "top_has_reason": true,
+      "recommend_items": 1,
+      "degraded": true,
+      "sources": []
+    },
+    "graph": {
+      "nodes": 14,
+      "edges": 10,
+      "density": 0.0549,
+      "components": 6,
+      "foundation": [
+        "Deep Residual Learning for Image Recognition",
+        "Language Models are Few-Shot Learners"
+      ],
+      "bridge": [],
+      "peripheral_count": 9,
+      "insights": [
+        "图谱覆盖 14 篇文献、10 条引用边，密度 0.055，弱连通分量 6 个，平均聚类系数 0.205，时间跨度 2012–2024 年。",
+        "基石论文《Deep Residual Learning for Image Recognition》（2015）被引 4 次、pagerank=0.192，为全图中位数 0.052 的 3.72 倍；自身引用 0 篇文献，连接主题：task · model · transformer、model · language · large。",
+        "基石论文《Language Models are Few-Shot Learners》（2020）被引 3 次、pagerank=0.163，为全图中位数 0.052 的 3.16 倍；自身引用 0 篇文献，连接主题：model · language · large。",
+        "未出现 betweenness 大于 0 的桥梁节点（0 个），引用关系以直接继承为主。",
+        "边缘衍生论文 9 篇，尚未被本地库其他工作引用，例如 《BERT: Pre-training of Deep Bidirectional Transformers》（入度 0、出度 0、pagerank 0.052）、《Improving Language Understanding by Generative Pre-Training》（入度 0、出度 0、pagerank 0.052）、《Attention Is All You Need》（入度 0、出度 1、pagerank 0.052）。"
+      ],
+      "edges_list": [
+        {
+          "source": "5d92863e30f96952",
+          "target": "a245cfbec8a8a9ff",
+          "kind": null,
+          "evidence": "标题匹配（ref#11，score 1.000）：He et al. Deep Residual Learning for Image Recognition. CVPR, 2016."
+        },
+        {
+          "source": "6a22909f7036c893",
+          "target": "a245cfbec8a8a9ff",
+          "kind": null,
+          "evidence": "标题匹配（ref#11，score 1.000）：He et al. Deep Residual Learning for Image Recognition. CVPR, 2016."
+        },
+        {
+          "source": "cfadd787abd07555",
+          "target": "1392672e8e90e8b8",
+          "kind": null,
+          "evidence": "标题匹配（ref#5，score 1.000）：Brown et al. Language Models are Few-Shot Learners. NeurIPS, 2020."
+        },
+        {
+          "source": "cfadd787abd07555",
+          "target": "1f6fecfd9d16c6c2",
+          "kind": null,
+          "evidence": "标题匹配（ref#10，score 1.000）：Lewis et al. Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks. NeurIPS, 2020."
+        },
+        {
+          "source": "cfadd787abd07555",
+          "target": "a245cfbec8a8a9ff",
+          "kind": null,
+          "evidence": "标题匹配（ref#6，score 1.000）：He et al. Deep Residual Learning for Image Recognition. CVPR, 2016."
+        },
+        {
+          "source": "cfadd787abd07555",
+          "target": "ec284b625de82465",
+          "kind": null,
+          "evidence": "标题匹配（ref#11，score 1.000）：Wei et al. Chain-of-Thought Prompting Elicits Reasoning in Large Language Models. NeurIPS, 2022"
+        },
+        {
+          "source": "cfadd787abd07555",
+          "target": "f79400f00f51eda7",
+          "kind": null,
+          "evidence": "标题匹配（ref#9，score 1.000）：Hu et al. LoRA: Low-Rank Adaptation of Large Language Models. ICLR, 2022."
+        },
+        {
+          "source": "e26ef756d4dba4f2",
+          "target": "a245cfbec8a8a9ff",
+          "kind": null,
+          "evidence": "标题匹配（ref#2，score 1.000）：He et al. Deep Residual Learning for Image Recognition. CVPR, 2016."
+        },
+        {
+          "source": "ec284b625de82465",
+          "target": "1392672e8e90e8b8",
+          "kind": null,
+          "evidence": "标题匹配（ref#1，score 1.000）：Brown et al. Language Models are Few-Shot Learners. NeurIPS, 2020."
+        },
+        {
+          "source": "f79400f00f51eda7",
+          "target": "1392672e8e90e8b8",
+          "kind": null,
+          "evidence": "标题匹配（ref#1，score 1.000）：Brown et al. Language Models are Few-Shot Learners. NeurIPS, 2020."
+        }
+      ],
+      "survey": {
+        "sections": 4,
+        "chars": 18519,
+        "future_directions": 21,
+        "open_directions": 19,
+        "solved_directions": 2,
+        "citations": 26,
+        "provider": "offline",
+        "degraded": false
+      }
+    },
+    "writing": {
+      "sections": 6,
+      "references": 5,
+      "references_all_local": true,
+      "checks": {
+        "sections": true,
+        "reference_check": true,
+        "references_from_library": true,
+        "citation_markers": true
+      },
+      "checks_passed": true,
+      "provider": "offline",
+      "degraded": false
+    },
+    "dataviz": {
+      "dataset_columns": [
+        "epoch",
+        "train_loss",
+        "valid_loss",
+        "accuracy"
+      ],
+      "dataset_rows": 6,
+      "chart_kind": "line",
+      "svg_bytes": 4087,
+      "deterministic_svg": true,
+      "caption": "Figure shows that accuracy increases with epoch (from 0.51 to 0.76). The peak value is 0.76 (accuracy) at epoch = 6.",
+      "caption_has_numbers": true,
+      "matplotlib_script_bytes": 1018,
+      "radar_svg_bytes": 6350,
+      "chart_id": "830d4387a76e"
+    }
+  },
+  "metrics": {
+    "parse_success_rate": 1.0,
+    "avg_quality": 0.971,
+    "qa_accuracy": 0.904,
+    "qa_anchor_rate": 1.0,
+    "qa_verified_rate": 0.626,
+    "graph_edges": 10,
+    "foundation_count": 2,
+    "outline_checks_passed": true,
+    "chart_deterministic": true,
+    "elapsed_s": 50.0
+  },
+  "elapsed_s": 50.0
+}

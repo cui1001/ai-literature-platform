@@ -1,0 +1,264 @@
+{
+  "corpus_version": 1,
+  "generated_by": "scripts/make_corpus.py",
+  "layout_seed": 20260101,
+  "papers": [
+    {
+      "arxiv_id": "1706.03762v1",
+      "title": "Attention Is All You Need",
+      "authors": [
+        "Ashish Vaswani",
+        "Noam Shazeer",
+        "Niki Parmar",
+        "Jakob Uszkoreit",
+        "Llion Jones",
+        "Aidan N. Gomez",
+        "Lukasz Kaiser",
+        "Illia Polosukhin"
+      ],
+      "abstract": "We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely. Experiments on two machine translation tasks show these models to be superior in quality while being more parallelizable and requiring significantly less time to train. Our model achieves 28.4 BLEU on the WMT 2014 English-to-German translation task, improving over the existing best results by over 2 BLEU. On the WMT 2014 English-to-French translation task, our model establishes a new single-model state-of-the-art BLEU score of 41.8 after training for 3.5 days on eight GPUs, a small fraction of the training costs of the best models from the literature. The base model, with 65 million parameters, trains in 12 hours on 8 NVIDIA P100 GPUs. We show that the Transformer generalizes well to other tasks by applying it successfully to English constituency parsing.",
+      "comments": "Synthetic offline mirror entry for NeurIPS 2017.",
+      "journal_ref": "",
+      "categories": [
+        "cs.CL",
+        "cs.LG"
+      ],
+      "published": "2017-06-01T00:00:00Z",
+      "updated": "2017-12-01T00:00:00Z",
+      "url": "https://arxiv.org/abs/1706.03762v1",
+      "pdf_url": "https://arxiv.org/pdf/1706.03762v1.pdf",
+      "github": "",
+      "primary_category": "cs.CL",
+      "source": "offline-mirror"
+    },
+    {
+      "arxiv_id": "1706.03762v7",
+      "title": "Attention Is All You Need",
+      "authors": [
+        "Ashish Vaswani",
+        "Noam Shazeer",
+        "Niki Parmar",
+        "Jakob Uszkoreit",
+        "Llion Jones",
+        "Aidan N. Gomez",
+        "Lukasz Kaiser",
+        "Illia Polosukhin"
+      ],
+      "abstract": "We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely. Experiments on two machine translation tasks show these models to be superior in quality while being more parallelizable and requiring significantly less time to train. Our model achieves 28.4 BLEU on the WMT 2014 English-to-German translation task, improving over the existing best results by over 2 BLEU. On the WMT 2014 English-to-French translation task, our model establishes a new single-model state-of-the-art BLEU score of 41.8 after training for 3.5 days on eight GPUs, a small fraction of the training costs of the best models from the literature. The base model, with 65 million parameters, trains in 12 hours on 8 NVIDIA P100 GPUs. We show that the Transformer generalizes well to other tasks by applying it successfully to English constituency parsing.",
+      "comments": "Synthetic offline mirror entry for NeurIPS 2017.",
+      "journal_ref": "",
+      "categories": [
+        "cs.CL",
+        "cs.LG"
+      ],
+      "published": "2017-06-01T00:00:00Z",
+      "updated": "2017-12-01T00:00:00Z",
+      "url": "https://arxiv.org/abs/1706.03762v7",
+      "pdf_url": "https://arxiv.org/pdf/1706.03762v7.pdf",
+      "github": "",
+      "primary_category": "cs.CL",
+      "source": "offline-mirror"
+    },
+    {
+      "arxiv_id": "1810.04805v1",
+      "title": "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",
+      "authors": [
+        "Jacob Devlin",
+        "Ming-Wei Chang",
+        "Kenton Lee",
+        "Kristina Toutanova"
+      ],
+      "abstract": "We introduce a new language representation model called BERT, which stands for Bidirectional Encoder Representations from Transformers. Unlike recent language representation models, BERT is designed to pre-train deep bidirectional representations from unlabeled text by jointly conditioning on both left and right context in all layers. As a result, the pre-trained BERT model can be fine-tuned with just one additional output layer to create state-of-the-art models for a wide range of tasks, such as question answering and language inference, without substantial task-specific architecture modifications. BERT is conceptually simple and empirically powerful. It obtains new state-of-the-art results on eleven natural language processing tasks, including pushing the GLUE score to 80.5 percent, MultiNLI accuracy to 86.7 percent, SQuAD v1.1 question answering Test F1 to 93.2 and SQuAD v2.0 Test F1 to 83.1, surpassing human performance on the last two benchmarks. The base model has 110 million parameters and the large model has 340 million parameters.",
+      "comments": "Synthetic offline mirror entry for NAACL 2018.",
+      "journal_ref": "",
+      "categories": [
+        "cs.CL",
+        "cs.LG"
+      ],
+      "published": "2018-06-01T00:00:00Z",
+      "updated": "2018-12-01T00:00:00Z",
+      "url": "https://arxiv.org/abs/1810.04805v1",
+      "pdf_url": "https://arxiv.org/pdf/1810.04805v1.pdf",
+      "github": "",
+      "primary_category": "cs.CL",
+      "source": "offline-mirror"
+    },
+    {
+      "arxiv_id": "2005.14165v1",
+      "title": "Language Models are Few-Shot Learners",
+      "authors": [
+        "Tom B. Brown",
+        "Benjamin Mann",
+        "Nick Ryder",
+        "Melanie Subbiah",
+        "Jared Kaplan",
+        "Prafulla Dhariwal",
+        "Arvind Neelakantan",
+        "Pranav Shyam",
+        "Girish Sastry",
+        "Amanda Askell",
+        "Sandhini Agarwal",
+        "Dario Amodei"
+      ],
+      "abstract": "Recent work has demonstrated substantial gains on many NLP tasks and benchmarks by pre-training on a large corpus of text followed by fine-tuning on a specific task. While typically task-agnostic in architecture, this method still requires task-specific fine-tuning datasets of thousands or tens of thousands of examples. By contrast, humans can generally perform a new language task from only a few examples or from simple instructions. We show that scaling up language models greatly improves task-agnostic, few-shot performance, sometimes even reaching competitiveness with prior state-of-the-art fine-tuning approaches. Specifically, we train GPT-3, an autoregressive language model with 175 billion parameters, 10 times more than any previous non-sparse language model, and test its performance in the few-shot setting. For all tasks, GPT-3 is applied without any gradient updates or fine-tuning, with tasks and few-shot demonstrations specified purely via text interaction with the model. GPT-3 achieves strong performance on many NLP datasets, including translation, question answering, and cloze tasks, as well as several tasks that require on-the-fly reasoning or domain adaptation. At the same time, we identify some datasets where GPT-3's few-shot learning still struggles, as well as some datasets where GPT-3 faces methodological issues related to training on large web corpora.",
+      "comments": "Synthetic offline mirror entry for NeurIPS 2020.",
+      "journal_ref": "",
+      "categories": [
+        "cs.CL",
+        "cs.LG"
+      ],
+      "published": "2020-06-01T00:00:00Z",
+      "updated": "2020-12-01T00:00:00Z",
+      "url": "https://arxiv.org/abs/2005.14165v1",
+      "pdf_url": "https://arxiv.org/pdf/2005.14165v1.pdf",
+      "github": "",
+      "primary_category": "cs.CL",
+      "source": "offline-mirror"
+    },
+    {
+      "arxiv_id": "1512.03385v1",
+      "title": "Deep Residual Learning for Image Recognition",
+      "authors": [
+        "Kaiming He",
+        "Xiangyu Zhang",
+        "Shaoqing Ren",
+        "Jian Sun"
+      ],
+      "abstract": "Deeper neural networks are more difficult to train. We present a residual learning framework to ease the training of networks that are substantially deeper than those used previously. We explicitly reformulate the layers as learning residual functions with reference to the layer inputs, instead of learning unreferenced functions. We provide comprehensive empirical evidence showing that these residual networks are easier to optimize, and can gain accuracy from considerably increased depth. On the ImageNet dataset we evaluate residual nets with a depth of up to 152 layers, 8 times deeper than VGG nets but still having lower complexity. An ensemble of these residual nets achieves 3.57 percent top-5 error on the ImageNet test set. This result won the 1st place on the ILSVRC 2015 classification task. We also present analysis on CIFAR-10 with 100 and 1000 layers. The depth of representations is of central importance for many visual recognition tasks, and our residual nets are easy to optimize even at 152 layers.",
+      "comments": "Synthetic offline mirror entry for CVPR 2016.",
+      "journal_ref": "",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2016-06-01T00:00:00Z",
+      "updated": "2016-12-01T00:00:00Z",
+      "url": "https://arxiv.org/abs/1512.03385v1",
+      "pdf_url": "https://arxiv.org/pdf/1512.03385v1.pdf",
+      "github": "",
+      "primary_category": "cs.CV",
+      "source": "offline-mirror"
+    },
+    {
+      "arxiv_id": "2010.11929v1",
+      "title": "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale",
+      "authors": [
+        "Alexey Dosovitskiy",
+        "Lucas Beyer",
+        "Alexander Kolesnikov",
+        "Dirk Weissenborn",
+        "Xiaohua Zhai",
+        "Thomas Unterthiner",
+        "Mostafa Dehghani",
+        "Matthias Minderer",
+        "Georg Heigold",
+        "Sylvain Gelly",
+        "Jakob Uszkoreit",
+        "Neil Houlsby"
+      ],
+      "abstract": "While the Transformer architecture has become the de-facto standard for natural language processing tasks, its applications to computer vision remain limited. In vision, attention is either applied in conjunction with convolutional networks, or used to replace certain components of convolutional networks while keeping their overall structure in place. We show that this reliance on CNNs is not necessary and a pure transformer applied directly to sequences of image patches can perform very well on image classification tasks. When pre-trained on large amounts of data and transferred to multiple mid-sized or small image recognition benchmarks, Vision Transformer (ViT) attains excellent results compared to state-of-the-art convolutional networks while requiring substantially fewer computational resources to train. Our largest model, ViT-H/14, has 632 million parameters, uses 16x16 patches, and was pre-trained on 32 TPUv3 cores; it reaches 88.55 percent top-1 accuracy on ImageNet when fine-tuned.",
+      "comments": "Synthetic offline mirror entry for ICLR 2021.",
+      "journal_ref": "",
+      "categories": [
+        "cs.CV",
+        "cs.LG"
+      ],
+      "published": "2021-06-01T00:00:00Z",
+      "updated": "2021-12-01T00:00:00Z",
+      "url": "https://arxiv.org/abs/2010.11929v1",
+      "pdf_url": "https://arxiv.org/pdf/2010.11929v1.pdf",
+      "github": "",
+      "primary_category": "cs.CV",
+      "source": "offline-mirror"
+    },
+    {
+      "arxiv_id": "2106.09685v1",
+      "title": "LoRA: Low-Rank Adaptation of Large Language Models",
+      "authors": [
+        "Edward J. Hu",
+        "Yelong Shen",
+        "Phillip Wallis",
+        "Zeyuan Allen-Zhu",
+        "Yuanzhi Li",
+        "Shean Wang",
+        "Lu Wang",
+        "Weizhu Chen"
+      ],
+      "abstract": "An important paradigm of natural language processing consists of large-scale pre-training on general domain data followed by adaptation to particular tasks or domains. As we pre-train larger models, full fine-tuning, which retrains all model parameters, becomes less feasible. Using GPT-3 175B as an example, deploying independent instances of fine-tuned models, each with 175B parameters, is prohibitively expensive. We propose Low-Rank Adaptation, or LoRA, which freezes the pre-trained model weights and injects trainable rank decomposition matrices into each layer of the Transformer architecture, greatly reducing the number of trainable parameters for downstream tasks. Compared to fine-tuning GPT-3 175B with Adam, LoRA reduces the number of trainable parameters by 10,000 times and the GPU memory requirement by 3 times. LoRA performs on par with or better than fine-tuning in model quality on RoBERTa, DeBERTa, GPT-2, and GPT-3, despite having fewer trainable parameters, a higher training throughput, and no additional inference latency. On GPT-3 175B, LoRA with rank r = 8 and alpha = 16 requires only 4.7 million trainable parameters.",
+      "comments": "Synthetic offline mirror entry for ICLR 2022.",
+      "journal_ref": "",
+      "categories": [
+        "cs.CL",
+        "cs.LG"
+      ],
+      "published": "2022-06-01T00:00:00Z",
+      "updated": "2022-12-01T00:00:00Z",
+      "url": "https://arxiv.org/abs/2106.09685v1",
+      "pdf_url": "https://arxiv.org/pdf/2106.09685v1.pdf",
+      "github": "",
+      "primary_category": "cs.CL",
+      "source": "offline-mirror"
+    },
+    {
+      "arxiv_id": "2005.11401v1",
+      "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks",
+      "authors": [
+        "Patrick Lewis",
+        "Ethan Perez",
+        "Aleksandra Piktus",
+        "Fabio Petroni",
+        "Vladimir Karpukhin",
+        "Naman Goyal",
+        "Heinrich Kuttler",
+        "Mike Lewis",
+        "Wen-tau Yih",
+        "Tim Rocktaschel",
+        "Sebastian Riedel",
+        "Douwe Kiela"
+      ],
+      "abstract": "Large pre-trained language models have been shown to store factual knowledge in their parameters, and achieve state-of-the-art results when fine-tuned on downstream NLP tasks. However, their ability to access and precisely manipulate knowledge is still limited, and hence on knowledge-intensive tasks their performance lags behind task-specific architectures. Additionally, providing provenance for their decisions and updating their world knowledge remain open research problems. We introduce retrieval-augmented generation (RAG), a general-purpose fine-tuning recipe that combines pre-trained parametric and non-parametric memory for language generation. We introduce RAG models where the parametric memory is a pre-trained seq2seq model and the non-parametric memory is a dense vector index of Wikipedia, accessed with a pre-trained neural retriever. We compare two formulations, one which conditions on the same retrieved passages for the whole generated sequence (RAG-Sequence) and one which can use different passages per token (RAG-Token). On three open-domain QA tasks, our models set the state of the art, outperforming parametric seq2seq models and task-specific retrieve-and-extract architectures. On Natural Questions, RAG achieves 44.5 exact match, using a DPR retriever and a FiD-style generator with the top 5 retrieved documents.",
+      "comments": "Synthetic offline mirror entry for NeurIPS 2020.",
+      "journal_ref": "",
+      "categories": [
+        "cs.CL",
+        "cs.LG"
+      ],
+      "published": "2020-06-01T00:00:00Z",
+      "updated": "2020-12-01T00:00:00Z",
+      "url": "https://arxiv.org/abs/2005.11401v1",
+      "pdf_url": "https://arxiv.org/pdf/2005.11401v1.pdf",
+      "github": "",
+      "primary_category": "cs.CL",
+      "source": "offline-mirror"
+    },
+    {
+      "arxiv_id": "2201.11903v1",
+      "title": "Chain-of-Thought Prompting Elicits Reasoning in Large Language Models",
+      "authors": [
+        "Jason Wei",
+        "Xuezhi Wang",
+        "Dale Schuurmans",
+        "Maarten Bosma",
+        "Brian Ichter",
+        "Fei Xia",
+        "Ed Chi",
+        "Quoc Le",
+        "Denny Zhou"
+      ],
+      "abstract": "We explore how generating a chain of thought, a series of intermediate reasoning steps, significantly improves the ability of large language models to perform complex reasoning. In particular, we show how such reasoning abilities emerge naturally in sufficiently large language models via a simple method called chain-of-thought prompting, where a few chain of thought demonstrations are provided as exemplars in prompting. Experiments on arithmetic, commonsense, and symbolic reasoning benchmarks show that chain-of-thought prompting improves performance substantially. For instance, on the GSM8K benchmark of math word problems, chain-of-thought prompting with PaLM 540B achieves 56.9 percent solve rate, compared with 17.9 percent for standard prompting. The gains are an emergent property of model scale: chain-of-thought prompting does not help small models, but it produces large gains for models with roughly 100 billion parameters or more.",
+      "comments": "Synthetic offline mirror entry for NeurIPS 2022.",
+      "journal_ref": "",
+      "categories": [
+        "cs.CL",
+        "cs.LG"
+      ],
+      "published": "2022-06-01T00:00:00Z",
+      "updated": "2022-12-01T00:00:00Z",
+      "url": "https://arxiv.org/abs/2201.11903v1",
+      "pdf_url": "https://arxiv.org/pdf/2201.11903v1.pdf",
+      "github": "",
+      "primary_category": "cs.CL",
+      "source": "offline-mirror"
+    }
+  ]
+}
