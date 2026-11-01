@@ -172,6 +172,9 @@ class ParseQuality:
     checks: dict[str, bool] = field(default_factory=dict)
     version: str = "2.0"
 
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
 
 @dataclass
 class ParsedPaper:

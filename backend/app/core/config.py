@@ -219,16 +219,22 @@ def _coerce_overrides(name: str, value: Any) -> Any:
     return value
 
 
+#: 进程级配置覆盖（测试/多库演示用），由 ``reset_settings`` 写入
+_OVERRIDES: dict[str, object] = {}
+
+
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
+    if _OVERRIDES:
+        return Settings.from_env(**_OVERRIDES)  # type: ignore[arg-type]
     return Settings.from_env()
 
 
 def reset_settings(**overrides) -> Settings:
-    """测试辅助：清空缓存并（可选）覆盖字段。"""
+    """切换全局配置（测试/多库演示），保证 repo 与调用方指向同一个数据库。"""
+    global _OVERRIDES
+    _OVERRIDES = dict(overrides)
     get_settings.cache_clear()
-    if overrides:
-        return Settings.from_env(**overrides)
     return get_settings()
 
 

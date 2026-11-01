@@ -257,18 +257,13 @@ def task_summarize(payload: dict[str, Any]) -> LLMResult:
 def task_translate(payload: dict[str, Any]) -> LLMResult:
     text = payload.get("text") or ""
     translated, coverage, used = translate_en_to_zh(text)
-    if coverage < 0.2:
-        head = "（离线术语辅助）"
-        note = "当前无在线模型，以下为术语级替换结果，仅供参考；配置 DEEPSEEK_API_KEY 可获得完整译文。"
-        body = f"{head}{translated}\n\n> {note}"
-    else:
-        body = translated
+    # 降级说明放在 notes/coverage 里，由前端统一提示；正文保持干净，便于对照阅读与缓存复用。
     return LLMResult(
-        text=body,
+        text=translated,
         data={"coverage": coverage, "terms": used[:40], "mode": "glossary"},
         provider="offline",
         model="glossary-v1",
-        notes="offline-glossary",
+        notes="offline-glossary: 术语级替换，非完整译文",
     )
 
 
