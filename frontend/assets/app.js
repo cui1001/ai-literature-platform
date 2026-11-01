@@ -361,12 +361,12 @@ async function renderQA(host) {
         <div class="paper-pick" id="paper-pick" style="margin-top:8px">
           ${papers
             .map(
-              (p) => `<label class="pick-row"><input type="checkbox" value="${escapeHtml(p.id)}" />
+              (p, i) => `<label class="pick-row"><input type="checkbox" value="${escapeHtml(p.id)}" ${i === 0 ? "checked" : ""} />
                 <span>${escapeHtml(p.title)}<br/><span class="dim" style="font-size:11px">${p.pages} 页 · ${escapeHtml(p.year || "—")}</span></span></label>`
             )
             .join("") || `<div class="dim">文献库为空</div>`}
         </div>
-        <div class="dim" style="font-size:11.5px;margin-top:8px">不选则检索全库</div>
+        <div class="dim" style="font-size:11.5px;margin-top:8px">默认选中最新一篇；多选可跨文献提问，全部取消则检索全库</div>
         <hr style="border:0;border-top:1px solid var(--line-soft);margin:14px 0"/>
         <b style="font-size:13px">跨文献对比</b>
         <div class="chips" id="dim-pills" style="margin-top:8px"></div>

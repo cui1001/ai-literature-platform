@@ -58,8 +58,9 @@ def main() -> int:
     if args.demo:
         from app.papers import service  # noqa: PLC0415
 
-        files = sorted((ROOT / "fixtures" / "papers").glob("*.pdf")) + sorted(
-            (ROOT / "fixtures" / "papers" / "scanned").glob("*.pdf")
+        # 扫描件优先导入：保证演示中出现一篇真实 OCR 论文（同名可检索版随后按重复跳过）
+        files = sorted((ROOT / "fixtures" / "papers" / "scanned").glob("*.pdf")) + sorted(
+            (ROOT / "fixtures" / "papers").glob("*.pdf")
         )
         imported = duplicates = failed = 0
         for path in files:
