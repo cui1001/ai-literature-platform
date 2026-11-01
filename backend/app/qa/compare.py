@@ -25,15 +25,60 @@ from .verifier import note_ok
 logger = get_logger(__name__)
 
 DIMENSIONS: list[dict[str, str]] = [
-    {"key": "params", "label": "模型参数量", "question": "模型参数量是多少，base 与 large 分别多大？"},
-    {"key": "layers", "label": "层数与结构", "question": "模型有多少层 encoder/decoder，隐藏维度与注意力头数是多少？"},
-    {"key": "context", "label": "上下文窗口", "question": "最大上下文窗口（context window）是多少 token？"},
-    {"key": "normalization", "label": "归一化位置", "question": "LayerNorm 放在残差连接前还是后，post-LN 还是 pre-LN？"},
-    {"key": "pretraining", "label": "预训练目标", "question": "预训练目标函数是什么（语言建模/掩码语言模型）？"},
-    {"key": "data", "label": "训练数据", "question": "使用了什么训练数据集，规模多大？"},
-    {"key": "hardware", "label": "训练硬件", "question": "训练使用了哪些 GPU/TPU 型号与数量，训练多久？"},
-    {"key": "benchmark", "label": "主要评测结果", "question": "在主要 benchmark 上的分数或 BLEU 是多少？"},
-    {"key": "code", "label": "开源代码", "question": "是否开源代码，GitHub 仓库地址是什么？"},
+    {
+        "key": "params",
+        "label": "模型参数量",
+        "question": "模型参数量是多少，base 与 large 分别多大？",
+        "hint": "parameters parameter count million billion model sizes 117 340 1.5 175",
+    },
+    {
+        "key": "layers",
+        "label": "层数与结构",
+        "question": "模型有多少层 encoder/decoder，隐藏维度与注意力头数是多少？",
+        "hint": "layers hidden size attention heads encoder decoder depth 12 24 48 96 768 1024 12288",
+    },
+    {
+        "key": "context",
+        "label": "上下文窗口",
+        "question": "最大上下文窗口（context window）是多少 token？",
+        "hint": "context window tokens sequence length 512 1024 2048",
+    },
+    {
+        "key": "normalization",
+        "label": "归一化位置",
+        "question": "LayerNorm 放在残差连接前还是后，post-LN 还是 pre-LN？",
+        "hint": "layer normalization layernorm pre-ln post-ln residual connection before after",
+    },
+    {
+        "key": "pretraining",
+        "label": "预训练目标",
+        "question": "预训练目标函数是什么（语言建模/掩码语言模型）？",
+        "hint": "pre-training objective masked language model autoregressive likelihood",
+    },
+    {
+        "key": "data",
+        "label": "训练数据",
+        "question": "使用了什么训练数据集，规模多大？",
+        "hint": "dataset corpus books webtext tokens wikipedia billion words",
+    },
+    {
+        "key": "hardware",
+        "label": "训练硬件",
+        "question": "训练使用了哪些 GPU/TPU 型号与数量，训练多久？",
+        "hint": "gpu tpu v100 p100 gtx trained days hours chips",
+    },
+    {
+        "key": "benchmark",
+        "label": "主要评测结果",
+        "question": "在主要 benchmark 上的分数或 BLEU 是多少？",
+        "hint": "bleu accuracy f1 em score state-of-the-art results percent",
+    },
+    {
+        "key": "code",
+        "label": "开源代码",
+        "question": "是否开源代码，GitHub 仓库地址是什么？",
+        "hint": "code github repository open-source released available",
+    },
 ]
 
 DEFAULT_KEYS = ["params", "layers", "context", "normalization", "hardware", "benchmark"]
@@ -86,7 +131,7 @@ def compare_papers(
     *,
     keys: Sequence[str] | None = None,
     settings: Settings | None = None,
-    per_dim_top: int = 2,
+    per_dim_top: int = 3,
 ) -> ComparisonResult:
     settings = settings or get_settings()
     ids = list(dict.fromkeys(paper_ids))
@@ -115,7 +160,8 @@ def compare_papers(
     for dim in dimensions:
         per_paper: dict[str, list[dict[str, Any]]] = {}
         for paper in papers:
-            result = retriever.search(dim["question"], paper_ids=[paper["id"]], top_k=per_dim_top, expand=False)
+            query = dim.get("hint") or dim["question"]
+            result = retriever.search(query, paper_ids=[paper["id"]], top_k=per_dim_top, expand=False)
             items: list[dict[str, Any]] = []
             for index, chunk in enumerate(result.chunks, start=1):
                 evidence_id = f"{dim['key']}::{paper['id']}::{index}"

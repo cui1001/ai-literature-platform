@@ -259,13 +259,13 @@ class ArxivClient:
         return entries
 
     def _offline_search(self, query: str, limit: int, *, title_only: bool = False) -> list[ArxivEntry]:
-        q_tokens = set(tokens(query))
+        q_tokens = _expand_hyphens(tokens(query))
         if not q_tokens:
             return []
         scored: list[tuple[float, ArxivEntry]] = []
         for entry in self.mirror:
-            title_tokens = set(tokens(entry.title))
-            abstract_tokens = set(tokens(entry.abstract))
+            title_tokens = _expand_hyphens(tokens(entry.title))
+            abstract_tokens = _expand_hyphens(tokens(entry.abstract))
             title_score = jaccard(q_tokens, title_tokens)
             if title_only:
                 score = title_score
@@ -282,6 +282,22 @@ class ArxivClient:
 
 
 # -------------------------------------------------------------------- 工具函数
+
+
+def _expand_hyphens(items: list[str]) -> set[str]:
+    """离线镜像检索：连字符复合词同时保留拆分子词。
+
+    "Chain-of-Thought" 的标题分词会得到单个复合词，用户却常写 "chain of thought"；
+    仅在检索侧做扩展，避免影响 BM25/问答的全局分词行为。
+    """
+    out: set[str] = set()
+    for token in items:
+        out.add(token)
+        if "-" in token:
+            for part in token.split("-"):
+                if part:
+                    out.add(part)
+    return out
 
 
 def _http_get(url: str, *, timeout: float = 10.0, binary: bool = False) -> Any:

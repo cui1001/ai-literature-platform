@@ -326,6 +326,44 @@ def task_answer_question(payload: dict[str, Any]) -> LLMResult:
     )
 
 
+def _dimension_claim(blocks: list[Any], dim: dict[str, Any]) -> tuple[float, str, str] | None:
+    """按维度的英文提示词挑选最相关的一句（跨文献对比用）。
+
+    对比维度的问题是中文的，而论文证据是英文的；直接用问题做词袋匹配几乎必然
+    选到无关句。这里退化为「维度提示词命中数 + 是否含数字」的确定性打分。
+    """
+    hint = str(dim.get("hint") or dim.get("question") or "")
+    terms = [t for t in tokens(hint) if len(t) >= 2]
+    if not terms:
+        return None
+    word_terms = [t for t in terms if any(ch.isalpha() for ch in t) and len(t) >= 3]
+    num_terms = [t for t in terms if t.isdigit()]
+    if not word_terms:
+        return None
+    best: tuple[float, str, str] | None = None
+    for block in blocks:
+        if isinstance(block, dict):
+            text = str(block.get("text") or "")
+            bid = str(block.get("id") or "")
+        else:
+            text = str(block or "")
+            bid = ""
+        for sentence in sentence_split(text):
+            if "|" in sentence or len(sentence) < 20:
+                continue
+            sentence_tokens = set(tokens(sentence))
+            word_hits = sum(1 for term in word_terms if term in sentence_tokens)
+            if word_hits == 0:
+                continue
+            num_hits = sum(1 for term in num_terms if term in sentence_tokens)
+            score = word_hits * 1.2 + min(num_hits, 2) * 0.4
+            if any(ch.isdigit() for ch in sentence):
+                score += 0.3
+            if best is None or score > best[0]:
+                best = (score, sentence.strip(), bid)
+    return best
+
+
 def task_compare_papers(payload: dict[str, Any]) -> LLMResult:
     dimensions = payload.get("dimensions") or []
     papers = payload.get("papers") or []
@@ -340,10 +378,15 @@ def task_compare_papers(payload: dict[str, Any]) -> LLMResult:
         for paper in papers:
             pid = paper.get("id") or ""
             blocks = per_paper.get(pid) or []
-            claims = _select_claims(blocks, question, max_claims=1, threshold=0.5)
-            if claims:
-                value = truncate(claims[0]["sentence"], 220)
-                cells.append({"paper_id": pid, "value": value, "evidence": [claims[0]["id"]]})
+            claim = _dimension_claim(blocks, dim)
+            if claim:
+                cells.append(
+                    {
+                        "paper_id": pid,
+                        "value": truncate(claim[1], 220),
+                        "evidence": [claim[2]] if claim[2] else [],
+                    }
+                )
             else:
                 cells.append({"paper_id": pid, "value": "未提及", "evidence": []})
         values = [c["value"] for c in cells]

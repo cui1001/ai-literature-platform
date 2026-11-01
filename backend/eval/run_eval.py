@@ -281,13 +281,23 @@ def main() -> int:
     if len(gpt_ids) == 3:
         result = compare_papers(gpt_ids, keys=["params", "layers", "context", "hardware"], settings=settings)
         markdown = result.markdown or ""
-        expectations = {"117M": "117m" in markdown.lower(), "1.5B": "1.5b" in markdown.lower(),
-                        "175B": "175b" in markdown.lower(), "1024": "1024" in markdown, "2048": "2048" in markdown}
+        lowered = markdown.lower().replace(",", "")
+        expectations = {
+            "117M": "117 million" in lowered,
+            "1.5B": "1.5 billion" in lowered,
+            "175B": "175 billion" in lowered,
+            "1024": "1024" in markdown,
+            "2048": "2048" in markdown,
+        }
+        anchored_cells = sum(
+            1 for dim in result.dimensions for cell in dim.get("rows", []) if cell.get("citations")
+        )
         compare = {
             "papers": [repo.get_paper(i)["title"] for i in gpt_ids],
             "coverage": result.coverage,
             "verified": result.verified,
-            "cells_anchored": sum(1 for cell in result.citations.values() if cell) if isinstance(result.citations, dict) else 0,
+            "cells_anchored": anchored_cells,
+            "cells_total": len(result.dimensions) * len(gpt_ids),
             "expectations": expectations,
             "markdown": markdown,
         }
