@@ -12,6 +12,8 @@
 
 from __future__ import annotations
 
+import re
+
 import json
 import os
 import shutil
@@ -272,6 +274,8 @@ def ocr_page(page: Any, *, dpi: int = 200, lang: str = "", engine: str | None = 
     pixmap = page.get_pixmap(matrix=__import__("fitz").Matrix(zoom, zoom), alpha=False)
     png = pixmap.tobytes("png")
     result = recognize_image(png, lang=lang, engine=engine)
+    # OCR 常把小写点识别成独立字符（"15 . 3 percent"），数值题会因此匹配失败
+    result.text = re.sub(r"(\d)\s*\.\s*(\d)", r"\1.\2", result.text or "")
     result.image_width = float(pixmap.width)
     result.image_height = float(pixmap.height)
     result.scale = 1.0 / zoom

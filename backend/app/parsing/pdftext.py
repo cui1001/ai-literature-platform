@@ -99,6 +99,8 @@ def join_lines(lines: list[str]) -> str:
             out = out[:-1] + line
         else:
             out = f"{out} {line}"
+    # 行内/跨行被 OCR 拆开的小数点（"15 . 3"）还原，保证数值与引用可精确匹配
+    out = re.sub(r"(\d)\s*\.\s*(\d)", r"\1.\2", out)
     return out.strip()
 
 
@@ -276,6 +278,8 @@ def _ocr_blocks(result: Any) -> list[RawBlock]:
     for key in order:
         words = sorted(lines[key], key=lambda w: w.bbox[0])
         text = " ".join(w.text for w in words).strip()
+        # OCR 常把小数点识别成独立词元（"15 . 3"），还原成 15.3 以便数值题精确引用
+        text = re.sub(r"(\d)\s*\.\s*(\d)", r"\1.\2", text)
         if not text:
             continue
         x0 = min(w.bbox[0] for w in words)
