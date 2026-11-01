@@ -1,9 +1,16 @@
 # === Python ===
 __pycache__/
 *.py[cod]
+*.pyo
 .venv/
 venv/
+env/
 .env
+.env.local
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
 
 # === IDE ===
 .idea/
@@ -15,3 +22,24 @@ venv/
 # === 系统 ===
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# === 运行时数据（可随时由脚本重建，不入库） ===
+data/
+backend/data/
+backend/.cache/
+artifacts/
+*.log
+*.sqlite3
+*.db
+*.db-wal
+*.db-shm
+
+# === 前端 ===
+node_modules/
+dist/
+.cache/
+
+# === 临时 ===
+tmp/
+*.tmp

@@ -1,0 +1,26 @@
+# ===== 核心运行时 =====
+# FastAPI 应用框架（含 Starlette / Pydantic v2 依赖）
+fastapi>=0.115,<1.0
+uvicorn>=0.30
+pydantic>=2.7,<3.0
+python-dotenv>=1.0
+
+# ===== PDF 解析与渲染 =====
+# PyMuPDF：版面块提取 / 表格识别 / 页面栅格化 / 内嵌文本层
+pymupdf>=1.24
+
+# ===== 数值与图计算 =====
+numpy>=1.26
+networkx>=3.2
+
+# ===== 图像处理（图块裁剪、缩略图） =====
+pillow>=10.0
+
+# ===== 可选：在线大模型（DeepSeek / OpenAI 兼容协议） =====
+# 未安装或未配置密钥时，系统自动降级为「离线确定性引擎」，功能不掉线。
+openai>=1.40 ; python_version >= "3.9"
+
+# 说明：
+# 1. 文件上传使用 raw body 协议（见 docs/ARCHITECTURE.md 的 ADR-003），
+#    因此不依赖 python-multipart。
+# 2. 测试仅使用标准库 unittest，无需 pytest。
