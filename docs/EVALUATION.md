@@ -1,6 +1,6 @@
 # 评测报告（自动生成）
 
-> 生成时间：2026-11-01T13:22:22Z ｜ 运行耗时：43.8s ｜ 运行方式：`cd backend && python -m eval.run_eval`
+> 生成时间：2026-11-01T13:33:39Z ｜ 运行耗时：50.0s ｜ 运行方式：`cd backend && python -m eval.run_eval`
 > 语料：`fixtures/corpus/papers.json` 14 篇合成论文（含扫描件），全部在离线模式运行，无网络、无外部模型。
 
 ## 总体指标
@@ -78,16 +78,17 @@
 
 **跨文献对比（GPT-1/2/3）**
 
-- 维度覆盖 1.0；关键数值命中：{'117M': False, '1.5B': False, '175B': False, '1024': True, '2048': True}
+- 维度覆盖 1.0；关键数值命中：{'117M': True, '1.5B': True, '175B': True, '1024': True, '2048': True}
 
 | 维度 | Improving Language Understanding by Generative Pre-Training | Language Models are Unsupervised Multitask Learners | Language Models are Few-Shot Learners |
 | --- | --- | --- | --- |
-| 模型参数量 | Given an unsupervised corpus of tokens, we use a standard language modeling objective to maximize the likelihood given in Equation (1), where k is the size of the context window and P is modeled by a neural network with… | The largest model achieves 87.65 percent accuracy on the common nouns category, which is close to human performance and well above the previous best result. | GPT-3 is an autoregressive Transformer language model with 175 billion parameters, 96 layers, a hidden size of 12288, and 96 attention heads. |
-| 层数与结构 | Given an unsupervised corpus of tokens, we use a standard language modeling objective to maximize the likelihood given in Equation (1), where k is the size of the context window and P is modeled by a neural network with… | The model is a Transformer decoder with 48 layers, a hidden size of 1600, 24 attention heads, and 1.5 billion parameters. | GPT-3 is an autoregressive Transformer language model with 175 billion parameters, 96 layers, a hidden size of 12288, and 96 attention heads. |
-| 上下文窗口 | Given an unsupervised corpus of tokens, we use a standard language modeling objective to maximize the likelihood given in Equation (1), where k is the size of the context window and P is modeled by a neural network with… | We created a new dataset called WebText by scraping web pages that were linked to from Reddit posts with at least 3 karma, which serves as a heuristic for whether a page is interesting or useful. | alternating dense and locally banded sparse attention layers, and the context window is 2048 tokens. |
-| 训练硬件 | Training takes 30 days on a single machine with 8 GPUs. | The context window is 1024 tokens, and the tokenizer is a byte-level byte pair encoding with a vocabulary of 50,257 tokens. | The largest model has 96 layers, a hidden size of 12288, 96 attention heads, and 175 billion parameters, and was trained on 10000 NVIDIA V100 GPUs with a batch size of 3.2 million tokens. |
+| 模型参数量 | Our model is a 12-layer Transformer decoder with 768 hidden units, 12 attention heads, a context window of 512 tokens, and 117 million parameters. | Accuracy increases monotonically with model size, from 83.1 percent for the 117 million parameter model to 87.65 percent for the 1.5 billion parameter model. | The largest model has 96 layers, a hidden size of 12288, 96 attention heads, and 175 billion parameters, and was trained on 10000 NVIDIA V100 GPUs with a batch size of 3.2 million tokens. |
+| 层数与结构 | Our model is a 12-layer Transformer decoder with 768 hidden units, 12 attention heads, a context window of 512 tokens, and 117 million parameters. | Table 1: Model sizes and zero-shot results. | GPT-3 is an autoregressive Transformer language model with 175 billion parameters, 96 layers, a hidden size of 12288, and 96 attention heads. |
+| 上下文窗口 | Our model is a 12-layer Transformer decoder with 768 hidden units, 12 attention heads, a context window of 512 tokens, and 117 million parameters. | The context window is 1024 tokens, and the tokenizer is a byte-level byte pair encoding with a vocabulary of 50,257 tokens. | alternating dense and locally banded sparse attention layers, and the context window is 2048 tokens. |
+| 训练硬件 | Training takes 30 days on a single machine with 8 GPUs. | The largest model is trained with a batch size of 512 sequences, a learning rate that is warmed up o | The largest model has 96 layers, a hidden size of 12288, 96 attention heads, and 175 billion parameters, and was trained on 10000 NVIDIA V100 GPUs with a batch size of 3.2 million tokens. |
 
-- **模型参数量**：模型参数量：Improving Language Understanding by Generative Pre-Training 为「Given an unsupervised corpus of tokens, we use a standard l…」；Language Models are Unsupervised Multitask Learners 为「The largest model achieves 87.65 percent accuracy on the co…
+- **模型参数量**：模型参数量：Improving Language Understanding by Generative Pre-Training 为「Our model is a 12-layer Transformer decoder with 768 hidden…」；Language Models are Unsupervised Multitask Learners 为「Accuracy increases monotonically with model size, from 83.1…」；Language Models are Few-Shot Learners 为「The largest model has 96 layers, a hidden size of 12288, 96…」。
+- **层数与结构**：层数与结构：Improving Language Understanding by Generative Pre-Training 为「Our model is a 12-layer Transformer decoder with 768 hidden…」；Language Models are Unsupervised Multitask Learners 为「Table 1: Model sizes and zero-shot results.」；La
 
 ## 模块三：版式阅读与双语对照
 
@@ -97,8 +98,8 @@
 
 ## 模块四：论文检索、追踪与推荐
 
-- 离线镜像检索返回 0 条，Top1：None
-- 推荐 0 条；检索来源：[]；降级：True
+- 离线镜像检索返回 1 条，Top1：Chain-of-Thought Prompting Elicits Reasoning in Large Language Models
+- 推荐 1 条；检索来源：[]；降级：True
 
 ## 模块五：引用图谱与综述
 
