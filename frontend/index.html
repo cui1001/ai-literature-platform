@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>科研助手 Agent · 文献理解、追踪与写作闭环</title>
+  <meta name="description" content="全栈式科研助手：PDF 细粒度解析、抗幻觉问答、版式阅读、arXiv 追踪、引用图谱与写作 Copilot" />
+  <link rel="stylesheet" href="/assets/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="mark">◈</span> 科研助手 <small>Research Agent</small></div>
+    <nav class="tabs" id="tabs">
+      <button class="tab" data-view="library">文献库</button>
+      <button class="tab" data-view="reader">版式阅读</button>
+      <button class="tab" data-view="qa">抗幻觉问答</button>
+      <button class="tab" data-view="discovery">arXiv 追踪</button>
+      <button class="tab" data-view="graph">引用图谱</button>
+      <button class="tab" data-view="writing">写作 Copilot</button>
+      <button class="tab" data-view="dataviz">数据可视化</button>
+      <button class="tab" data-view="system">系统状态</button>
+    </nav>
+    <div class="global-status" id="global-status"><span class="dot"></span> 就绪</div>
+  </header>
+  <main id="view"><div class="empty"><span class="spinner"></span> 正在加载文献库…</div></main>
+  <div id="toast"></div>
+  <dialog id="modal">
+    <div class="modal-head"><h3>详情</h3><button class="btn ghost small" id="modal-close">关闭 ✕</button></div>
+    <div class="modal-body"></div>
+  </dialog>
+  <script type="module" src="/assets/app.js"></script>
+</body>
+</html>
