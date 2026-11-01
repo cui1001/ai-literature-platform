@@ -16,7 +16,7 @@ from ..core.config import Settings, get_settings
 from ..core.errors import ProviderUnavailable, ValidationError
 from ..core.logging import get_logger
 from ..db import repo
-from ..indexing.retriever import get_retriever
+from ..indexing.retriever import expand_query, get_retriever
 from ..providers.base import LLMResult
 from ..providers.llm import get_llm
 from ..providers.offline import run_offline
@@ -132,8 +132,10 @@ def answer_question(
         return refusal
 
     citations = build_citations(chunks)
+    _, expansions = expand_query(question)
     payload = {
         "question": question,
+        "query_expansion": expansions,
         "evidence": evidence_payload(citations),
         "requirement": "每个结论后标注 [En]，未在证据中出现的信息不要写。",
     }

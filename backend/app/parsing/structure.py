@@ -220,7 +220,9 @@ def classify_blocks(pages: Sequence[PageText], body_size: float) -> list[TextBlo
                 lowered = text.lower().strip("：: .")
                 if lowered in {"references", "reference", "bibliography", "参考文献"}:
                     in_references = True
-                elif in_references and level == 1 and lowered not in {"appendix"}:
+                elif in_references and level == 1:
+                    # References 之后的附录/致谢等一级标题应退出参考文献状态，
+                    # 否则附录正文会被误标为 reference 而不进入检索索引。
                     in_references = False
             if kind == "paragraph" and in_references:
                 kind = "reference"
@@ -314,18 +316,48 @@ def extract_metadata(blocks: list[TextBlock], pages: Sequence[PageText], body_si
         rest = [b for b in head_zone if b.id not in title_ids]
         authors: list[str] = []
         affiliations: list[str] = []
-        for block in rest:
-            text = block.text.strip()
-            if not text:
+        # 原始 PDF 的作者行可能被 PyMuPDF 拆成多个紧邻文本块（姓名单行折行），
+        # 这里直接用标题下方到 Abstract 之间的原始块重建作者/机构，避免丢名字。
+        title_bottom = min(b.bbox.y1 for b in title_blocks)
+        abstract_top = page1[abstract_index].bbox.y0 if abstract_index is not None else None
+        raw_zone = [
+            b
+            for b in pages[0].blocks
+            if b.text.strip()
+            and b.bbox.y0 >= title_bottom - 1
+            and (abstract_top is None or b.bbox.y1 <= abstract_top - 1)
+        ]
+        raw_authors: list[str] = []
+        raw_affiliations: list[str] = []
+        for raw in sorted(raw_zone, key=lambda b: b.bbox.y0):
+            text = normalize_ws(raw.text)
+            if not text or text.lower().startswith(("arxiv:", "doi")):
                 continue
-            if _AFFIL_RE.search(text) and not authors:
-                affiliations.append(text)
-            elif _AFFIL_RE.search(text):
-                affiliations.append(text)
-            elif "," in text or " and " in text or "·" in text:
-                authors.extend(_split_authors(text))
-            elif len(authors) == 0 and len(text) < 120 and not _ends_sentence(text):
-                authors.extend(_split_authors(text))
+            if ";" in text and _AFFIL_RE.search(text):
+                raw_affiliations.extend(p.strip() for p in text.split(";") if p.strip())
+                continue
+            if _AFFIL_RE.search(text) and "," not in text and len(text) < 160 and not _ends_sentence(text):
+                raw_affiliations.append(text)
+                continue
+            if "," in text or " and " in text:
+                raw_authors.extend(_split_authors(text))
+            elif not raw_affiliations and not raw_authors and len(text) < 120 and not _ends_sentence(text):
+                raw_authors.extend(_split_authors(text))
+        if raw_authors:
+            authors = list(dict.fromkeys(raw_authors))
+        if raw_affiliations:
+            affiliations = list(dict.fromkeys(raw_affiliations))
+        if not authors:
+            for block in rest:
+                text = block.text.strip()
+                if not text:
+                    continue
+                if _AFFIL_RE.search(text) and not authors:
+                    affiliations.append(text)
+                elif "," in text or " and " in text or "·" in text:
+                    authors.extend(_split_authors(text))
+                elif len(authors) == 0 and len(text) < 120 and not _ends_sentence(text):
+                    authors.extend(_split_authors(text))
         meta["authors"] = authors[:20]
         meta["affiliations"] = [truncate(a, 300) for a in affiliations[:8]]
 

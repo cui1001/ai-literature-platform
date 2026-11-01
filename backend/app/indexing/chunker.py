@@ -87,6 +87,54 @@ def _flush(buffer: list[Any], paper: ParsedPaper, section: Any, order: int) -> C
     )
 
 
+def _meta_block(paper: ParsedPaper) -> Any:
+    """取第一页标题块（或首个文本块）作为元信息锚点。"""
+    page_blocks = [b for b in paper.blocks if b.page == 1 and b.text.strip()]
+    heading = next((b for b in page_blocks if b.kind == "heading"), None)
+    return heading or (page_blocks[0] if page_blocks else None)
+
+
+def meta_chunk(paper: ParsedPaper) -> Chunk | None:
+    """论文元信息块：作者/机构/年份/期刊/arXiv/DOI 的确定性直答来源。"""
+    anchor = _meta_block(paper)
+    if anchor is None:
+        return None
+    authors = ", ".join(a for a in (paper.authors or []) if a)
+    affiliations = "; ".join(a for a in (paper.affiliations or []) if a)
+    fields: list[str] = []
+    if paper.title:
+        fields.append(f"Title: {paper.title}")
+    if authors:
+        fields.append(f"Authors: {authors}")
+    if affiliations:
+        fields.append(f"Affiliations / Institutions: {affiliations}")
+    if paper.year:
+        fields.append(f"Year: {paper.year}")
+    if paper.venue:
+        fields.append(f"Venue: {paper.venue}")
+    if paper.arxiv_id:
+        fields.append(f"arXiv: {paper.arxiv_id}")
+    if paper.doi:
+        fields.append(f"DOI: {paper.doi}")
+    if not fields:
+        return None
+    text = ". ".join(fields) + "."
+    return Chunk(
+        chunk_id=chunk_id(paper.paper_id, 1, 0, text),
+        paper_id=paper.paper_id,
+        sid="",
+        page=1,
+        bbox=anchor.bbox,
+        text=text,
+        order_idx=0,
+        token_len=len(tokens(text)),
+        kind="meta",
+        section="元信息",
+        section_path="Metadata",
+        meta={"anchor_block": anchor.id},
+    )
+
+
 def chunk_paper(paper: ParsedPaper) -> list[Chunk]:
     sections = {s.sid: s for s in paper.sections}
     chunks: list[Chunk] = []
@@ -94,6 +142,7 @@ def chunk_paper(paper: ParsedPaper) -> list[Chunk]:
     buffer: list[Any] = []
     current_sid = ""
     current_section = None
+    current_page = 0
 
     def flush() -> None:
         nonlocal order, buffer
@@ -108,10 +157,12 @@ def chunk_paper(paper: ParsedPaper) -> list[Chunk]:
             continue
         if block.kind == "heading":
             continue
-        if block.sid != current_sid:
+        if block.sid != current_sid or block.page != current_page:
+            # 章节切换或跨页时不合并：保证每个 chunk 的页码/bbox 锚点都落在同一页。
             flush()
             current_sid = block.sid
             current_section = sections.get(block.sid)
+            current_page = block.page
         if block.kind in {"paragraph", "abstract"}:
             if not block.text.strip():
                 continue
@@ -213,6 +264,9 @@ def chunk_paper(paper: ParsedPaper) -> list[Chunk]:
             )
         )
         order += 1
+    meta = meta_chunk(paper)
+    if meta is not None:
+        chunks.insert(0, meta)
     return chunks
 
 

@@ -27,6 +27,7 @@ class Citation:
     section_path: str
     kind: str
     quote: str
+    text: str = ""
     score: float = 0.0
     cited: bool = False
 
@@ -42,6 +43,7 @@ class Citation:
             "section_path": self.section_path,
             "kind": self.kind,
             "quote": self.quote,
+            "text": self.text,
             "score": round(self.score, 5),
             "cited": self.cited,
             "anchor": {"paper_id": self.paper_id, "page": self.page, "bbox": self.bbox},
@@ -70,6 +72,7 @@ def build_citations(chunks: Sequence[RetrievedChunk], *, quote_chars: int = 240)
                 section_path=chunk.section_path,
                 kind=chunk.kind,
                 quote=quote,
+                text=text,
                 score=float(chunk.scores.get("fused", 0.0)),
             )
         )
@@ -82,7 +85,7 @@ def evidence_payload(citations: Sequence[Citation]) -> list[dict[str, Any]]:
         {
             "id": citation.evidence_id,
             "chunk_id": citation.chunk_id,
-            "text": citation.quote,
+            "text": citation.text or citation.quote,
             "page": citation.page,
             "paper_id": citation.paper_id,
             "paper_title": citation.paper_title,

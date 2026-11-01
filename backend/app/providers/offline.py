@@ -29,13 +29,19 @@ from .glossary import detect_terms, term_pairs, translate_en_to_zh, translate_zh
 #: 问题意图 → 关键词正则（用于在证据中定位「含金量」更高的句子）
 INTENT_PATTERNS: dict[str, list[str]] = {
     "author": [r"\b(?:author|authors|by)\b", r"大学|学院|研究所|实验室|university|institute|laborator"],
-    "affiliation": [r"university|institute|college|laborator|google|microsoft|openai|deepmind|meta|baidu"],
+    "affiliation": [
+        r"university|institute|college|laborator|google|microsoft|openai|deepmind|meta|baidu",
+        r"organization|organisation|company|team|developed|produced|created",
+    ],
     "hyperparameter": [r"learning rate|batch size|beta|β|α|alpha|dropout|warmup|optimizer|adam|epoch"],
     "hardware": [r"\b\d+\s*[×x]?\s*(?:a100|v100|p100|tpu|gpu|h100|rtx)\b", r"\bgpus?\b|\btpus?\b", r"显存|内存"],
     "metric": [r"bleu|rouge|f1|accuracy|perplexity|ppl|em\b|map\b|iou", r"score|结果|提升"],
     "dataset": [r"dataset|corpus|benchmark|训练集|测试集|语料"],
     "year": [r"\b(?:19|20)\d{2}\b"],
-    "citation": [r"reference|bibliography|引用|参考文献"],
+    "citation": [
+        r"reference|bibliography|引用|参考文献",
+        r"which (?:\w+ ){0,3}(?:paper|model|architecture|work)|build(?:s|ing)? (?:its |their )?architecture|introduced by|cited as",
+    ],
     "definition": [r"is defined as|refers to|we define|称为|定义为"],
 }
 
@@ -55,22 +61,40 @@ def _content_tokens(text: str) -> set[str]:
     return {t for t in tokens(text) if t not in _STOP and len(t) > 1}
 
 
-def _sentence_score(sentence: str, question: str, intents: list[str], *, wants_number: bool) -> float:
+def _sentence_score(
+    sentence: str,
+    question: str,
+    intents: list[str],
+    *,
+    wants_number: bool,
+    extras: Iterable[str] = (),
+) -> float:
     q_tokens = _content_tokens(question)
     s_tokens = _content_tokens(sentence)
     if not q_tokens or not s_tokens:
         overlap = 0.0
+        hits = 0
     else:
-        overlap = len(q_tokens & s_tokens) / max(1, min(len(q_tokens), 12))
-    score = 1.8 * min(1.0, overlap)
+        hits = len(q_tokens & s_tokens)
+        overlap = hits / max(1, min(len(q_tokens), 10))
+    score = 1.6 * min(1.0, overlap) + 0.18 * min(hits, 4)
     lowered = sentence.lower()
     for intent in intents:
         for pattern in INTENT_PATTERNS.get(intent, []):
             if re.search(pattern, lowered):
                 score += 0.9
                 break
+    extra_tokens = {t.lower() for t in extras if t}
+    if extra_tokens:
+        extra_hits = len(extra_tokens & s_tokens)
+        score += 0.22 * min(extra_hits, 2)
     if wants_number and extract_numbers(sentence):
         score += 0.5
+        if hits >= 2 or extra_tokens & s_tokens:
+            score += 0.35
+    if "|" in sentence:
+        # 表格行/表注不是自然语言证据，避免把多行表格当作答案
+        score -= 0.45
     if re.search(r"[=≈<>≤≥]|\b\d+(?:\.\d+)?\s*(?:%|k|m|b)?\b", sentence):
         score += 0.25
     # 句子过长/过短轻微惩罚
@@ -86,7 +110,7 @@ def _sentences_with_evidence(evidence: Iterable[dict[str, Any]]) -> list[dict[st
     out: list[dict[str, Any]] = []
     for item in evidence:
         text = item.get("text") or ""
-        parts = sentence_split(text) or ([text] if text.strip() else [])
+        parts = [text] if (item.get("kind") or "") == "meta" else (sentence_split(text) or ([text] if text.strip() else []))
         for idx, sentence in enumerate(parts):
             sentence = sentence.strip()
             if len(sentence) < 8:
@@ -97,6 +121,7 @@ def _sentences_with_evidence(evidence: Iterable[dict[str, Any]]) -> list[dict[st
                 "title": item.get("title") or item.get("paper_title") or "",
                 "page": item.get("page") or 1,
                 "section": item.get("section") or "",
+                "kind": item.get("kind") or "text",
                 "sentence": sentence,
                 "sentence_idx": idx,
                 "block_score": float(item.get("score") or 0),
@@ -105,29 +130,95 @@ def _sentences_with_evidence(evidence: Iterable[dict[str, Any]]) -> list[dict[st
 
 
 def _select_claims(
-    evidence: Iterable[dict[str, Any]], question: str, *, max_claims: int = 4, threshold: float = 0.55
+    evidence: Iterable[dict[str, Any]],
+    question: str,
+    *,
+    max_claims: int = 4,
+    threshold: float = 0.55,
+    extras: Iterable[str] = (),
 ) -> list[dict[str, Any]]:
+    extras = list(extras)
     intents = classify_intents(question)
-    wants_number = bool(re.search(r"多少|几个|多大|数值|参数|how many|how much|number", question.lower()))
+    wants_number = bool(
+        re.search(
+            r"多少|几个|多大|数值|参数|分数|准确率|准确度|性能|"
+            r"how many|how much|number|score|bleu|accuracy|percentage|percent|f1|em\b|ppl|perplexity",
+            question.lower(),
+        )
+    )
     candidates = _sentences_with_evidence(evidence)
     for cand in candidates:
-        cand["score"] = _sentence_score(cand["sentence"], question, intents, wants_number=wants_number)
+        cand["score"] = _sentence_score(
+            cand["sentence"], question, intents, wants_number=wants_number, extras=extras
+        )
         cand["score"] += min(0.4, cand["block_score"] * 0.4)
+        meta_intent = ({"author", "affiliation"} & set(intents)) and not (
+            "citation" in intents and "author" not in question.lower() and "affiliation" not in question.lower()
+        )
+        if cand["kind"] == "meta" and meta_intent:
+            # 元信息块本身就是作者/机构的权威来源，直接抬到最高优先级
+            cand["score"] = max(cand["score"], 2.6)
+        if cand["kind"] == "reference" and "citation" in intents:
+            # 参考文献块只用于补出处，不参与正文主张排序，否则答案会变成引用列表
+            cand["score"] -= 0.7
     candidates.sort(key=lambda c: (-c["score"], c["paper_id"], c["page"], c["sentence_idx"]))
     selected: list[dict[str, Any]] = []
     seen_blocks: set[Any] = set()
     for cand in candidates:
-        if cand["score"] < threshold and selected:
+        if cand["score"] < threshold and selected and not wants_number:
             break
         if cand["id"] in seen_blocks:
-            continue
+            # 数值/指标类问题常在同一段里并列多个数据集的结果，允许同块多句以覆盖全部数字
+            if not wants_number:
+                continue
+            if sum(1 for s in selected if s["id"] == cand["id"]) >= 3:
+                continue
         if any(jaccard(tokens(cand["sentence"]), tokens(s["sentence"])) > 0.75 for s in selected):
             continue
         selected.append(cand)
         seen_blocks.add(cand["id"])
         if len(selected) >= max_claims:
             break
+    if wants_number and selected:
+        # 数值题：确保至少有一条「带数字且命中问题关键词」的句子进入答案，
+        # 避免同段里并列的多个数据集结果被高分泛化句挤掉。
+        numeric = [
+            c for c in candidates
+            if c not in selected and re.search(r"\d", c["sentence"]) and c["score"] >= 0.4
+        ]
+        numeric.sort(key=lambda c: (-c["score"], c["paper_id"], c["page"]))
+        for cand in numeric[:2]:
+            if len(selected) >= max(max_claims, 6):
+                break
+            selected.append(cand)
     return selected
+
+
+# 离线模式没有参数化知识，但可以用一份「奠基论文别名表」把常见方法名映射到
+# 本地参考文献条目的标题片段，避免「问 Transformer 却引用到无关文献」。
+_REF_ALIASES: tuple[tuple[str, tuple[str, ...]], ...] = (
+    (r"gpt-?3", ("language models are few-shot learners",)),
+    (r"gpt-?2", ("language models are unsupervised multitask learners",)),
+    (r"gpt-?1", ("improving language understanding",)),
+    (r"transformer|attention", ("attention is all you need",)),
+    (r"bert", ("bert: pre-training",)),
+    (r"alexnet", ("imagenet classification",)),
+    (r"resnet|residual", ("deep residual learning",)),
+    (r"vit|vision transformer", ("an image is worth",)),
+    (r"lora", ("lora: low-rank",)),
+    (r"chain[- ]of[- ]thought", ("chain-of-thought prompting",)),
+)
+def _reference_index(evidence: Iterable[dict[str, Any]]) -> dict[int, str]:
+    """把证据中的参考文献块整理成 {编号: 条目文本}，用于正文引用回挂。"""
+    refs: dict[int, str] = {}
+    for item in evidence:
+        if (item.get("kind") or "") != "reference":
+            continue
+        text = (item.get("text") or "").strip()
+        match = re.match(r"^参考文献\s*\[(\d{1,3})\]\s*[:：]?\s*(.*)$", text, re.S)
+        if match:
+            refs[int(match.group(1))] = truncate(normalize_ws(match.group(2)), 220)
+    return refs
 
 
 def _cite_label(cand: dict[str, Any]) -> str:
@@ -146,7 +237,13 @@ def _cite_label(cand: dict[str, Any]) -> str:
 def task_answer_question(payload: dict[str, Any]) -> LLMResult:
     question = normalize_ws(payload.get("question") or "")
     evidence = payload.get("evidence") or []
-    claims = _select_claims(evidence, question, max_claims=int(payload.get("max_claims") or 4))
+    extras = payload.get("query_expansion") or []
+    claims = _select_claims(
+        evidence,
+        question,
+        max_claims=int(payload.get("max_claims") or 4),
+        extras=extras if isinstance(extras, list) else [],
+    )
     if not claims:
         return LLMResult(
             text=f"未能在所选的 {len(evidence)} 个证据块中找到直接依据，因此不作回答（避免编造）。"
@@ -156,9 +253,63 @@ def task_answer_question(payload: dict[str, Any]) -> LLMResult:
             model="deterministic-v1",
             notes="no-evidence",
         )
+    intents = classify_intents(question)
+    if "citation" in intents:
+        # 引用类问题：把与问题最相关的参考文献条目本身作为一条证据补进答案，
+        # 避免只回答「本文基于 Transformer」而给不出完整出处。
+        ref_items: list[tuple[int, str, dict[str, Any]]] = []
+        for item in evidence:
+            if (item.get("kind") or "") != "reference":
+                continue
+            match = re.match(r"^参考文献\s*\[(\d{1,3})\]\s*[:：]?\s*(.*)$", (item.get("text") or ""), re.S)
+            if match:
+                ref_items.append((int(match.group(1)), normalize_ws(match.group(2)), item))
+        if ref_items:
+            # 用「问题 + 已选正文证据」一起匹配参考文献，正文里的作者姓氏能指向正确的条目
+            # 匹配依据 = 问题 + 全部正文证据（正文里常出现作者姓氏/论文简称，能唯一定位条目）
+            q_tokens = _content_tokens(question)
+            for item in evidence:
+                if (item.get("kind") or "") != "reference":
+                    q_tokens |= _content_tokens(item.get("text") or "")
+            best = max(ref_items, key=lambda item: len(q_tokens & _content_tokens(item[1])))
+            for pattern, needles in _REF_ALIASES:
+                if not re.search(pattern, question, re.I):
+                    continue
+                alias_hit = next(
+                    (item for item in ref_items if any(n in item[1].lower() for n in needles)), None
+                )
+                if alias_hit is None:
+                    continue  # 该别名在本文参考文献里不存在时继续尝试下一个（如 GPT-3 论文不引用自身）
+                best = alias_hit
+                break
+            if best[0] not in {int(n) for c in claims for n in re.findall(r"\[(\d{1,3})\]", c["sentence"])}:
+                claims.append(
+                    {
+                        "id": best[2].get("id"),
+                        "paper_id": best[2].get("paper_id") or "",
+                        "title": best[2].get("title") or best[2].get("paper_title") or "",
+                        "page": best[2].get("page") or 1,
+                        "section": best[2].get("section") or "References",
+                        "kind": "reference",
+                        "sentence": f"参考文献 [{best[0]}]: {best[1]}",
+                        "sentence_idx": 0,
+                        "score": 1.2,
+                    }
+                )
+    if "citation" in intents:
+        # 参考文献条目统一排在正文证据之后，正文优先回答「是什么」
+        claims = [c for c in claims if c.get("kind") != "reference"] + [
+            c for c in claims if c.get("kind") == "reference"
+        ]
     lines = []
+    refs = _reference_index(evidence)
     for cand in claims:
-        lines.append(f"- {cand['sentence']}  \n  ——{_cite_label(cand)} [{cand['id']}]")
+        line = f"- {cand['sentence']}  \n  ——{_cite_label(cand)} [{cand['id']}]"
+        numbers = sorted({int(n) for n in re.findall(r"\[(\d{1,3})\]", cand["sentence"])})
+        appendix = [f"[{n}] {refs[n]}" for n in numbers if n in refs]
+        if appendix:
+            line += "\n  参考文献：" + "；".join(appendix)
+        lines.append(line)
     confidence = round(min(0.95, max(c["score"] for c in claims) / 2.6), 3)
     return LLMResult(
         text="\n".join(lines),

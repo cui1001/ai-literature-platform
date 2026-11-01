@@ -29,16 +29,51 @@ MAX_EXPANSIONS = 14
 VECTOR_MIN_SCORE = 0.0005
 
 
+SYNONYMS: dict[str, tuple[str, ...]] = {
+    "fraction": ("percent", "percentage", "ratio"),
+    "percent": ("fraction", "percentage"),
+    "percentage": ("percent", "fraction"),
+    "how many": ("number",),
+    "how much": ("amount", "much"),
+    "score": ("bleu", "accuracy", "f1"),
+    "scores": ("bleu", "accuracy", "f1"),
+    "hidden size": ("hidden units", "hidden"),
+    "attention heads": ("heads",),
+    "layers": ("layer",),
+    "parameters": ("params", "parameter"),
+    "reference": ("参考文献",),
+    "citation": ("参考文献", "cite"),
+    "hardware": ("gpu", "tpu", "v100", "p100"),
+    "trained": ("training",),
+}
+
+
+def _english_synonyms(query: str) -> list[str]:
+    lowered = query.lower()
+    out: list[str] = []
+    for trigger, terms in SYNONYMS.items():
+        if trigger in lowered:
+            out.extend(terms)
+    return out
+
+
 def expand_query(query: str) -> tuple[str, list[str]]:
-    """中文问题 → 追加英文术语，弥合「中文提问 / 英文原文」的召回鸿沟。
+    """中文问题 → 追加英文术语，英文问题 → 追加同义词，弥合「问法 / 原文用词」的召回鸿沟。
 
     术语表来自 providers.glossary（人工维护的学术术语对照），扩展结果会写进检索统计，
     评审可以清楚看到「召回不是靠黑盒模型猜的」。
     """
-    if not any(CJK_RE.match(char) for char in query):
-        return query, []
     expansions: list[str] = []
     seen: set[str] = set()
+    if not any(CJK_RE.match(char) for char in query):
+        for term in _english_synonyms(query):
+            key = term.lower()
+            if term and key not in seen and key not in query.lower():
+                seen.add(key)
+                expansions.append(term)
+        if not expansions:
+            return query, []
+        return f"{query} {' '.join(expansions)}", expansions
     for zh, en in sorted(ZH_TERMS.items(), key=lambda item: -len(item[0])):
         if zh and zh in query:
             term = str(en).replace("_", " ").strip()
@@ -53,8 +88,10 @@ def expand_query(query: str) -> tuple[str, list[str]]:
     return f"{query} {' '.join(expansions)}", expansions
 
 CITATION_QUERY_RE = re.compile(r"\[(\d{1,3})\]")
+CITATION_INTENT_RE = re.compile(r"reference|bibliography|cited|citation|cite|which (?:\w+ ){0,3}(?:paper|model|architecture|work)|build(?:s|ing)? (?:its |their )?architecture|introduced by|参考文献|引用", re.IGNORECASE)
 FIGURE_QUERY_RE = re.compile(r"(图|figure|fig\.?)\s*\d*", re.IGNORECASE)
 TABLE_QUERY_RE = re.compile(r"(表|table)\s*\d*", re.IGNORECASE)
+META_QUERY_RE = re.compile(r"authors?|affiliations?|institutions?|organi[sz]ations?|company|team|developed|produced|doi|作者|机构|单位", re.IGNORECASE)
 
 
 @dataclass
@@ -217,7 +254,7 @@ class Retriever:
             vector_ranked = scored[: max(top_k * 8, 40)]
 
         fused = self._fuse(bm25_ranked, vector_ranked, indices, bm25_query)
-        fused = self._apply_intent_boost(query, fused)
+        fused = self._apply_intent_boost(query, fused, allowed_ids)
         fused.sort(key=lambda item: (-item[1], self._chunks[item[0]]["chunk_id"]))
 
         picked: list[RetrievedChunk] = []
@@ -273,7 +310,9 @@ class Retriever:
                     fused[index] = overlap * 1e-4
         return list(fused.items())
 
-    def _apply_intent_boost(self, query: str, fused: list[tuple[int, float]]) -> list[tuple[int, float]]:
+    def _apply_intent_boost(
+        self, query: str, fused: list[tuple[int, float]], allowed: set[str] | None = None
+    ) -> list[tuple[int, float]]:
         kind_hint: dict[str, float] = {}
         if FIGURE_QUERY_RE.search(query):
             kind_hint["figure"] = 1.35
@@ -281,16 +320,49 @@ class Retriever:
             kind_hint["table"] = 1.35
         if "公式" in query or "equation" in query.lower():
             kind_hint["equation"] = 1.25
+        if META_QUERY_RE.search(query):
+            kind_hint["meta"] = 2.2
+        citation_intent = bool(CITATION_INTENT_RE.search(query))
         citation = CITATION_QUERY_RE.search(query)
+        present = {self._chunks[index].get("kind") for index, _ in fused}
+        base = max((score for _, score in fused), default=0.0) or 0.02
+        injected: list[tuple[int, float]] = []
+        # 元信息/参考文献这类「短小但关键」的块常常 BM25 打不进来，按意图强制纳入候选
+        want_kinds = []
+        if "meta" in kind_hint and "meta" not in present:
+            want_kinds.append("meta")
+        if citation_intent and "reference" not in present:
+            want_kinds.append("reference")
+        if want_kinds:
+            for index, chunk in enumerate(self._chunks):
+                if chunk.get("kind") not in want_kinds:
+                    continue
+                if allowed and chunk.get("paper_id") not in allowed:
+                    continue
+                injected.append((index, base * 0.55))
+            fused = list(fused) + injected
         boosted: list[tuple[int, float]] = []
         for index, score in fused:
             chunk = self._chunks[index]
-            factor = kind_hint.get(chunk.get("kind", ""), 1.0)
+            kind = chunk.get("kind", "")
+            if kind == "meta" and "meta" in kind_hint:
+                score = max(score, base * 0.9)
+            if kind == "reference" and citation_intent:
+                score = max(score, base * 1.55)
+            factor = kind_hint.get(kind, 1.0)
+            if citation_intent and chunk.get("kind") == "reference":
+                factor *= 1.15
             if citation and chunk.get("kind") == "reference":
                 # 只在参考文献块中查 [n]，并优先匹配编号
                 if re.search(rf"\[{citation.group(1)}\]", chunk["text"]):
                     factor *= 2.4
             boosted.append((index, score * factor))
+        if citation_intent:
+            # 参考文献最多保留 3 条，避免把正文证据挤出上下文
+            refs = [item for item in boosted if self._chunks[item[0]].get("kind") == "reference"]
+            refs.sort(key=lambda item: -item[1])
+            kept = {item[0] for item in refs[:3]}
+            boosted = [item for item in boosted if self._chunks[item[0]].get("kind") != "reference" or item[0] in kept]
         return boosted
 
     def _sub_scores(
