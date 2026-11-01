@@ -68,7 +68,8 @@ async def seed_demo() -> dict[str, Any]:
     s = get_settings()
     from ..papers import service
 
-    roots = [s.repo_root / "fixtures" / "papers", s.repo_root / "fixtures" / "papers" / "scanned"]
+    # 扫描件优先：确保 demo 中保留一篇 OCR 解析的论文
+    roots = [s.repo_root / "fixtures" / "papers" / "scanned", s.repo_root / "fixtures" / "papers"]
     files: list[Path] = []
     for root in roots:
         if root.exists():
