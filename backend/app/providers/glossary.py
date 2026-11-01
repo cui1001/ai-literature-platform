@@ -179,6 +179,23 @@ def translate_zh_to_en(text: str) -> tuple[str, float, list[str]]:
             out = out.replace(zh, f" {en} ")
             used.append(zh)
     out = re.sub(r"\s+", " ", out).strip()
+    # 中文标点转英文标点，并清理替换产生的多余空格（离线模式至少输出规范英文排版）
+    out = (
+        out.replace("，", ", ")
+        .replace("。", ". ")
+        .replace("；", "; ")
+        .replace("：", ": ")
+        .replace("（", " (")
+        .replace("）", ") ")
+        .replace("、", ", ")
+    )
+    out = re.sub(r"\s+([,.;:!?)])", r"\1", out)
+    out = re.sub(r"\(\s+", "(", out)
+    out = re.sub(r"([,.;:!?])\1+", r"\1", out)
+    out = re.sub(r"\.\s*\.", ".", out)
+    out = re.sub(r"\s+", " ", out).strip()
+    if out[:1].islower():
+        out = out[0].upper() + out[1:]
     tokens_total = max(1, len(re.findall(r"[\u4e00-\u9fff]", text)))
     covered = sum(len(zh) for zh in used)
     return out, round(min(1.0, covered / tokens_total), 3), used

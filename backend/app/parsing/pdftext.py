@@ -155,6 +155,42 @@ def _block_from_image(block: dict[str, Any]) -> RawBlock:
     return RawBlock(bbox=bbox, kind="image", image_bytes=raw if isinstance(raw, (bytes, bytearray)) else None)
 
 
+def split_mixed_blocks(blocks: list[RawBlock]) -> list[RawBlock]:
+    """把「图注 + 后面的标题」这类被 PDF 结构合并的块按字号拆开。
+
+    PyMuPDF 的 dict 模式经常把相邻但字号不同的行放进同一个 block，例如
+    图注（8.5pt）后面紧跟 ``References``（12pt）。若整块按中位字号分类，
+    就会丢掉 References / 附录标题，进而导致参考文献解析为空。
+    这里按行字号做连续分段，字号差异不足 20% 的块保持原样。
+    """
+    out: list[RawBlock] = []
+    for block in blocks:
+        if block.kind != "text" or len(block.lines) < 2:
+            out.append(block)
+            continue
+        sizes = [line.size for line in block.lines if line.size]
+        if not sizes or max(sizes) < min(sizes) * 1.2:
+            out.append(block)
+            continue
+        groups: list[list[RawLine]] = []
+        for line in block.lines:
+            if not groups:
+                groups.append([line])
+                continue
+            base = groups[-1][0].size or line.size
+            same = abs((line.size or base) - base) <= max(0.8, base * 0.08)
+            if same:
+                groups[-1].append(line)
+            else:
+                groups.append([line])
+        for group in groups:
+            bbox = group[0].bbox
+            for line in group[1:]:
+                bbox = bbox.union(line.bbox)
+            out.append(RawBlock(bbox=bbox, lines=group, kind=block.kind, ocr=block.ocr))
+    return out
+
+
 def detect_columns(blocks: list[RawBlock], page_width: float, text_left: float, text_right: float) -> int:
     """依据块的水平分布判断单/双栏：双栏要求左右两簇都有足够多、且窄的块。"""
     candidates = [b for b in blocks if b.kind == "text" and b.bbox.width > 40 and b.text.strip()]
@@ -195,6 +231,7 @@ def extract_page(page: Any, settings: Settings, *, page_number: int | None = Non
             if converted_image.bbox.area > 400:
                 blocks.append(converted_image)
 
+    blocks = split_mixed_blocks(blocks)
     text_chars = sum(len(b.text) for b in blocks if b.kind == "text")
     ocr_used = False
     ocr_engine = ""

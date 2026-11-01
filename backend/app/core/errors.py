@@ -15,14 +15,17 @@ class AppError(Exception):
     status = 500
     message = "服务内部错误"
 
-    def __init__(self, message: str = "", *, detail: Any = None, status: int | None = None):
+    def __init__(self, message: str = "", *, detail: Any = None, status: int | None = None, field: str = ""):
         super().__init__(message or self.message)
         self.message = message or self.message
         self.detail = detail
+        self.field = field
         self.status_code = status or self.status
 
     def to_dict(self) -> dict[str, Any]:
         payload: dict[str, Any] = {"code": self.code, "message": self.message}
+        if self.field:
+            payload["field"] = self.field
         if self.detail is not None:
             payload["detail"] = self.detail
         return payload
