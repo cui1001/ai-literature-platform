@@ -13,6 +13,35 @@
 
 > 竞赛要求「评审期间保持服务可用」，**建议 A**；时间紧可先用 B 打通，再把同一镜像迁到 A。
 
+## 方案 A0：学生零成本路线（GitHub Student Pack → 海外小机器 + 免费域名）
+
+如果你有学生身份，这条路线可以做到**不买域名、不备案、不花钱**，地址还是 HTTPS：
+
+1. **申请 GitHub Student Developer Pack**（<https://education.github.com/pack>）：用学校邮箱 + 学生证/学信网截图，通常 1–3 天通过。
+2. 在 Pack 里领取 **DigitalOcean** 额度（约 $200，以页面显示为准；另有 Azure $100、Namecheap 免费域名等）。
+3. DigitalOcean 新建 **Droplet**：Ubuntu 24.04，**Singapore** 机房，$12/月档（2G 内存）最稳；$6/月 1G 档需加 2G swap（见下）。开启防火墙只放行 22/80/443。
+4. **没有域名也能上 HTTPS**：用 `sslip.io` 把 IP 变成主机名。假设服务器 IP 是 `203.0.113.5`，主机名就是 `203-0-113-5.sslip.io`（把点换成短横线）。
+5. 按下面「方案 A」第 2–6 步安装，Caddy 配置用现成模板：
+
+```bash
+sudo cp deploy/Caddyfile.sslip /etc/caddy/Caddyfile
+sudo sed -i 's/203-0-113-5/你的IP点换短横线/g' /etc/caddy/Caddyfile
+sudo systemctl reload caddy
+curl -I https://203-0-113-5.sslip.io      # Let's Encrypt 自动签发
+```
+
+6. 有免费域名（Namecheap `.me` 一年）时更稳：域名 A 记录指向 IP，按方案 A 第 5 步即可。`sslip.io` 是第三方公共服务，仅建议评审期临时用。
+
+1G 内存加 swap（可选）：
+
+```bash
+sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile
+sudo mkswap /swapfile && sudo swapon /swapfile
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+```
+
+> 海外机器不需要 ICP 备案，评审可直接访问；代价是延迟略高（新加坡到国内约 60–90ms），页面是服务端渲染好的 PNG，实际体验仍流畅。
+
 ## 方案 A：云服务器 + 域名（推荐）
 
 ### 1. 准备
