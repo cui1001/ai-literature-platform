@@ -15,6 +15,8 @@
 
 ## 方案 A0：学生零成本路线（GitHub Student Pack → 海外小机器 + 免费域名）
 
+> 已提供一键脚本：`sudo bash deploy/bootstrap.sh [域名]`，会一次完成依赖安装、systemd 服务与 Caddy HTTPS 配置（幂等，可重复执行）。加评审口令：`sudo AUTH_USER=judge AUTH_PASS='口令' bash deploy/bootstrap.sh`。手工步骤仍保留在下方，便于逐步排查。
+
 如果你有学生身份，这条路线可以做到**不买域名、不备案、不花钱**，地址还是 HTTPS：
 
 1. **申请 GitHub Student Developer Pack**（<https://education.github.com/pack>）：用学校邮箱 + 学生证/学信网截图，通常 1–3 天通过。
@@ -43,6 +45,8 @@ echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 > 海外机器不需要 ICP 备案，评审可直接访问；代价是延迟略高（新加坡到国内约 60–90ms），页面是服务端渲染好的 PNG，实际体验仍流畅。
 
 ## 方案 A：云服务器 + 域名（推荐）
+
+> 最快路径：`sudo bash deploy/bootstrap.sh demo.example.com`，脚本会完成第 2–5 步；域名需先解析到本机，安全组放行 22/80/443。
 
 ### 1. 准备
 
