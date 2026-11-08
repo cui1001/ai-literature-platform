@@ -8,15 +8,16 @@
 
 | 要求项 | 赛方要求 | 状态 | 证据 / 位置 | 说明 |
 | --- | --- | --- | --- | --- |
-| 托管平台 | GitHub / Gitee，须设为 Public 或提供评审访问权限 | 待补充 | — | 仓库已在本地保留完整历史；**公网仓库地址待参赛队创建/开放后填入** |
+| 托管平台 | GitHub / Gitee，须设为 Public 或提供评审访问权限 | 已满足 | <https://github.com/cui1001/ai-literature-platform> | 2026-11-08 核实：仓库 `private=false`（Public）、默认分支 `master`；远端 `master` 共 40 次提交、11 个分支，与本地 `master`（`c27c40d`）一致 |
 | 代码规范 | 代码结构清晰、包含有效注释、遵循主流代码规范 | 已满足 | `backend/app/`（core/db/providers/parsing/papers/indexing/qa/reading/discovery/graph/writing/dataviz/api 分层）、`frontend/assets/`；关键函数均有 docstring 与中文注释 | 后端为 Python 3.11+ 标准库 + FastAPI 风格；前端为原生 ES Module，无构建链 |
-| README 文件 | 项目介绍、技术架构、安装运行指南、团队信息 | 部分满足 | [README.md](../README.md)：项目介绍、六大模块、架构一览、快速开始、评测、测试复现、提交材料 | 「团队信息」章节已建表，成员/单位/分工为 `(待补充：…)`，需参赛队填写 |
-| Git 记录 | 保留完整 Git 提交历史，体现真实开发过程 | 已满足 | `git log --oneline --graph`：旧原型 14 次提交 → 阶段 A 文档/重组 → 内核/阅读/接口/四模块/前端/语料/问答/交付文档等分支，均以 `--no-ff` 合并 | 历史未被 squash 或重写；`docs/DEVLOG.md` 按阶段记录动机、bug 与验证 |
+| README 文件 | 项目介绍、技术架构、安装运行指南、团队信息 | 部分满足 | [README.md](../README.md)：项目介绍、六大模块、架构一览、快速开始、评测、测试复现、提交材料 | 「团队信息」已填写单人独立开发与分工；队伍名称/单位/联系方式为 `(待补充：…)`，需参赛队补充 |
+| Git 记录 | 保留完整 Git 提交历史，体现真实开发过程 | 已满足 | <https://github.com/cui1001/ai-literature-platform/commits/master>：旧原型 14 次提交 → 阶段 A 文档/重组 → 内核/阅读/接口/四模块/前端/语料/问答/交付文档等分支，均以 `--no-ff` 合并 | 推送为 fast-forward（`7cace1a..c27c40d`），未 squash、未重写；`docs/DEVLOG.md` 按阶段记录动机、bug 与验证 |
 | 环境配置 | 环境变量模板 + 依赖清单 | 已满足 | [backend/.env.example](../backend/.env.example)、[backend/requirements.txt](../backend/requirements.txt) | 变量含 `DATA_DIR / LLM_MODE / DEEPSEEK_* / EMBED_MODE / SILICONFLOW_* / ARXIV_MODE / PAGE_RENDER_DPI / OCR_TEXT_THRESHOLD / TRACKER_INTERVAL_MINUTES`；依赖 8 个纯 Python 包，无 Node/npm |
 
 ### 2.1 补充说明
 
 - **运行环境基线**：Windows 10/11 或 Linux；Python 3.11+（本机验证 3.14）；无需 GPU、无需外网。OCR 优先使用 Windows 内置 `Windows.Media.Ocr`（`winrt`），Linux 无 OCR 引擎时自动回退文本层并在接口中标注 `degraded`。
+- **代码仓库**：<https://github.com/cui1001/ai-literature-platform>（GitHub Public，默认分支 `master`；2026-11-08 核实为 40 次提交、11 个分支，历史完整）。
 - **安装与启动**（与 README 一致）：
 
   ```bash
@@ -89,6 +90,7 @@ python scripts/run_server.py --demo
 
 | 文件 | 说明 |
 | --- | --- |
+| <https://github.com/cui1001/ai-literature-platform> | 代码仓库（Public，`master` + 10 个开发分支） |
 | [TECHNICAL_REPORT.pdf](TECHNICAL_REPORT.pdf) | 技术文档（14 页，最终提交版） |
 | [TECHNICAL_REPORT.md](TECHNICAL_REPORT.md) | 技术文档 Markdown 源文件 |
 | [assets/architecture.svg](assets/architecture.svg) | 系统架构图源文件 |
@@ -102,9 +104,18 @@ python scripts/run_server.py --demo
 
 ## 待补充信息（需参赛队确认后替换）
 
-1. **公网仓库地址**（GitHub / Gitee，Public 或评审可访问）——填入 README「提交材料」与 2.1 表。
-2. **团队信息**：队伍名称、所属单位、成员姓名与分工、联系方式——填入 README「团队信息」。
-3. **在线演示地址、开放时段、评审账号**（如部署增加鉴权）——填入 README「在线演示」与 2.4 表。
-4. 若赛方要求封面含队伍名称/学校 Logo，可在 `scripts/build_report_pdf.py` 的 `COVER` 常量中补充后重新生成 PDF。
+1. **团队信息**：队伍名称、所属单位、联系方式——填入 README「团队信息」（分工已按单人独立开发填写）。
+2. **在线演示地址、开放时段、评审账号**（如部署增加鉴权）——填入 README「在线演示」与 2.4 表。
+3. 若赛方要求封面含队伍名称/学校 Logo，可在 `scripts/build_report_pdf.py` 的 `COVER` 常量中补充后重新生成 PDF。
 
 在以上信息确认前，本清单不对其做任何假设或代填。
+
+## 仓库推送记录（2026-11-08）
+
+| 步骤 | 命令 | 结果 |
+| --- | --- | --- |
+| 核对远端 | `git ls-remote --heads origin` | 远端仅 `master`，指向 `7cace1a`（旧原型 14 次提交） |
+| 确认快进 | `git merge-base --is-ancestor origin/master master` | 通过（本地 `master` 是远端后代，可 fast-forward） |
+| 推送主分支 | `git push origin master` | `7cace1a..c27c40d  master -> master`（26 个新提交，未重写历史） |
+| 推送开发分支 | `git push origin --all` | 新增 10 个功能/修复分支（共 11 个分支） |
+| 复核 | `git rev-list --count origin/master` | 40 次提交；GitHub API `private=false`、`default_branch=master` |
