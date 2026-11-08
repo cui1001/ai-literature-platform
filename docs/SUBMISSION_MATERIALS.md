@@ -101,7 +101,7 @@ python scripts/run_server.py --demo
 | [screenshots/](screenshots/) | 六个视图的真实渲染截图 |
 | [DEPLOYMENT.md](DEPLOYMENT.md) | 在线演示部署指南（云服务器 / Cloudflare Tunnel / PaaS） |
 | [../Dockerfile](../Dockerfile)、[../docker-compose.yml](../docker-compose.yml) | 容器镜像与编排（`DATA_DIR=/data` 持久化） |
-| [../deploy/](../deploy/) | systemd 服务、Caddyfile、cloudflared 配置示例 |
+| [../deploy/](../deploy/) | systemd 服务、Caddyfile（域名 / sslip.io 无域名 HTTPS）、cloudflared 配置示例 |
 | [../scripts/run_server.py](../scripts/run_server.py) | 一键启动脚本（`--demo/--online/--port/--data-dir`） |
 | [../scripts/build_report_pdf.py](../scripts/build_report_pdf.py) | 技术文档 PDF 构建脚本 |
 

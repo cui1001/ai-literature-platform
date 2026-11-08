@@ -1,0 +1,28 @@
+# AgentLit 反向代理模板：无域名方案（sslip.io）
+# 前提：把下面主机名里的短横线 IP 换成你的公网 IP（203.0.113.5 -> 203-0-113-5）
+#   sudo cp deploy/Caddyfile.sslip /etc/caddy/Caddyfile
+#   sudo sed -i 's/203-0-113-5/你的IP/g' /etc/caddy/Caddyfile
+#   sudo systemctl reload caddy
+# Caddy 会为该主机名自动申请 Let's Encrypt 证书（需 80/443 可访问，安全组放行）。
+
+203-0-113-5.sslip.io {
+	encode gzip zstd
+
+	# 公网演示建议开启评审口令：先执行 caddy hash-password --plaintext '你的口令'
+	# basic_auth {
+	# 	judge $2a$14$REPLACE_WITH_HASH
+	# }
+
+	reverse_proxy 127.0.0.1:8000 {
+		header_up X-Forwarded-For {remote_host}
+		transport http {
+			read_timeout 300s
+			write_timeout 300s
+		}
+	}
+
+	log {
+		output file /var/log/caddy/agentlit.log
+		format console
+	}
+}
