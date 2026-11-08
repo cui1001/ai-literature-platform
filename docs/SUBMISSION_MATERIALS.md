@@ -8,7 +8,7 @@
 
 | 要求项 | 赛方要求 | 状态 | 证据 / 位置 | 说明 |
 | --- | --- | --- | --- | --- |
-| 托管平台 | GitHub / Gitee，须设为 Public 或提供评审访问权限 | 已满足 | <https://github.com/cui1001/ai-literature-platform> | 2026-11-08 核实：仓库 `private=false`（Public）、默认分支 `master`；远端 `master` 共 40 次提交、11 个分支，与本地 `master`（`c27c40d`）一致 |
+| 托管平台 | GitHub / Gitee，须设为 Public 或提供评审访问权限 | 已满足 | <https://github.com/cui1001/ai-literature-platform> | 2026-11-08 核实：仓库 `private=false`（Public）、默认分支 `master`；远端 `master` 与本地一致，历史完整（旧原型 14 次提交 + 分阶段重构与 `--no-ff` 合并），另有 11 个开发/修复分支 |
 | 代码规范 | 代码结构清晰、包含有效注释、遵循主流代码规范 | 已满足 | `backend/app/`（core/db/providers/parsing/papers/indexing/qa/reading/discovery/graph/writing/dataviz/api 分层）、`frontend/assets/`；关键函数均有 docstring 与中文注释 | 后端为 Python 3.11+ 标准库 + FastAPI 风格；前端为原生 ES Module，无构建链 |
 | README 文件 | 项目介绍、技术架构、安装运行指南、团队信息 | 部分满足 | [README.md](../README.md)：项目介绍、六大模块、架构一览、快速开始、评测、测试复现、提交材料 | 「团队信息」已填写单人独立开发与分工；队伍名称/单位/联系方式为 `(待补充：…)`，需参赛队补充 |
 | Git 记录 | 保留完整 Git 提交历史，体现真实开发过程 | 已满足 | <https://github.com/cui1001/ai-literature-platform/commits/master>：旧原型 14 次提交 → 阶段 A 文档/重组 → 内核/阅读/接口/四模块/前端/语料/问答/交付文档等分支，均以 `--no-ff` 合并 | 推送为 fast-forward（`7cace1a..c27c40d`），未 squash、未重写；`docs/DEVLOG.md` 按阶段记录动机、bug 与验证 |
@@ -17,7 +17,7 @@
 ### 2.1 补充说明
 
 - **运行环境基线**：Windows 10/11 或 Linux；Python 3.11+（本机验证 3.14）；无需 GPU、无需外网。OCR 优先使用 Windows 内置 `Windows.Media.Ocr`（`winrt`），Linux 无 OCR 引擎时自动回退文本层并在接口中标注 `degraded`。
-- **代码仓库**：<https://github.com/cui1001/ai-literature-platform>（GitHub Public，默认分支 `master`；2026-11-08 核实为 40 次提交、11 个分支，历史完整）。
+- **代码仓库**：<https://github.com/cui1001/ai-literature-platform>（GitHub Public，默认分支 `master`；2026-11-08 核实：历史完整，含旧原型 14 次提交与分阶段重构合并）。
 - **安装与启动**（与 README 一致）：
 
   ```bash
@@ -90,7 +90,7 @@ python scripts/run_server.py --demo
 
 | 文件 | 说明 |
 | --- | --- |
-| <https://github.com/cui1001/ai-literature-platform> | 代码仓库（Public，`master` + 10 个开发分支） |
+| <https://github.com/cui1001/ai-literature-platform> | 代码仓库（Public，`master` + 11 个开发/修复分支） |
 | [TECHNICAL_REPORT.pdf](TECHNICAL_REPORT.pdf) | 技术文档（14 页，最终提交版） |
 | [TECHNICAL_REPORT.md](TECHNICAL_REPORT.md) | 技术文档 Markdown 源文件 |
 | [assets/architecture.svg](assets/architecture.svg) | 系统架构图源文件 |
@@ -117,5 +117,5 @@ python scripts/run_server.py --demo
 | 核对远端 | `git ls-remote --heads origin` | 远端仅 `master`，指向 `7cace1a`（旧原型 14 次提交） |
 | 确认快进 | `git merge-base --is-ancestor origin/master master` | 通过（本地 `master` 是远端后代，可 fast-forward） |
 | 推送主分支 | `git push origin master` | `7cace1a..c27c40d  master -> master`（26 个新提交，未重写历史） |
-| 推送开发分支 | `git push origin --all` | 新增 10 个功能/修复分支（共 11 个分支） |
-| 复核 | `git rev-list --count origin/master` | 40 次提交；GitHub API `private=false`、`default_branch=master` |
+| 推送开发分支 | `git push origin --all` | 新增 10 个功能/修复分支 |
+| 复核 | `git rev-list --count origin/master` | 推送后 42 次提交（含本次文档提交与合并）、12 个分支；GitHub API `private=false`、`default_branch=master` |

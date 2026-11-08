@@ -129,7 +129,7 @@ python -m eval.run_eval                      # 八段评测，输出 report.json
 
 | 材料 | 位置 | 说明 |
 | --- | --- | --- |
-| 代码仓库 | <https://github.com/cui1001/ai-literature-platform> | GitHub Public，默认分支 `master`，含完整 40 次提交与 11 个开发分支 |
+| 代码仓库 | <https://github.com/cui1001/ai-literature-platform> | GitHub Public，默认分支 `master`，含完整提交历史（旧原型 + 分阶段功能分支与合并） |
 | 技术文档（PDF，≤30 页） | [docs/TECHNICAL_REPORT.pdf](docs/TECHNICAL_REPORT.pdf) | 由 [docs/TECHNICAL_REPORT.md](docs/TECHNICAL_REPORT.md) 生成，14 页 |
 | 技术文档源文件 | [docs/TECHNICAL_REPORT.md](docs/TECHNICAL_REPORT.md) | 可编辑版本，含架构图源文件 [docs/assets/architecture.svg](docs/assets/architecture.svg) |
 | 提交材料清单 | [docs/SUBMISSION_MATERIALS.md](docs/SUBMISSION_MATERIALS.md) | 2.1 / 2.3 / 2.4 逐项状态与待补充项 |
