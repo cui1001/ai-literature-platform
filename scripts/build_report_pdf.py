@@ -75,8 +75,11 @@ h4 { font-size: 10.8pt; color: #334155; margin: 12px 0 4px; page-break-after: av
 p { margin: 5px 0 8px; text-align: justify; }
 ul, ol { margin: 5px 0 9px 22px; padding: 0; }
 li { margin: 2px 0; }
-table { width: 100%; border-collapse: collapse; margin: 7px 0 12px; font-size: 8.5pt; page-break-inside: avoid; }
-th, td { border: 0.6pt solid #cbd5e1; padding: 3.6px 5px; vertical-align: top; text-align: left; }
+table { width: 100%; border-collapse: collapse; margin: 7px 0 12px; font-size: 8.5pt; page-break-inside: auto; }
+thead { display: table-header-group; }
+tr { page-break-inside: avoid; }
+th, td { border: 0.6pt solid #cbd5e1; padding: 3.6px 5px; vertical-align: top; text-align: left; overflow-wrap: anywhere; }
+th:first-child, td:first-child { min-width: 24mm; }
 th { background: #eef4ff; color: #1e3a8a; font-weight: 600; }
 tr:nth-child(even) td { background: #fafcff; }
 code { font-family: Consolas, "Cascadia Mono", monospace; background: #f1f5f9; padding: 0 3px; font-size: 8.6pt; border-radius: 2px; }
