@@ -10,6 +10,7 @@
 | A. 云服务器 + 域名 + HTTPS（推荐） | 服务器、域名（大陆需备案） | `https://agentlit.example.com` | 约 ¥60–120/年（学生机/轻量） | 高（7×24 常驻） | 正式提交 |
 | B. Cloudflare Tunnel | 一台常开的电脑（你现在的机器即可） | `https://xxx.trycloudflare.com` 或自有域名 | 0 元 | 中（电脑关机/断网即失效；quick 隧道地址会变） | 临时演示、录屏前验证 |
 | C. Render / Railway 等 PaaS | GitHub 仓库 + 账号（可能绑卡） | `https://xxx.onrender.com` | 免费档会休眠；付费约 $7/月 | 中 | 不想管服务器 |
+| D. Hugging Face Spaces | GitHub 账号（**无需信用卡**） | `https://用户名-space.hf.space` | 0 元 | 中（48 小时无访问休眠，唤醒 30–60s） | 学生、找不到云额度时 |
 
 > 竞赛要求「评审期间保持服务可用」，**建议 A**；时间紧可先用 B 打通，再把同一镜像迁到 A。
 
@@ -103,6 +104,20 @@ cd /opt/agentlit && sudo -u agentlit git pull
 sudo systemctl restart agentlit        # data 在 /var/lib/agentlit，不受影响
 sudo tar czf /root/agentlit-data-$(date +%F).tgz -C /var/lib agentlit
 ```
+
+## 方案 D：Hugging Face Spaces（免费、无需信用卡）
+
+GitHub Student Pack 里的 DigitalOcean 名额会随地区/时间调整，找不到时这是最省事的 0 成本方案：
+免费 CPU 档、自带公网 HTTPS、不需要域名和备案、不需要绑卡。
+
+1. 打开 <https://huggingface.co/new-space>，SDK 选 **Docker** → Blank，命名如 `agentlit-demo`，可见性 Public。
+2. 把仓库里的 `deploy/huggingface/` 两个文件推到该 Space（网页 *Files → Add file* 上传即可）：
+   - `README.md`（含 `sdk: docker`、`app_port: 8000` 元数据）
+   - `Dockerfile`（启动时从 GitHub 拉 `master` 并跑 `run_server.py --demo`）
+3. 等待 Building → Running（首次构建 3–6 分钟，启动后解析 15 个 PDF 再花 60–90 秒）。
+4. 地址是 `https://<用户名>-<space名>.hf.space`，直接写进 README「在线演示」。
+
+限制：免费 CPU 档 48 小时无访问会休眠（首次访问唤醒 30–60 秒）；容器重建后 `/data` 重置，演示数据会自动重新导入，不影响功能。若评审要求 7×24 不休眠，用方案 A 的服务器。
 
 ## 方案 B：Cloudflare Tunnel（无需服务器，5 分钟）
 
