@@ -63,9 +63,9 @@
 
 | 要求项 | 赛方要求 | 状态 | 证据 / 位置 | 说明 |
 | --- | --- | --- | --- | --- |
-| 部署要求 | 提供可公网访问的在线演示地址 | 待补充 | — | 本地已验证 `http://127.0.0.1:8000` 全流程；公网部署需参赛队提供服务器/域名后填入 |
-| 可用性 | 评审期间保持服务可用 | 待补充 | — | 建议用 `python scripts/run_server.py --demo --data-dir <持久目录>` 常驻，并配置进程守护 |
-| 体验账号 | 如需登录，提供评审专用测试账号 | 不适用（当前无登录） | — | 系统当前无鉴权，打开即可体验；若部署时增加网关鉴权，需在此补充账号口令 |
+| 部署要求 | 提供可公网访问的在线演示地址 | 待补充（部署套件已就绪） | [DEPLOYMENT.md](DEPLOYMENT.md)、[Dockerfile](../Dockerfile)、[docker-compose.yml](../docker-compose.yml)、[deploy/](../deploy/) | 三种可选方案已给出并可直接执行：云服务器 + Caddy（推荐、7×24）、Cloudflare Tunnel（最快，电脑需开机）、Render/Railway（容器托管）。**公网地址需实际部署后填入** |
+| 可用性 | 评审期间保持服务可用 | 待补充 | `deploy/agentlit.service`（systemd 常驻 + 自动重启）、`deploy/Caddyfile`（HTTPS）、Docker `restart: unless-stopped` | 数据通过 `DATA_DIR` 持久化，重启不重新解析 |
+| 体验账号 | 如需登录，提供评审专用测试账号 | 不适用（当前无登录） | — | 系统当前无鉴权，打开即可体验；若用 Caddy `basic_auth` 或 Cloudflare Access 加鉴权，需在此补充账号口令 |
 
 ### 本地等价演示（评审可复现）
 
@@ -99,13 +99,16 @@ python scripts/run_server.py --demo
 | [ARCHITECTURE.md](ARCHITECTURE.md) | 架构设计与 ADR |
 | [DEVLOG.md](DEVLOG.md) | 分阶段开发日志与 bug 复盘 |
 | [screenshots/](screenshots/) | 六个视图的真实渲染截图 |
+| [DEPLOYMENT.md](DEPLOYMENT.md) | 在线演示部署指南（云服务器 / Cloudflare Tunnel / PaaS） |
+| [../Dockerfile](../Dockerfile)、[../docker-compose.yml](../docker-compose.yml) | 容器镜像与编排（`DATA_DIR=/data` 持久化） |
+| [../deploy/](../deploy/) | systemd 服务、Caddyfile、cloudflared 配置示例 |
 | [../scripts/run_server.py](../scripts/run_server.py) | 一键启动脚本（`--demo/--online/--port/--data-dir`） |
 | [../scripts/build_report_pdf.py](../scripts/build_report_pdf.py) | 技术文档 PDF 构建脚本 |
 
 ## 待补充信息（需参赛队确认后替换）
 
 1. **团队信息**：队伍名称、所属单位、联系方式——填入 README「团队信息」（分工已按单人独立开发填写）。
-2. **在线演示地址、开放时段、评审账号**（如部署增加鉴权）——填入 README「在线演示」与 2.4 表。
+2. **在线演示地址、开放时段、评审账号**——部署套件已就绪（见 [DEPLOYMENT.md](DEPLOYMENT.md)）；实际域名需部署后填入 README「在线演示」与 2.4 表。
 3. 若赛方要求封面含队伍名称/学校 Logo，可在 `scripts/build_report_pdf.py` 的 `COVER` 常量中补充后重新生成 PDF。
 
 在以上信息确认前，本清单不对其做任何假设或代填。
