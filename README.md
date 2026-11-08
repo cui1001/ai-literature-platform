@@ -6,6 +6,8 @@
 本仓库前身为一个 Streamlit + Chroma 的 RAG 原型（保留在 `legacy/`，历史提交可追溯），
 在**不重写 Git 历史**的前提下，按竞赛六大命题完成全栈重构：旧原型 14 次提交之上，按阶段追加功能分支与 `--no-ff` 合并（`git log --graph` 可完整回溯，过程记录见 `docs/DEVLOG.md`）。
 
+> 代码仓库：<https://github.com/cui1001/ai-literature-platform>（GitHub，Public，默认分支 `master`，完整提交历史已推送）
+
 ![文献库](docs/screenshots/library.png)
 
 ## 快速开始
@@ -107,11 +109,11 @@ python -m eval.run_eval                      # 八段评测，输出 report.json
 | --- | --- |
 | 队伍名称 | （待补充：参赛队伍名称） |
 | 所属单位 | （待补充：学校 / 学院 / 团队） |
-| 团队成员与分工 | （待补充：姓名 — 负责模块，例如 成员 A — 解析与检索；成员 B — 前端与阅读器；成员 C — 图谱、写作与评测） |
+| 团队成员与分工 | 单人独立完成：需求分析、系统架构设计、后端（解析 / 检索 / 问答 / 阅读 / 图谱 / 写作 / 可视化）、前端 SPA、测试与评测、文档与部署 |
 | 联系方式 | （待补充：队长邮箱或其他有效联系方式） |
 
-> 以上为赛方 2.1 要求的团队信息字段；因当前材料未提供，先以占位符标注，确认后替换即可。
-> 代码与提交历史：`git log --oneline --graph`（旧原型 14 次提交 + 分阶段功能分支与 `--no-ff` 合并）。
+> 以上为赛方 2.1 要求的团队信息字段。本项目为单人独立开发，分工已如实填写；队伍名称、所属单位、联系方式未提供，保留占位符待确认后替换。
+> 代码与提交历史：<https://github.com/cui1001/ai-literature-platform>（`git log --oneline --graph` 可回溯旧原型 14 次提交 + 分阶段功能分支与 `--no-ff` 合并，共 40 次提交、11 个分支）。
 
 ## 在线演示
 
@@ -127,6 +129,7 @@ python -m eval.run_eval                      # 八段评测，输出 report.json
 
 | 材料 | 位置 | 说明 |
 | --- | --- | --- |
+| 代码仓库 | <https://github.com/cui1001/ai-literature-platform> | GitHub Public，默认分支 `master`，含完整 40 次提交与 11 个开发分支 |
 | 技术文档（PDF，≤30 页） | [docs/TECHNICAL_REPORT.pdf](docs/TECHNICAL_REPORT.pdf) | 由 [docs/TECHNICAL_REPORT.md](docs/TECHNICAL_REPORT.md) 生成，14 页 |
 | 技术文档源文件 | [docs/TECHNICAL_REPORT.md](docs/TECHNICAL_REPORT.md) | 可编辑版本，含架构图源文件 [docs/assets/architecture.svg](docs/assets/architecture.svg) |
 | 提交材料清单 | [docs/SUBMISSION_MATERIALS.md](docs/SUBMISSION_MATERIALS.md) | 2.1 / 2.3 / 2.4 逐项状态与待补充项 |
