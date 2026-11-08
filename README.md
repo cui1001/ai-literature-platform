@@ -101,6 +101,45 @@ python -m eval.run_eval                      # 八段评测，输出 report.json
 - 检索、图谱布局（seed=20260101）、图表几何均为确定性算法；
 - 所有降级（在线 LLM/向量/arXiv 不可用）在 `GET /api/system/status` 与前端「系统状态」显式标注，不做静默伪装。
 
+## 团队信息
+
+| 项目 | 内容 |
+| --- | --- |
+| 队伍名称 | （待补充：参赛队伍名称） |
+| 所属单位 | （待补充：学校 / 学院 / 团队） |
+| 团队成员与分工 | （待补充：姓名 — 负责模块，例如 成员 A — 解析与检索；成员 B — 前端与阅读器；成员 C — 图谱、写作与评测） |
+| 联系方式 | （待补充：队长邮箱或其他有效联系方式） |
+
+> 以上为赛方 2.1 要求的团队信息字段；因当前材料未提供，先以占位符标注，确认后替换即可。
+> 代码与提交历史：`git log --oneline --graph`（旧原型 14 次提交 + 分阶段功能分支与 `--no-ff` 合并）。
+
+## 在线演示
+
+| 项目 | 内容 |
+| --- | --- |
+| 演示地址 | （待补充：可公网访问的部署地址，例如 `https://<domain>/`） |
+| 可用时间 | （待补充：评审期间的服务开放时段） |
+| 评审账号 | 无需登录即可使用；若部署环境增加鉴权，请在此补充（待补充：测试账号 / 口令） |
+
+本地等价演示：`python scripts/run_server.py --demo`（`http://127.0.0.1:8000`，数据与截图均取自该模式）。
+
+## 提交材料
+
+| 材料 | 位置 | 说明 |
+| --- | --- | --- |
+| 技术文档（PDF，≤30 页） | [docs/TECHNICAL_REPORT.pdf](docs/TECHNICAL_REPORT.pdf) | 由 [docs/TECHNICAL_REPORT.md](docs/TECHNICAL_REPORT.md) 生成，14 页 |
+| 技术文档源文件 | [docs/TECHNICAL_REPORT.md](docs/TECHNICAL_REPORT.md) | 可编辑版本，含架构图源文件 [docs/assets/architecture.svg](docs/assets/architecture.svg) |
+| 提交材料清单 | [docs/SUBMISSION_MATERIALS.md](docs/SUBMISSION_MATERIALS.md) | 2.1 / 2.3 / 2.4 逐项状态与待补充项 |
+| 环境配置 | [backend/.env.example](backend/.env.example)、[backend/requirements.txt](backend/requirements.txt) | 环境变量模板 + 依赖清单 |
+| 架构与命题映射 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/COMPETITION_MATRIX.md](docs/COMPETITION_MATRIX.md) | 设计决策、接口清单、六模块逐条验证 |
+| 评测报告 | [docs/EVALUATION.md](docs/EVALUATION.md) | 八段可复现评测与逐篇明细 |
+
+重新生成 PDF（需要本机安装 Edge；无网络也可用）：
+
+```bash
+python scripts/build_report_pdf.py        # Markdown → HTML → docs/TECHNICAL_REPORT.pdf（自动校验页数与章节）
+```
+
 ## 已知边界
 
 - 离线问答为**抽取式**：不生成新句子，得分靠 BM25/向量召回与规则打分；citation / Future Work 类问题仍有提升空间（7/13、1/3）；
