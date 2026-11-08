@@ -1,0 +1,26 @@
+# AgentLit 反向代理示例（Caddy 2）
+# 1) 把 competition.example.com 换成你的域名，并提前把 A/AAAA 记录指向服务器；
+# 2) sudo cp deploy/Caddyfile /etc/caddy/Caddyfile && sudo systemctl reload caddy
+# 3) Caddy 会自动申请并续期 HTTPS 证书（需要 80/443 可访问）。
+
+competition.example.com {
+	encode gzip zstd
+
+	# 如需评审口令，取消下面两行注释；哈希用 `caddy hash-password` 生成
+	# basic_auth {
+	# 	judge $2a$14$REPLACE_WITH_HASH
+	# }
+
+	reverse_proxy 127.0.0.1:8000 {
+		header_up X-Forwarded-For {remote_host}
+		transport http {
+			read_timeout 300s
+			write_timeout 300s
+		}
+	}
+
+	log {
+		output file /var/log/caddy/agentlit.log
+		format console
+	}
+}

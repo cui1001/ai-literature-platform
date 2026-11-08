@@ -113,17 +113,24 @@ python -m eval.run_eval                      # 八段评测，输出 report.json
 | 联系方式 | （待补充：队长邮箱或其他有效联系方式） |
 
 > 以上为赛方 2.1 要求的团队信息字段。本项目为单人独立开发，分工已如实填写；队伍名称、所属单位、联系方式未提供，保留占位符待确认后替换。
-> 代码与提交历史：<https://github.com/cui1001/ai-literature-platform>（`git log --oneline --graph` 可回溯旧原型 14 次提交 + 分阶段功能分支与 `--no-ff` 合并，共 40 次提交、11 个分支）。
+> 代码与提交历史：<https://github.com/cui1001/ai-literature-platform>（`git log --oneline --graph` 可回溯旧原型 14 次提交 + 分阶段功能分支与 `--no-ff` 合并）。
 
 ## 在线演示
 
 | 项目 | 内容 |
 | --- | --- |
-| 演示地址 | （待补充：可公网访问的部署地址，例如 `https://<domain>/`） |
+| 演示地址 | （待补充：部署完成后的公网地址，例如 `https://agentlit.example.com/`） |
 | 可用时间 | （待补充：评审期间的服务开放时段） |
-| 评审账号 | 无需登录即可使用；若部署环境增加鉴权，请在此补充（待补充：测试账号 / 口令） |
+| 评审账号 | 无需登录即可使用；若部署时加了 basic_auth，请在此补充（待补充：测试账号 / 口令） |
+| 部署方式 | 见 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)：云服务器 + Caddy（推荐）、Cloudflare Tunnel、Render/Railway |
 
 本地等价演示：`python scripts/run_server.py --demo`（`http://127.0.0.1:8000`，数据与截图均取自该模式）。
+如需立刻给评审一个临时地址（无需服务器、电脑需开机）：
+
+```bash
+python scripts/run_server.py --demo
+cloudflared tunnel --url http://127.0.0.1:8000   # 输出 https://xxx.trycloudflare.com
+```
 
 ## 提交材料
 
@@ -134,6 +141,7 @@ python -m eval.run_eval                      # 八段评测，输出 report.json
 | 技术文档源文件 | [docs/TECHNICAL_REPORT.md](docs/TECHNICAL_REPORT.md) | 可编辑版本，含架构图源文件 [docs/assets/architecture.svg](docs/assets/architecture.svg) |
 | 提交材料清单 | [docs/SUBMISSION_MATERIALS.md](docs/SUBMISSION_MATERIALS.md) | 2.1 / 2.3 / 2.4 逐项状态与待补充项 |
 | 环境配置 | [backend/.env.example](backend/.env.example)、[backend/requirements.txt](backend/requirements.txt) | 环境变量模板 + 依赖清单 |
+| 部署套件 | [Dockerfile](Dockerfile)、[docker-compose.yml](docker-compose.yml)、[deploy/](deploy/)、[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | 容器镜像、systemd、Caddy、Cloudflare Tunnel 示例 |
 | 架构与命题映射 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/COMPETITION_MATRIX.md](docs/COMPETITION_MATRIX.md) | 设计决策、接口清单、六模块逐条验证 |
 | 评测报告 | [docs/EVALUATION.md](docs/EVALUATION.md) | 八段可复现评测与逐篇明细 |
 

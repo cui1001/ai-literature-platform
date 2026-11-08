@@ -1,0 +1,29 @@
+[Unit]
+Description=AgentLit research assistant (FastAPI)
+After=network.target
+
+[Service]
+Type=simple
+User=agentlit
+Group=agentlit
+WorkingDirectory=/opt/agentlit
+Environment=DATA_DIR=/var/lib/agentlit
+Environment=PYTHONUNBUFFERED=1
+# 离线确定性模式；如需在线增强，改成 auto 并在 /etc/agentlit.env 中提供密钥
+Environment=LLM_MODE=offline
+Environment=EMBED_MODE=hashing
+Environment=ARXIV_MODE=offline
+ExecStart=/opt/agentlit/.venv/bin/python scripts/run_server.py --demo --host 127.0.0.1 --port 8000 --data-dir /var/lib/agentlit
+Restart=always
+RestartSec=3
+TimeoutStopSec=20
+
+# 基础加固
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+ReadWritePaths=/var/lib/agentlit
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,20 @@
+# cloudflared 命名隧道示例（稳定地址，需自有域名并已托管到 Cloudflare）
+#
+# 一次性准备（Windows 上同样适用）：
+#   cloudflared tunnel login
+#   cloudflared tunnel create agentlit
+#   cloudflared tunnel route dns agentlit agentlit.example.com
+#
+# 然后把本文件放到 C:\Users\<你>\.cloudflared\config.yml（Windows）
+# 或 ~/.cloudflared/config.yml（Linux），运行：
+#   cloudflared tunnel run agentlit
+#
+# 注意：本机演示服务需要先启动 `python scripts/run_server.py --demo`。
+
+tunnel: REPLACE_WITH_TUNNEL_ID
+credentials-file: C:\Users\REPLACE_USER\.cloudflared\REPLACE_WITH_TUNNEL_ID.json
+
+ingress:
+  - hostname: agentlit.example.com
+    service: http://127.0.0.1:8000
+  - service: http_status:404

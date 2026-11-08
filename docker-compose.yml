@@ -1,0 +1,30 @@
+services:
+  agentlit:
+    build: .
+    image: agentlit:2.0.0
+    container_name: agentlit
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # 默认离线确定性模式；需要在线增强时改为 auto 并填入密钥
+      LLM_MODE: offline
+      EMBED_MODE: hashing
+      ARXIV_MODE: offline
+      # DEEPSEEK_API_KEY: ""
+      # SILICONFLOW_API_KEY: ""
+    volumes:
+      - agentlit-data:/data
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import sys,urllib.request; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3).status == 200 else 1)"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  agentlit-data:
