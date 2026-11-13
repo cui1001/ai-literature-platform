@@ -57,11 +57,16 @@ def main() -> int:
 
     if args.demo:
         from app.papers import service  # noqa: PLC0415
+        from app.providers.ocr import ocr_configured  # noqa: PLC0415
 
-        # 扫描件优先导入：保证演示中出现一篇真实 OCR 论文（同名可检索版随后按重复跳过）
-        files = sorted((ROOT / "fixtures" / "papers" / "scanned").glob("*.pdf")) + sorted(
-            (ROOT / "fixtures" / "papers").glob("*.pdf")
-        )
+        # 扫描件优先导入：仅在 OCR 可用时（Windows 内置 WinRT / 已装 tesseract）。
+        # Linux 服务器没有 OCR 引擎，扫描件会退化成空文本，跳过以免污染文献库。
+        scanned: list[Path] = []
+        if ocr_configured(settings):
+            scanned = sorted((ROOT / "fixtures" / "papers" / "scanned").glob("*.pdf"))
+        else:
+            print("[demo] 当前环境无可用 OCR 引擎，跳过 fixtures/papers/scanned/")
+        files = scanned + sorted((ROOT / "fixtures" / "papers").glob("*.pdf"))
         imported = duplicates = failed = 0
         for path in files:
             try:
