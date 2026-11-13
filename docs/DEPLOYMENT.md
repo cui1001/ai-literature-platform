@@ -43,6 +43,14 @@ sudo mkswap /swapfile && sudo swapon /swapfile
 echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 ```
 
+### 2vCPU 1GiB 试用机能不能用？
+
+可以跑通，但内存偏紧：
+
+- 新版 `bootstrap.sh` 检测到内存 < 1.8G 会**自动创建 2G swap**（已有 `/swapfile` 则跳过）；
+- 首次 `--demo` 解析 15 个 PDF 可能耗时 3–6 分钟，健康检查等待上限已放宽到 **600 秒**，可用 `WAIT_SECONDS=900` 再延长；
+- 试用页的**时长、地域、是否可续费**以「试用必读」为准；试用到期会停机，正式评审前建议换成 2G 套餐（用代金券抵扣）。
+
 > 海外机器不需要 ICP 备案，评审可直接访问；代价是延迟略高（新加坡到国内约 60–90ms），页面是服务端渲染好的 PNG，实际体验仍流畅。
 
 ## 方案 A：云服务器 + 域名（推荐）

@@ -119,10 +119,10 @@ python -m eval.run_eval                      # 八段评测，输出 report.json
 
 | 项目 | 内容 |
 | --- | --- |
-| 演示地址 | （待补充：部署完成后的公网地址，例如 `https://agentlit.example.com/`） |
-| 可用时间 | （待补充：评审期间的服务开放时段） |
-| 评审账号 | 无需登录即可使用；若部署时加了 basic_auth，请在此补充（待补充：测试账号 / 口令） |
-| 部署方式 | 见 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)：云服务器 + Caddy（推荐）、Cloudflare Tunnel、Render/Railway |
+| 演示地址 | <https://8-219-85-252.sslip.io/> |
+| 可用时间 | 24×7 常驻（阿里云新加坡轻量，实例到期 2026-12-13；到期前续费或迁移，见 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)） |
+| 评审账号 | 无需登录即可使用 |
+| 部署方式 | 阿里云轻量 2 核 2G + Ubuntu 24.04 + 仓库内 `deploy/bootstrap.sh`（systemd + Caddy 自动 HTTPS）；其他方案见 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) |
 
 本地等价演示：`python scripts/run_server.py --demo`（`http://127.0.0.1:8000`，数据与截图均取自该模式）。
 如需立刻给评审一个临时地址（无需服务器、电脑需开机）：

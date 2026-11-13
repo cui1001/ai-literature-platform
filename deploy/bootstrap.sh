@@ -16,6 +16,7 @@ SERVICE_USER="${SERVICE_USER:-agentlit}"
 DOMAIN="${1:-}"
 AUTH_USER="${AUTH_USER:-}"
 AUTH_PASS="${AUTH_PASS:-}"
+WAIT_SECONDS="${WAIT_SECONDS:-600}"
 
 log() { printf '\033[1;32m[bootstrap]\033[0m %s\n' "$*"; }
 die() { printf '\033[1;31m[bootstrap]\033[0m %s\n' "$*" >&2; exit 1; }
@@ -52,6 +53,17 @@ sudo -u "${SERVICE_USER}" "${APP_DIR}/.venv/bin/pip" install --quiet -r "${APP_D
 
 mkdir -p "${DATA_DIR}"
 chown -R "${SERVICE_USER}:${SERVICE_USER}" "${DATA_DIR}"
+
+# 1G 内存的试用/入门机型：首次解析 15 个 PDF 容易 OOM，自动补 2G swap
+MEM_KB="$(awk '/MemTotal/{print $2}' /proc/meminfo)"
+if [[ "${MEM_KB:-0}" -lt 1800000 ]] && ! swapon --show 2>/dev/null | grep -q '/swapfile'; then
+  log "内存 ${MEM_KB}KB < 2GB，创建 2G swap 防止解析时 OOM"
+  fallocate -l 2G /swapfile 2>/dev/null || dd if=/dev/zero of=/swapfile bs=1M count=2048 status=none
+  chmod 600 /swapfile
+  mkswap /swapfile >/dev/null
+  swapon /swapfile
+  grep -q '^/swapfile ' /etc/fstab || echo '/swapfile none swap sw 0 0' >> /etc/fstab
+fi
 
 if [[ -z "${DOMAIN}" ]]; then
   IP="$(curl -fsS --max-time 5 https://api.ipify.org || true)"
@@ -127,9 +139,9 @@ EOF
 
 systemctl reload caddy 2>/dev/null || systemctl restart caddy
 
-log "等待服务就绪（首次会解析 15 个 PDF，约 60–90 秒）"
+log "等待服务就绪（首次会解析 15 个 PDF，约 60–90 秒；1G 机型建议用默认的 600 秒上限）"
 ok=0
-for _ in $(seq 1 120); do
+for _ in $(seq 1 $((WAIT_SECONDS / 2))); do
   if curl -fsS --max-time 3 http://127.0.0.1:8000/api/health >/dev/null 2>&1; then ok=1; break; fi
   sleep 2
 done
