@@ -6,6 +6,13 @@
 competition.example.com {
 	encode gzip zstd
 
+	# 静态资源长缓存：JS/CSS 变更时靠文件名不变会命中旧缓存，
+	# 因此这里用 1 天 + 浏览器重新验证，兼顾演示与更新。
+	@assets path /assets/*
+	header @assets Cache-Control "public, max-age=86400"
+
+	# 页面图（/api/papers/*/pages/*）由后端返回 Cache-Control，无需在此重复设置
+
 	# 如需评审口令，取消下面两行注释；哈希用 `caddy hash-password` 生成
 	# basic_auth {
 	# 	judge $2a$14$REPLACE_WITH_HASH

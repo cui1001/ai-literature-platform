@@ -50,7 +50,7 @@ function paint(host) {
       <aside class="reader-side card">
         <div class="row" style="justify-content:space-between;margin-bottom:8px">
           <b style="font-size:12px">目录</b>
-          <span class="dim mono">${stats.headings || 0} 节</span>
+          <span class="dim mono">${countHeadings(doc.heading_tree)} 节</span>
         </div>
         <div id="outline">${outlineHtml(doc.heading_tree)}</div>
         <div class="row" style="justify-content:space-between;margin:14px 0 6px">
@@ -116,6 +116,11 @@ function paint(host) {
   if (state.bilingual) bindScrollSync(host);
 }
 
+function countHeadings(tree) {
+  if (!Array.isArray(tree)) return 0;
+  return tree.reduce((sum, node) => sum + 1 + countHeadings(node.children), 0);
+}
+
 function outlineHtml(tree, depth = 1) {
   if (!Array.isArray(tree)) return `<div class="dim">未识别出章节标题</div>`;
   return tree
@@ -174,7 +179,7 @@ function pagesHtml(doc) {
           ${page.ocr ? `<span class="badge warn">OCR</span>` : ""}
           <span class="spacer"></span><span class="dim mono">${page.blocks?.length || 0} blocks</span></div>
         <div class="page-wrap" style="max-width:${Math.round((page.width || 595) * 1.05)}px">
-          <img src="${escapeHtml(page.image)}" alt="page ${page.number}" loading="lazy" />
+          <img src="${escapeHtml(page.image)}" alt="page ${page.number}" loading="${page.number === 1 ? "eager" : "lazy"}" ${page.number === 1 ? 'fetchpriority="high"' : 'fetchpriority="low"'} />
           <div class="blocks-layer">${blocksHtml(page)}</div>
         </div>
       </div>`
@@ -233,7 +238,7 @@ function bilingualHtml(doc) {
             (page) => `
           <div class="card" style="margin-bottom:12px;padding:8px" id="bipage-${page.number}">
             <div class="mono dim" style="margin-bottom:6px">PAGE ${page.number}</div>
-            <div class="page-wrap"><img src="${escapeHtml(page.image)}" loading="lazy" alt="page ${page.number}"/>
+            <div class="page-wrap"><img src="${escapeHtml(page.image)}" loading="${page.number === 1 ? "eager" : "lazy"}" fetchpriority="high" alt="page ${page.number}"/>
               <div class="blocks-layer">${blocksHtml(page)}</div></div>
           </div>`
           )
