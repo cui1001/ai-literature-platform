@@ -14,7 +14,9 @@
 
 from __future__ import annotations
 
+import json
 import re
+import time
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
@@ -159,6 +161,10 @@ def _cache_valid(cached: dict[str, Any] | None, source: str, settings: Settings)
     """
     if not cached or not cached.get("text"):
         return False
+    cached_text = (cached.get("text") or "").strip()
+    # 早期版本未解包 {"text": ...}，这类缓存要强制重译
+    if cached_text.startswith("{") and '"text"' in cached_text:
+        return False
     if cached.get("src_hash") != sha1_text(source):
         return False
     if not _numbers_kept(_convert_units(source), cached.get("text", "")):
@@ -167,6 +173,24 @@ def _cache_valid(cached: dict[str, Any] | None, source: str, settings: Settings)
     if mode == "offline":
         return True
     return (cached.get("provider") or "") not in GLOSSARY_PROVIDERS
+
+
+def _unwrap_json_text(result: LLMResult) -> str:
+    """部分翻译提示词要求 JSON 输出，这里把 {"text": ...} 解包成纯译文。"""
+    text = (result.text or "").strip()
+    if text.startswith("{") and '"text"' in text:
+        try:
+            payload = json.loads(text)
+            value = payload.get("text")
+            if isinstance(value, str) and value.strip():
+                return value.strip()
+        except (ValueError, TypeError):
+            pass
+    data = result.data if isinstance(result.data, dict) else {}
+    value = data.get("text")
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    return result.text or ""
 
 
 def _translate_once(
@@ -184,14 +208,19 @@ def _translate_once(
     if mode != "offline":
         # 1) 在线大模型（显式 online/auto 且配置了 key；offline 模式直接跳过）
         if settings.llm_mode != "offline" and settings.has_llm_credentials():
-            try:
-                result = get_llm(settings).run(task, payload)
-                if (result.provider or "") not in GLOSSARY_PROVIDERS:
-                    return result
-                reasons.append(f"llm: 已降级为 {result.provider}")
-            except Exception as exc:  # 网络/额度/超时都继续往下走
-                reasons.append(f"llm: {exc}")
-                logger.info("在线模型翻译失败，尝试机器翻译：%s", exc)
+            for attempt in range(2):  # 并发下偶发超时/限流，重试一次再降级
+                try:
+                    result = get_llm(settings).run(task, payload)
+                    result.text = _unwrap_json_text(result)
+                    if (result.provider or "") not in GLOSSARY_PROVIDERS:
+                        return result
+                    reasons.append(f"llm: 已降级为 {result.provider}")
+                    break
+                except Exception as exc:  # 网络/额度/超时都继续往下走
+                    reasons.append(f"llm: {exc}")
+                    logger.info("在线模型翻译失败（第 %d 次）：%s", attempt + 1, exc)
+                    if attempt == 0:
+                        time.sleep(1.2)
         # 2) 免密钥机器翻译（整句翻译，非术语替换）
         try:
             mt = translate_online(protected, target=payload["target_lang"], timeout=settings.translate_timeout)
@@ -206,9 +235,20 @@ def _translate_once(
             )
         except Exception as exc:
             reasons.append(f"mt: {exc}")
-            logger.info("机器翻译通道不可用，回落术语辅助：%s", exc)
+            logger.info("机器翻译通道不可用：%s", exc)
+        # 自动/在线模式下，宁可留空（前端显示「未翻译」），也不要把术语级结果
+        # 当成译文展示——那会变成「英文里夹几个中文词」，比未翻译更误导。
+        return LLMResult(
+            text="",
+            data={},
+            provider="failed",
+            model="",
+            latency_ms=0,
+            degraded=True,
+            notes="translation-unavailable: " + "; ".join(reasons[:3]),
+        )
 
-    # 3) 离线术语级兜底（明确标注，不伪装成完整译文）
+    # 3) 离线术语级兜底（仅显式 offline 模式，明确标注，不伪装成完整译文）
     result = run_offline(task, payload)
     note = "offline-glossary: 术语级辅助翻译（非整句机器翻译）"
     if reasons:
@@ -258,20 +298,19 @@ def translate_text(
         return res
 
     result = attempt()
+    if not result.text:
+        return result
     if not _numbers_kept(prepared, result.text, threshold=0.9):
         retry = attempt()
-        if _numbers_kept(prepared, retry.text, threshold=0.9):
+        if retry.text and _numbers_kept(prepared, retry.text, threshold=0.9):
             return retry
-        fallback = run_offline(task, {"text": source, "target_lang": target})
-        return LLMResult(
-            text=(fallback.text or "").strip(),
-            data=fallback.data,
-            provider="offline",
-            model=fallback.model,
-            latency_ms=fallback.latency_ms,
-            degraded=True,
-            notes="offline-glossary: 在线译文未通过数字一致性校验，已回退术语级（不改写数字）",
-        )
+        # 重试后仍不一致：保留完整译文并显式标注，比换成术语级半成品更有用。
+        keep = retry if retry.text else result
+        keep.degraded = True
+        keep.notes = (
+            (keep.notes or "") + "；numbers-mismatch: 译文数字可能与原文不一致，请核对"
+        ).strip("；")
+        return keep
     return result
 
 
@@ -329,6 +368,20 @@ def translate_block(
         degraded=bool(result.degraded),
         notes=result.notes or "",
     )
+    if not text:
+        # 在线通道全部失败：返回空译文，前端显示「未翻译」，不入库，下次重试
+        return TranslationPiece(
+            anchor=block.id,
+            block_id=block.id,
+            page=block.page,
+            kind=block.kind,
+            source=source,
+            text="",
+            provider="failed",
+            coverage=0.0,
+            degraded=True,
+            notes=result.notes or "",
+        )
     if store and piece.text:
         try:
             repo.put_translation(
@@ -397,7 +450,7 @@ def translate_paper(
     # 在线机器翻译是逐块 HTTP 请求，串行会把整篇翻译拖到几分钟；并发 3~4 路即可
     # 在几十秒内完成，同时对免费端点保持温和的请求速率。
     mode = (settings.translate_mode or "auto").lower()
-    workers = 0 if mode == "offline" else (4 if total >= 18 else (3 if total >= 8 else 1))
+    workers = 0 if mode == "offline" else (3 if total >= 18 else (2 if total >= 8 else 1))
     pieces: list[TranslationPiece] = []
     if workers > 1 and total > 12:
         with ThreadPoolExecutor(max_workers=workers) as pool:
@@ -412,7 +465,8 @@ def translate_paper(
             if progress:
                 progress(index, total)
     cached_count = sum(1 for piece in pieces if piece.cached)
-    providers = sorted({piece.provider for piece in pieces if piece.provider})
+    failed = sum(1 for piece in pieces if not piece.text)
+    providers = sorted({piece.provider for piece in pieces if piece.provider and piece.text})
     return {
         "paper_id": paper.paper_id,
         "lang": lang,
@@ -420,6 +474,7 @@ def translate_paper(
         "count": len(pieces),
         "cached": cached_count,
         "translated": len(pieces) - cached_count,
+        "failed": failed,
         "providers": providers,
         "degraded": any(piece.degraded for piece in pieces),
         "pieces": [piece.to_dict() for piece in pieces],
