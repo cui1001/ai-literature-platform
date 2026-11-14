@@ -92,7 +92,20 @@ GLOSSARY_PROVIDERS = {"offline", "glossary"}
 NUMBER_RE = re.compile(r"\d+(?:\.\d+)*")
 IDENT_NUMBER_RE = re.compile(r"(?<=[A-Za-z])-?(\d+(?:\.\d+)*)")
 BILLION_RE = re.compile(r"(\d+(?:\.\d+)?)\s*billion\b", re.I)
+BILLION_CONV_RE = re.compile(r"(\d+(?:\.\d+)?)\s*billion\b", re.I)
 
+
+
+
+def _convert_units(text: str) -> str:
+    """把英文 billion 预换算成中文「亿」，避免模型做单位心算时错 10 倍（175 billion -> 1750 亿）。"""
+    def repl(match: re.Match) -> str:
+        try:
+            return f"{float(match.group(1)) * 10:g}亿"
+        except ValueError:
+            return match.group(0)
+
+    return BILLION_CONV_RE.sub(repl, text or "")
 
 def _numbers_kept(source: str, text: str, threshold: float = 0.6) -> bool:
     """译文是否保留原文的关键数字（防止 GPT-3 -> GPT-1、表 1 -> 表 0、arXiv 编号被截断）。
@@ -148,7 +161,7 @@ def _cache_valid(cached: dict[str, Any] | None, source: str, settings: Settings)
         return False
     if cached.get("src_hash") != sha1_text(source):
         return False
-    if not _numbers_kept(source, cached.get("text", "")):
+    if not _numbers_kept(_convert_units(source), cached.get("text", "")):
         return False
     mode = (settings.translate_mode or "auto").lower()
     if mode == "offline":
@@ -231,7 +244,8 @@ def translate_text(
     """
     settings = settings or get_settings()
     source = text or ""
-    protected, pieces = protect(source)
+    prepared = _convert_units(source)
+    protected, pieces = protect(prepared)
 
     def attempt() -> LLMResult:
         res = _translate_once(protected, settings, target=target, task=task)
@@ -244,9 +258,9 @@ def translate_text(
         return res
 
     result = attempt()
-    if not _numbers_kept(source, result.text, threshold=0.9):
+    if not _numbers_kept(prepared, result.text, threshold=0.9):
         retry = attempt()
-        if _numbers_kept(source, retry.text, threshold=0.9):
+        if _numbers_kept(prepared, retry.text, threshold=0.9):
             return retry
         fallback = run_offline(task, {"text": source, "target_lang": target})
         return LLMResult(
