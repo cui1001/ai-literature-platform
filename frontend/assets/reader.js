@@ -78,22 +78,45 @@ function paint(host) {
         ${translationHint(doc)}
         ${qualityHtml(paper, doc.stats)}
       </aside>
-      <section id="reader-main">${state.bilingual || state.lang === "zh" ? bilingualHtml(doc) : pagesHtml(doc)}</section>
+      <section id="reader-main">${state.bilingual ? bilingualHtml(doc) : state.lang === "zh" ? zhHtml(doc) : pagesHtml(doc)}</section>
     </div>
     <div id="inspector" class="inspector hidden"></div>`;
 
   $("#btn-zh", host).addEventListener("click", () => toggleZh(host));
-  $("#btn-bilingual", host).addEventListener("click", () => {
-    state.bilingual = !state.bilingual;
+  $("#btn-bilingual", host).addEventListener("click", async () => {
+    if (state.bilingual) {
+      state.bilingual = false;
+      paint(host);
+      return;
+    }
+    if (state.lang !== "zh" || !translationInfo(state.doc).count) {
+      await toggleZh(host);
+      if (state.lang !== "zh") return;
+    }
+    state.bilingual = true;
     paint(host);
   });
   host.querySelectorAll("[data-export]").forEach((btn) => {
-    btn.addEventListener("click", async () => {
+    btn.addEventListener("click", async (event) => {
       const fmt = btn.dataset.export;
-      const url = api.exportUrl(state.paperId, fmt, "zh");
-      if (fmt === "pdf") window.open(url, "_blank");
-      else window.open(url, "_blank");
-      toast("已生成导出文件", "ok");
+      const lang = state.lang === "zh" ? "zh" : "en";
+      setBusy(event.currentTarget, true, "生成中…");
+      try {
+        const { blob, filename } = await api.exportFile(state.paperId, fmt, lang, state.translations);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+        toast(`已导出 ${filename}`, "ok");
+      } catch (err) {
+        toast(err.message || "导出失败", "err");
+      } finally {
+        setBusy(event.currentTarget, false);
+      }
     });
   });
   $("#btn-translate", host).addEventListener("click", async (event) => {
@@ -130,11 +153,11 @@ function paint(host) {
       target?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   });
-  host.querySelectorAll(".block").forEach((node) => {
+  host.querySelectorAll(".block, .zh-block").forEach((node) => {
     node.addEventListener("click", () => showBlock(node));
   });
   bindReferenceJumps(host);
-  if (state.bilingual || state.lang === "zh") bindScrollSync(host);
+  if (state.bilingual) bindScrollSync(host);
 }
 
 function countHeadings(tree) {
@@ -280,6 +303,31 @@ function referencesHtml(refs) {
     </div>`;
 }
 
+function zhHtml(doc) {
+  const pages = doc.pages || [];
+  const wanted = new Set(["paragraph", "heading", "caption", "table_text"]);
+  return `<div class="zh-reader">${pages
+    .map((page) => {
+      const blocks = (page.blocks || []).filter((b) => wanted.has(b.kind));
+      const body = blocks
+        .map((b) =>
+          b.translation
+            ? `<div class="zh-block" data-block="${escapeHtml(b.id)}">${escapeHtml(b.translation)}</div>`
+            : `<div class="zh-block pending" data-block="${escapeHtml(b.id)}">${escapeHtml(b.text)}
+                 <div class="dim" style="font-size:11px;margin-top:2px">（未翻译，点击查看原文）</div></div>`
+        )
+        .join("") || `<div class="dim" style="font-size:12px">本页暂无可读正文。</div>`;
+      return `<section class="card" style="margin-bottom:14px" id="page-${page.number}">
+        <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px">
+          <b class="mono dim">PAGE ${page.number}</b>
+          <a class="dim" style="font-size:11px" target="_blank" rel="noreferrer" href="${escapeHtml(pageSrc(page.image))}">查看原页</a>
+        </div>
+        ${body}
+      </section>`;
+    })
+    .join("")}</div>`;
+}
+
 function bilingualHtml(doc) {
   const pages = doc.pages || [];
   return `
@@ -333,32 +381,55 @@ function bindScrollSync(host) {
 }
 
 async function toggleZh(host) {
-  if (state.lang !== "zh") {
-    const info = translationInfo(state.doc);
-    if (!info.count || info.glossaryOnly) {
-      try {
-        const result = await api.translate(state.paperId, "zh");
-        const list = (result.providers || []).filter(Boolean);
-        const providers = list.join("/") || "cache";
-        const glossaryOnly = list.length > 0 && list.every((name) => GLOSSARY_PROVIDERS.has(name));
-        toast(
-          glossaryOnly ? `当前仅术语级辅助（${providers}）` : `已翻译 ${result.count} 块（${providers}）`,
-          glossaryOnly ? "warn" : "ok"
-        );
-      } catch (err) {
-        toast(err.message, "err");
-        return;
-      }
+  if (state.lang === "zh") {
+    if (state.bilingual) {
+      state.bilingual = false;
+      paint(host);
+      return;
     }
-    state.lang = "zh";
-    state.translations = true;
-  } else {
     state.lang = "en";
     state.translations = false;
+    state.doc = await api.document(state.paperId, "en", false);
+    paint(host);
+    return;
   }
-  state.doc = await api.document(state.paperId, state.lang, state.translations);
+
+  const info = translationInfo(state.doc);
+  if (!info.count) {
+    // 先翻译当前（第 1）页，尽快出中文；剩余页面后台继续，完成后自动刷新
+    const firstPage = (state.doc.pages || [])[0] || { blocks: [] };
+    const ids = (firstPage.blocks || []).map((b) => b.id);
+    try {
+      const first = await api.translate(state.paperId, "zh", ids);
+      state.lang = "zh";
+      state.translations = true;
+      state.doc = await api.document(state.paperId, "zh", true);
+      paint(host);
+      const providers = (first.providers || []).filter(Boolean).join("/") || "cache";
+      toast(`第 1 页已翻译（${providers}），其余页面后台生成中…`, "ok");
+    } catch (err) {
+      toast(err.message, "err");
+      return;
+    }
+    api
+      .translate(state.paperId, "zh")
+      .then(async (result) => {
+        state.doc = await api.document(state.paperId, "zh", true);
+        if (state.lang === "zh") paint(host);
+        toast(`全文翻译完成（${result.count} 块）`, "ok");
+      })
+      .catch(() => {
+        /* 后台补齐失败时保留第 1 页译文，不打扰阅读 */
+      });
+    return;
+  }
+
+  state.lang = "zh";
+  state.translations = true;
+  state.doc = await api.document(state.paperId, "zh", true);
   paint(host);
 }
+
 
 function showBlock(node) {
   const id = node.dataset.block;

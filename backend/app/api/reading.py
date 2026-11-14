@@ -69,6 +69,7 @@ async def download_export(paper_id: str, fmt: str, lang: str = "zh", translate: 
     if info["format"] == "pdf":
         return FileResponse(path, media_type=media, filename=info["filename"])
     text = open(path, encoding="utf-8").read()
+    headers = {"Content-Disposition": f'attachment; filename="{info["filename"]}"'}
     if info["format"] in {"html", "bilingual"}:
-        return HTMLResponse(text)
-    return PlainTextResponse(text, media_type=media)
+        return HTMLResponse(text, headers=headers)
+    return PlainTextResponse(text, media_type=media, headers=headers)

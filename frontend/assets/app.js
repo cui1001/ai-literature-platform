@@ -130,7 +130,7 @@ async function renderLibrary(host) {
   bindDropzone(host);
   host.querySelectorAll("[data-open]").forEach((card) =>
     card.addEventListener("click", (event) => {
-      if (event.target.closest("button")) return;
+      if (event.target.closest("[data-delete],[data-versions]")) return;
       location.hash = `#reader/${card.dataset.open}`;
     })
   );

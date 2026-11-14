@@ -397,7 +397,7 @@ def translate_paper(
     # 在线机器翻译是逐块 HTTP 请求，串行会把整篇翻译拖到几分钟；并发 3~4 路即可
     # 在几十秒内完成，同时对免费端点保持温和的请求速率。
     mode = (settings.translate_mode or "auto").lower()
-    workers = 0 if mode == "offline" else (3 if total >= 18 else (2 if total >= 8 else 1))
+    workers = 0 if mode == "offline" else (4 if total >= 18 else (3 if total >= 8 else 1))
     pieces: list[TranslationPiece] = []
     if workers > 1 and total > 12:
         with ThreadPoolExecutor(max_workers=workers) as pool:

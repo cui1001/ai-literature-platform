@@ -67,11 +67,31 @@ export const api = {
   document(id, lang = "en", translations = true) {
     return request(`/api/papers/${encodeURIComponent(id)}/document?lang=${lang}&translations=${translations}`);
   },
-  translate(id, lang = "zh") {
-    return request(`/api/papers/${encodeURIComponent(id)}/translate`, json({ lang }));
+  translate(id, lang = "zh", blockIds = null) {
+    const payload = { lang };
+    if (blockIds && blockIds.length) payload.block_ids = blockIds;
+    return request(`/api/papers/${encodeURIComponent(id)}/translate`, json(payload));
   },
-  exportUrl(id, fmt, lang = "zh") {
-    return `/api/papers/${encodeURIComponent(id)}/export/${fmt}?lang=${lang}&translate=true`;
+  exportUrl(id, fmt, lang = "zh", translate = true) {
+    return `/api/papers/${encodeURIComponent(id)}/export/${fmt}?lang=${lang}&translate=${translate ? "true" : "false"}`;
+  },
+  async exportFile(id, fmt, lang = "zh", translate = true) {
+    const res = await fetch(BASE + this.exportUrl(id, fmt, lang, translate));
+    if (!res.ok) {
+      let message = `导出失败（HTTP ${res.status}）`;
+      try {
+        const data = await res.json();
+        message = data.message || data.detail || message;
+      } catch (_) {
+        /* 非 JSON 错误体，保留默认文案 */
+      }
+      throw new Error(message);
+    }
+    const blob = await res.blob();
+    const cd = res.headers.get("content-disposition") || "";
+    const match = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(cd);
+    const filename = match ? decodeURIComponent(match[1]) : `paper-${id}.${fmt}`;
+    return { blob, filename };
   },
   pageUrl(id, page) {
     return `/api/papers/${encodeURIComponent(id)}/pages/${page}.png`;

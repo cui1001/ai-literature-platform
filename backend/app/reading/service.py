@@ -102,11 +102,19 @@ def export(
     settings: Settings | None = None,
     *,
     lang: str = "zh",
+    translate: bool = True,
     output: str | Path | None = None,
 ) -> dict[str, Any]:
     settings = settings or get_settings()
     paper = load_paper(paper_id, settings)
     translations = {anchor: item.get("text", "") for anchor, item in translations_map(paper_id, lang).items()}
+    if translate and lang != "en" and not translations:
+        # 导出前按需补翻译（有缓存时几乎不耗时；避免导出英文占位却不自知）
+        try:
+            translate_paper(paper, settings, lang=lang)
+            translations = {anchor: item.get("text", "") for anchor, item in translations_map(paper_id, lang).items()}
+        except Exception:  # 翻译失败仍导出原文，不让导出整体失败
+            translations = {}
     path = exporter.export_paper(
         paper,
         fmt,
