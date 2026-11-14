@@ -134,6 +134,16 @@ class ReadingTest(unittest.TestCase):
         self.assertTrue(any("\u4e00" <= ch <= "\u9fff" for ch in text), "译文 PDF 应包含中文")
         doc.close()
 
+    def test_number_guard_blocks_rewrites(self) -> None:
+        """模型改写数字/单位时必须判失败，避免把 GPT-3 译成 GPT-1。"""
+        from app.reading.translate import _numbers_kept
+
+        self.assertTrue(_numbers_kept("GPT-3 has 175 billion parameters", "GPT-3 拥有 1750 亿参数"))
+        self.assertFalse(_numbers_kept("GPT-3 has 175 billion parameters", "GPT-1 拥有 175 亿参数"))
+        self.assertFalse(_numbers_kept("arXiv:2005.14165v1 | NeurIPS 2020", "arXiv: 0.14165v1 | NeurIPS 1"))
+        self.assertFalse(_numbers_kept("Table 1: eight model sizes", "表 0：八种模型规模"))
+        self.assertTrue(_numbers_kept("28.4 BLEU on WMT 2014", "在 WMT 2014 上达到 28.4 BLEU"))
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

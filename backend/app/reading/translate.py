@@ -91,6 +91,7 @@ def _cache_tag(settings: Settings, target: str) -> str:
 GLOSSARY_PROVIDERS = {"offline", "glossary"}
 NUMBER_RE = re.compile(r"\d+(?:\.\d+)*")
 IDENT_NUMBER_RE = re.compile(r"(?<=[A-Za-z])-?(\d+(?:\.\d+)*)")
+BILLION_RE = re.compile(r"(\d+(?:\.\d+)?)\s*billion\b", re.I)
 
 
 def _numbers_kept(source: str, text: str, threshold: float = 0.6) -> bool:
@@ -103,7 +104,18 @@ def _numbers_kept(source: str, text: str, threshold: float = 0.6) -> bool:
     """
     src = source or ""
     out = text or ""
-    src_dec = {n for n in NUMBER_RE.findall(src.replace(",", "")) if "." in n}
+    # 单位换算规则：1 billion = 10 亿；若原文是「N billion」，译文必须写成「N*10 亿」
+    out_plain = out.replace(" ", "").replace(",", "")
+    for value in BILLION_RE.findall(src.replace(",", "")):
+        try:
+            want = f"{float(value) * 10:g}"
+        except ValueError:
+            continue
+        if want + "亿" not in out_plain and f"{value} billion" not in out.lower():
+            return False
+    billion_values = set(BILLION_RE.findall(src.replace(",", "")))
+    src_all = NUMBER_RE.findall(src.replace(",", ""))
+    src_dec = {n for n in src_all if "." in n and n not in billion_values}
     out_dec = {n for n in NUMBER_RE.findall(out.replace(",", "")) if "." in n}
     if src_dec - out_dec:
         return False
@@ -112,6 +124,12 @@ def _numbers_kept(source: str, text: str, threshold: float = 0.6) -> bool:
     if src_ident - out_ident:
         return False
     wanted = Counter(NUMBER_RE.findall(src.replace(",", "")))
+    # 「N billion」已由上面的单位规则单独校验，避免 175 -> 1750 被当成数字丢失
+    for value in billion_values:
+        if wanted.get(value):
+            wanted[value] -= 1
+            if not wanted[value]:
+                del wanted[value]
     if not wanted:
         return True
     got = Counter(NUMBER_RE.findall(out.replace(",", "")))
