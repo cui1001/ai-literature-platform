@@ -93,6 +93,10 @@ class Settings:
     arxiv_max_results: int = 20
     tracker_interval_minutes: int = 360
 
+    # 翻译（auto：在线模型 → 免费机器翻译 → 术语辅助）
+    translate_mode: str = "auto"
+    translate_timeout: float = 6.0
+
     # 解析
     page_render_dpi: int = 150
     ocr_text_threshold: int = 40
@@ -174,6 +178,8 @@ class Settings:
             arxiv_mode=_env("ARXIV_MODE", "auto").lower(),
             arxiv_max_results=_env_int("ARXIV_MAX_RESULTS", 20),
             tracker_interval_minutes=_env_int("TRACKER_INTERVAL_MINUTES", 360),
+            translate_mode=_env("TRANSLATE_MODE", "auto").lower(),
+            translate_timeout=_env_float("TRANSLATE_TIMEOUT", 6.0),
             page_render_dpi=_env_int("PAGE_RENDER_DPI", 150),
             ocr_text_threshold=_env_int("OCR_TEXT_THRESHOLD", 40),
             top_k=_env_int("TOP_K", 6),
@@ -197,8 +203,8 @@ _INT_OVERRIDES = {
     "rrf_k",
     "layout_seed",
 }
-_FLOAT_OVERRIDES = {"llm_timeout", "llm_probe_seconds"}
-_MODE_OVERRIDES = {"llm_mode", "embed_mode", "arxiv_mode"}
+_FLOAT_OVERRIDES = {"llm_timeout", "llm_probe_seconds", "translate_timeout"}
+_MODE_OVERRIDES = {"llm_mode", "embed_mode", "arxiv_mode", "translate_mode"}
 
 
 def _coerce_overrides(name: str, value: Any) -> Any:

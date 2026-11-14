@@ -26,7 +26,7 @@ from .runtime import run_task_with
 SUPPORTED_SOURCES: dict[str, str] = {"zh": "en", "en": "zh"}
 _TASKS = {"zh": "academic_translate", "en": "translate"}
 
-_PLACEHOLDER_RE = re.compile("\x01(\\d+)\x01")
+_PLACEHOLDER_RE = re.compile(r"\[\[(\d+)\]\]")
 _CJK_RE = re.compile(r"[\u4e00-\u9fff]")
 _EN_WORD_RE = re.compile(r"[A-Za-z][A-Za-z\-]*")
 

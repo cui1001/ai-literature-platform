@@ -199,6 +199,7 @@ class WritingCopilotTest(unittest.TestCase):
             llm_mode="offline",
             embed_mode="hashing",
             arxiv_mode="offline",
+            translate_mode="offline",  # 单测不访问外网机器翻译
         )
         self.settings.ensure_dirs()
         reset_database(self.settings)

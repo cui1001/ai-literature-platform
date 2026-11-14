@@ -14,6 +14,11 @@ const state = {
 
 export async function renderReader(host, paperId) {
   state.paperId = paperId;
+  // 支持 #reader/{id}?zh=1 直接进入中英对照（便于演示与截图）
+  if (location.hash.includes("zh=1")) {
+    state.lang = "zh";
+    state.translations = true;
+  }
   host.innerHTML = `<div class="empty"><span class="spinner"></span> 正在加载版式文档…</div>`;
   try {
     state.doc = await api.document(paperId, state.lang, state.translations);
@@ -24,6 +29,13 @@ export async function renderReader(host, paperId) {
     return;
   }
   paint(host);
+}
+
+function pageSrc(image) {
+  if (!image) return "";
+  // 阅读器显示宽度约 900px，请求服务端按需缩小的 WebP 派生图（约为原图 1/8 体积）
+  const joiner = image.includes("?") ? "&" : "?";
+  return `${image}${joiner}w=900`;
 }
 
 function paint(host) {
@@ -40,6 +52,7 @@ function paint(host) {
       <span class="spacer"></span>
       <button class="btn small ${state.lang === "zh" ? "primary" : ""}" id="btn-zh">中文对照</button>
       <button class="btn small ${state.bilingual ? "primary" : ""}" id="btn-bilingual">双语并排</button>
+      ${translationBadge(doc)}
       <span class="dim">导出</span>
       <button class="btn small" data-export="md">Markdown</button>
       <button class="btn small" data-export="html">HTML</button>
@@ -62,9 +75,10 @@ function paint(host) {
           <button class="btn small ghost" id="jump-refs">跳转到参考文献</button>
           <button class="btn small ghost" id="btn-translate">翻译全文</button>
         </div>
+        ${translationHint(doc)}
         ${qualityHtml(paper, doc.stats)}
       </aside>
-      <section id="reader-main">${state.bilingual ? bilingualHtml(doc) : pagesHtml(doc)}</section>
+      <section id="reader-main">${state.bilingual || state.lang === "zh" ? bilingualHtml(doc) : pagesHtml(doc)}</section>
     </div>
     <div id="inspector" class="inspector hidden"></div>`;
 
@@ -86,7 +100,14 @@ function paint(host) {
     setBusy(event.currentTarget, true, "翻译中…");
     try {
       const result = await api.translate(state.paperId, "zh");
-      toast(`已翻译 ${result.count} 块（${result.providers?.join(", ") || "offline"}）`, "ok");
+      const list = (result.providers || []).filter(Boolean);
+      const providers = list.join("/") || "cache";
+      const glossaryOnly = list.length > 0 && list.every((name) => GLOSSARY_PROVIDERS.has(name));
+      if (glossaryOnly) {
+        toast(`已生成 ${result.count} 块译文，但当前仅术语级辅助（${providers}）`, "warn");
+      } else {
+        toast(`已翻译 ${result.count} 块（${providers}）`, "ok");
+      }
       state.lang = "zh";
       state.translations = true;
       state.doc = await api.document(state.paperId, "zh", true);
@@ -113,12 +134,43 @@ function paint(host) {
     node.addEventListener("click", () => showBlock(node));
   });
   bindReferenceJumps(host);
-  if (state.bilingual) bindScrollSync(host);
+  if (state.bilingual || state.lang === "zh") bindScrollSync(host);
 }
 
 function countHeadings(tree) {
   if (!Array.isArray(tree)) return 0;
   return tree.reduce((sum, node) => sum + 1 + countHeadings(node.children), 0);
+}
+
+const GLOSSARY_PROVIDERS = new Set(["offline", "glossary"]);
+
+function translationInfo(doc) {
+  const meta = (doc && doc.translation) || {};
+  const providers = (meta.providers || []).filter(Boolean);
+  const count = meta.count || 0;
+  const live = providers.filter((p) => !GLOSSARY_PROVIDERS.has(p));
+  const glossaryOnly = count > 0 && live.length === 0;
+  return { count, providers, live, glossaryOnly };
+}
+
+function translationBadge(doc) {
+  const { count, providers, live, glossaryOnly } = translationInfo(doc);
+  if (!count) return "";
+  const label = (live.length ? live : providers).join("/") || "cache";
+  return `<span class="badge ${glossaryOnly ? "warn" : "ok"}" title="译文来源">译文 ${escapeHtml(label)}${glossaryOnly ? " · 术语级" : ""}</span>`;
+}
+
+function translationHint(doc) {
+  const { count, glossaryOnly } = translationInfo(doc);
+  if (!count) {
+    return `<div class="dim" style="font-size:11px;margin-top:6px">尚未生成译文；点「中文对照」按需翻译。</div>`;
+  }
+  if (glossaryOnly) {
+    return `<div style="margin-top:8px;padding:7px 8px;border:1px solid var(--warn,#8a6d3b);border-radius:6px;font-size:11px;line-height:1.5">
+      当前仅有<b>离线术语辅助</b>（英文中夹少量中文词）。整句机器翻译需要服务器可访问外网，请稍后重试「翻译全文」。
+    </div>`;
+  }
+  return `<div class="dim" style="font-size:11px;margin-top:6px">译文来自在线通道，公式/引用/数字保持原文。</div>`;
 }
 
 function outlineHtml(tree, depth = 1) {
@@ -179,7 +231,7 @@ function pagesHtml(doc) {
           ${page.ocr ? `<span class="badge warn">OCR</span>` : ""}
           <span class="spacer"></span><span class="dim mono">${page.blocks?.length || 0} blocks</span></div>
         <div class="page-wrap" style="max-width:${Math.round((page.width || 595) * 1.05)}px">
-          <img src="${escapeHtml(page.image)}" alt="page ${page.number}" loading="${page.number === 1 ? "eager" : "lazy"}" ${page.number === 1 ? 'fetchpriority="high"' : 'fetchpriority="low"'} />
+          <img src="${escapeHtml(pageSrc(page.image))}" alt="page ${page.number}" loading="${page.number === 1 ? "eager" : "lazy"}" ${page.number === 1 ? 'fetchpriority="high"' : 'fetchpriority="low"'} />
           <div class="blocks-layer">${blocksHtml(page)}</div>
         </div>
       </div>`
@@ -238,7 +290,7 @@ function bilingualHtml(doc) {
             (page) => `
           <div class="card" style="margin-bottom:12px;padding:8px" id="bipage-${page.number}">
             <div class="mono dim" style="margin-bottom:6px">PAGE ${page.number}</div>
-            <div class="page-wrap"><img src="${escapeHtml(page.image)}" loading="${page.number === 1 ? "eager" : "lazy"}" fetchpriority="high" alt="page ${page.number}"/>
+            <div class="page-wrap"><img src="${escapeHtml(pageSrc(page.image))}" loading="${page.number === 1 ? "eager" : "lazy"}" fetchpriority="high" alt="page ${page.number}"/>
               <div class="blocks-layer">${blocksHtml(page)}</div></div>
           </div>`
           )
@@ -282,10 +334,17 @@ function bindScrollSync(host) {
 
 async function toggleZh(host) {
   if (state.lang !== "zh") {
-    if (!state.doc.pages?.some((p) => p.blocks?.some((b) => b.translation))) {
+    const info = translationInfo(state.doc);
+    if (!info.count || info.glossaryOnly) {
       try {
         const result = await api.translate(state.paperId, "zh");
-        toast(`已翻译 ${result.count} 块`, "ok");
+        const list = (result.providers || []).filter(Boolean);
+        const providers = list.join("/") || "cache";
+        const glossaryOnly = list.length > 0 && list.every((name) => GLOSSARY_PROVIDERS.has(name));
+        toast(
+          glossaryOnly ? `当前仅术语级辅助（${providers}）` : `已翻译 ${result.count} 块（${providers}）`,
+          glossaryOnly ? "warn" : "ok"
+        );
       } catch (err) {
         toast(err.message, "err");
         return;

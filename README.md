@@ -103,6 +103,15 @@ python -m eval.run_eval                      # 八段评测，输出 report.json
 - 检索、图谱布局（seed=20260101）、图表几何均为确定性算法；
 - 所有降级（在线 LLM/向量/arXiv 不可用）在 `GET /api/system/status` 与前端「系统状态」显式标注，不做静默伪装。
 
+### 翻译通道
+
+当前版本的版式阅读整篇翻译按 **在线 LLM → 免密钥在线机器翻译（Google gtx / MyMemory）→ 离线术语辅助** 顺序降级：
+
+- 译文保留原文数字、公式与 `[n]` 引用编号；数字缺失或占位符残留会显式标记为降级；
+- `TRANSLATE_MODE=auto|offline` 控制是否允许联网翻译（默认 `auto`；离线评测与单测使用 `offline`）；
+- `TRANSLATE_TIMEOUT` 为单次机器翻译请求超时秒数（默认 6.0）；
+- 当前译文由哪个 provider 生成、是否降级，会显示在阅读器工具栏徽章与 `/api/system/status` 中，不使用术语替换冒充整句翻译。
+
 ## 团队信息
 
 | 项目 | 内容 |

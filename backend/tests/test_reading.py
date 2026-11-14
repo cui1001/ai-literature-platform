@@ -69,6 +69,7 @@ class ReadingTest(unittest.TestCase):
         self.settings = reset_settings(
             data_dir=self.tmp.name,
             llm_mode="offline",
+            translate_mode="offline",  # 单测不访问外网机器翻译
             embed_mode="hashing",
             arxiv_mode="offline",
         )

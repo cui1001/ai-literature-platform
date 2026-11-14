@@ -125,7 +125,7 @@ def protect(text: str) -> tuple[str, list[str]]:
 
     def repl(match: re.Match) -> str:
         pieces.append(match.group(0))
-        return f"\u0001{len(pieces) - 1}\u0001"
+        return f"[[{len(pieces) - 1}]]"
 
     return PROTECT_RE.sub(repl, text), pieces
 
@@ -135,7 +135,7 @@ def restore(text: str, pieces: list[str]) -> str:
         idx = int(match.group(1))
         return pieces[idx] if 0 <= idx < len(pieces) else ""
 
-    return re.sub(r"\u0001(\d+)\u0001", repl, text)
+    return re.sub(r"\[\[(\d+)\]\]", repl, text)
 
 
 def detect_terms(text: str) -> list[str]:

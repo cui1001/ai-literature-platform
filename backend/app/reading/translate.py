@@ -14,6 +14,9 @@
 
 from __future__ import annotations
 
+import re
+from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from typing import Any, Callable, Iterable, Sequence
 
@@ -26,6 +29,8 @@ from ..providers.base import LLMResult
 from ..providers.glossary import protect, restore
 from ..providers.llm import get_llm
 from ..providers.offline import run_offline
+from ..providers.translation import status as translation_status
+from ..providers.translation import translate_online
 
 logger = get_logger(__name__)
 
@@ -76,6 +81,124 @@ def translatable(block: TextBlock) -> bool:
     return len(text) >= MIN_SOURCE_CHARS and has_letters(text)
 
 
+def _cache_tag(settings: Settings, target: str) -> str:
+    """缓存签名说明：用于判断旧译文是否需要重译（见 _cache_valid）。"""
+    mode = (settings.translate_mode or "auto").lower()
+    key = "llm" if settings.has_llm_credentials() else "nollm"
+    return f"{mode}|{target}|{key}"
+
+
+GLOSSARY_PROVIDERS = {"offline", "glossary"}
+NUMBER_RE = re.compile(r"\d+(?:\.\d+)*")
+IDENT_NUMBER_RE = re.compile(r"(?<=[A-Za-z])-?(\d+(?:\.\d+)*)")
+
+
+def _numbers_kept(source: str, text: str, threshold: float = 0.6) -> bool:
+    """译文是否保留原文的关键数字（防止 GPT-3 -> GPT-1、表 1 -> 表 0、arXiv 编号被截断）。
+
+    三条规则：
+    1. 小数（含版本号、BLEU、arXiv 编号）必须原样保留；
+    2. 紧跟字母的编号（GPT-3 / BERT-1 / V100）必须原样保留；
+    3. 其余普通整数按覆盖率判断（允许 175 billion -> 1750 亿 这类单位换算）。
+    """
+    src = source or ""
+    out = text or ""
+    src_dec = {n for n in NUMBER_RE.findall(src.replace(",", "")) if "." in n}
+    out_dec = {n for n in NUMBER_RE.findall(out.replace(",", "")) if "." in n}
+    if src_dec - out_dec:
+        return False
+    src_ident = set(IDENT_NUMBER_RE.findall(src))
+    out_ident = set(IDENT_NUMBER_RE.findall(out))
+    if src_ident - out_ident:
+        return False
+    wanted = Counter(NUMBER_RE.findall(src.replace(",", "")))
+    if not wanted:
+        return True
+    got = Counter(NUMBER_RE.findall(out.replace(",", "")))
+    kept = sum((wanted & got).values())
+    return kept / max(sum(wanted.values()), 1) >= threshold
+
+
+def _cache_valid(cached: dict[str, Any] | None, source: str, settings: Settings) -> bool:
+    """缓存是否可用：原文未变，且通道不降级、关键数字未丢失。
+
+    早期版本在离线模式写入的是术语级译文（provider=offline）。启用机器翻译后
+    若继续命中，用户会看到「英文里夹几个中文词」，因此非 offline 模式下遇到
+    术语级缓存一律视为过期，强制重译。
+    """
+    if not cached or not cached.get("text"):
+        return False
+    if cached.get("src_hash") != sha1_text(source):
+        return False
+    if not _numbers_kept(source, cached.get("text", "")):
+        return False
+    mode = (settings.translate_mode or "auto").lower()
+    if mode == "offline":
+        return True
+    return (cached.get("provider") or "") not in GLOSSARY_PROVIDERS
+
+
+def _translate_once(
+    protected: str,
+    settings: Settings,
+    *,
+    target: str,
+    task: str,
+) -> LLMResult:
+    """翻译一段已做占位保护的文本：在线模型 → 免密钥机器翻译 → 术语辅助。"""
+    mode = (settings.translate_mode or "auto").lower()
+    payload = {"text": protected, "target_lang": "en" if task == "academic_translate" else target}
+    reasons: list[str] = []
+
+    if mode != "offline":
+        # 1) 在线大模型（显式 online/auto 且配置了 key；offline 模式直接跳过）
+        if settings.llm_mode != "offline" and settings.has_llm_credentials():
+            try:
+                result = get_llm(settings).run(task, payload)
+                if (result.provider or "") not in GLOSSARY_PROVIDERS:
+                    return result
+                reasons.append(f"llm: 已降级为 {result.provider}")
+            except Exception as exc:  # 网络/额度/超时都继续往下走
+                reasons.append(f"llm: {exc}")
+                logger.info("在线模型翻译失败，尝试机器翻译：%s", exc)
+        # 2) 免密钥机器翻译（整句翻译，非术语替换）
+        try:
+            mt = translate_online(protected, target=payload["target_lang"], timeout=settings.translate_timeout)
+            return LLMResult(
+                text=mt.text,
+                data={"coverage": 0.0, "engine": mt.provider},
+                provider=mt.provider,
+                model="free-mt",
+                latency_ms=mt.latency_ms,
+                degraded=False,
+                notes=mt.notes,
+            )
+        except Exception as exc:
+            reasons.append(f"mt: {exc}")
+            logger.info("机器翻译通道不可用，回落术语辅助：%s", exc)
+
+    # 3) 离线术语级兜底（明确标注，不伪装成完整译文）
+    result = run_offline(task, payload)
+    note = "offline-glossary: 术语级辅助翻译（非整句机器翻译）"
+    if reasons:
+        note += "；" + "; ".join(reasons[:2])
+    return LLMResult(
+        text=result.text,
+        data=result.data,
+        provider=result.provider,
+        model=result.model,
+        latency_ms=result.latency_ms,
+        degraded=True,
+        notes=note,
+    )
+
+
+def _clean_placeholders(text: str) -> tuple[str, bool]:
+    """清除机器翻译残留的占位符（[[n]] / {n}），返回 (文本, 是否清理过)。"""
+    cleaned, count = re.subn(r"\[\[\d+\]\]|\{\d{1,3}\}", "", text)
+    return cleaned, bool(count)
+
+
 def translate_text(
     text: str,
     settings: Settings | None = None,
@@ -83,31 +206,40 @@ def translate_text(
     target: str = "zh",
     task: str = "translate",
 ) -> LLMResult:
-    """翻译一段文本；保护公式/引用/数字，失败时回落离线引擎。"""
+    """翻译一段文本；保护公式/引用/数字，按通道依次降级。
+
+    数字校验不通过时重试一次；仍不通过则回退术语级（术语级不改写数字），
+    避免把「GPT-3 变成 GPT-1」这类错误译文当作可信结果返回。
+    """
     settings = settings or get_settings()
     source = text or ""
     protected, pieces = protect(source)
-    payload = {"text": protected, "target_lang": target}
-    result: LLMResult
-    if task == "academic_translate":
-        payload = {"text": protected, "target_lang": "en"}
-    try:
-        llm = get_llm(settings)
-        result = llm.run(task, payload)
-    except Exception as exc:  # ProviderUnavailable / 网络异常 / 未配置 key
-        logger.info("在线翻译不可用，回落离线：%s", exc)
-        result = run_offline(task, payload)
-        result = LLMResult(
-            text=result.text,
-            data=result.data,
-            provider=result.provider,
-            model=result.model,
-            latency_ms=result.latency_ms,
+
+    def attempt() -> LLMResult:
+        res = _translate_once(protected, settings, target=target, task=task)
+        out = restore(res.text or "", pieces).strip()
+        out, cleaned = _clean_placeholders(out)
+        if cleaned:
+            res.degraded = True
+            res.notes = ((res.notes or "") + "；placeholder-cleaned").strip("；")
+        res.text = out
+        return res
+
+    result = attempt()
+    if not _numbers_kept(source, result.text, threshold=0.9):
+        retry = attempt()
+        if _numbers_kept(source, retry.text, threshold=0.9):
+            return retry
+        fallback = run_offline(task, {"text": source, "target_lang": target})
+        return LLMResult(
+            text=(fallback.text or "").strip(),
+            data=fallback.data,
+            provider="offline",
+            model=fallback.model,
+            latency_ms=fallback.latency_ms,
             degraded=True,
-            notes=f"online-unavailable: {exc}",
+            notes="offline-glossary: 在线译文未通过数字一致性校验，已回退术语级（不改写数字）",
         )
-    restored = restore(result.text or "", pieces)
-    result.text = restored.strip()
     return result
 
 
@@ -130,7 +262,8 @@ def translate_block(
     settings = settings or get_settings()
     source = (block.text or "").strip()
     cached = (cache or {}).get(block.id)
-    if cached and cached.get("src_hash") == sha1_text(source) and cached.get("text"):
+    if _cache_valid(cached, source, settings):
+        cached = cached or {}
         return TranslationPiece(
             anchor=block.id,
             block_id=block.id,
@@ -141,7 +274,16 @@ def translate_block(
             provider=cached.get("provider", "cache"),
             cached=True,
         )
-    result = translate_text(source, settings, target=lang)
+    # 标题的章节编号单独处理：翻译正文（去掉编号），再原样拼回，避免「1 Introduction → 简介」
+    prefix = ""
+    payload_text = source
+    if block.kind == "heading" and block.number and source.startswith(block.number):
+        prefix = block.number + " "
+        payload_text = source[len(block.number):].strip()
+    result = translate_text(payload_text, settings, target=lang)
+    text = (result.text or "").strip()
+    if prefix and not text.startswith(block.number):
+        text = prefix + text
     coverage = float((result.data or {}).get("coverage", 0.0) or 0.0)
     piece = TranslationPiece(
         anchor=block.id,
@@ -149,7 +291,7 @@ def translate_block(
         page=block.page,
         kind=block.kind,
         source=source,
-        text=result.text,
+        text=text,
         provider=result.provider,
         coverage=coverage,
         degraded=bool(result.degraded),
@@ -186,33 +328,57 @@ def translate_paper(
         raise ValueError(f"不支持的翻译目标语言：{lang}")
     wanted = set(block_ids or ())
     cache = _cached_map(paper.paper_id, lang)
+    # 首页 Abstract 以上的标题/作者/机构属于元信息，翻译意义不大（人名也不该被译）
+    abstract_top = next(
+        (
+            block.bbox.y0
+            for block in paper.blocks
+            if block.kind == "heading" and (block.text or "").strip().lower().startswith("abstract")
+        ),
+        None,
+    )
     targets = [
         block
         for block in paper.blocks
-        if translatable(block) and (not wanted or block.id in wanted or block.sid in wanted)
+        if translatable(block)
+        and not (abstract_top is not None and block.page == 1 and block.bbox.y1 <= abstract_top)
+        and (not wanted or block.id in wanted or block.sid in wanted)
     ]
-    pieces: list[TranslationPiece] = []
     total = len(targets)
-    for index, block in enumerate(targets, start=1):
+
+    def one(block: TextBlock) -> TranslationPiece:
         existing = cache.get(block.id)
-        fresh = existing and existing.get("src_hash") == sha1_text((block.text or "").strip())
+        fresh = _cache_valid(existing, (block.text or "").strip(), settings)
         if only_missing and fresh:
-            pieces.append(
-                TranslationPiece(
-                    anchor=block.id,
-                    block_id=block.id,
-                    page=block.page,
-                    kind=block.kind,
-                    source=(block.text or "").strip(),
-                    text=existing.get("text", ""),
-                    provider=existing.get("provider", "cache"),
-                    cached=True,
-                )
+            return TranslationPiece(
+                anchor=block.id,
+                block_id=block.id,
+                page=block.page,
+                kind=block.kind,
+                source=(block.text or "").strip(),
+                text=existing.get("text", ""),
+                provider=existing.get("provider", "cache"),
+                cached=True,
             )
-        else:
-            pieces.append(translate_block(paper, block, settings, lang=lang, cache=cache))
-        if progress:
-            progress(index, total)
+        return translate_block(paper, block, settings, lang=lang, cache=cache)
+
+    # 在线机器翻译是逐块 HTTP 请求，串行会把整篇翻译拖到几分钟；并发 3~4 路即可
+    # 在几十秒内完成，同时对免费端点保持温和的请求速率。
+    mode = (settings.translate_mode or "auto").lower()
+    workers = 0 if mode == "offline" else (3 if total >= 18 else (2 if total >= 8 else 1))
+    pieces: list[TranslationPiece] = []
+    if workers > 1 and total > 12:
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            futures = [pool.submit(one, block) for block in targets]
+            for index, future in enumerate(futures, start=1):
+                pieces.append(future.result())
+                if progress:
+                    progress(index, total)
+    else:
+        for index, block in enumerate(targets, start=1):
+            pieces.append(one(block))
+            if progress:
+                progress(index, total)
     cached_count = sum(1 for piece in pieces if piece.cached)
     providers = sorted({piece.provider for piece in pieces if piece.provider})
     return {
@@ -264,4 +430,7 @@ def model_status(settings: Settings | None = None) -> dict[str, Any]:
         "provider": getattr(llm, "name", llm.__class__.__name__),
         "status": llm.status().to_dict() if hasattr(llm.status(), "to_dict") else {},
         "langs": SUPPORTED_LANGS,
+        "mode": (settings.translate_mode or "auto").lower(),
+        "engines": translation_status()["engines"],
+        "chain": ["online-llm", "free-mt(google/mymemory)", "offline-glossary"],
     }
