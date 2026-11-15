@@ -84,6 +84,31 @@ class PageText:
 
 _HYPHEN_END = re.compile(r"(\w)-$")
 
+# 首页/页边的「非正文」块：arXiv 旋转水印、期刊页眉、版权行、编辑器行、页码。
+# 这些块如果进入标题/作者区域，会直接抢走 title（水印 20pt 常大于真标题 17pt）。
+_BOILERPLATE_PATTERNS = (
+    re.compile(r"^arxiv:\s*\d{4}\.\d{4,5}(?:v\d+)?\s*(?:\[[^\]]*\])?\s*(?:\d{1,2}\s+[a-z]{3,9}\s+\d{4})?$", re.I),
+    re.compile(r"^journal of machine learning research\s+\d+", re.I),
+    re.compile(r"^submitted\s+\d+/\d+\s*;\s*revised", re.I),
+    re.compile(r"^(?:©|\(c\)|copyright\b)", re.I),
+    re.compile(r"^license:\s*cc-by|creativecommons\.org/licenses", re.I),
+    re.compile(r"^provided proper attribution\b", re.I),
+    re.compile(r"^proceedings of the .{0,140}(?:conference|workshop|meeting|association)", re.I),
+    re.compile(r"^(?:editor|editors|action editor|reviewers?|area chair)\s*:", re.I),
+    re.compile(r"^(?:under review|preprint|draft)\b", re.I),
+    re.compile(r"^(?:date|website)\s*:\s*", re.I),
+    re.compile(r"^\d{1,4}$"),
+    re.compile(r"^https?://\S+$", re.I),
+)
+
+
+def is_boilerplate_text(text: str) -> bool:
+    """判断文本块是否属于水印/版权/页码等非正文内容。"""
+    value = normalize_ws(text)
+    if not value or len(value) > 400:
+        return False
+    return any(pattern.search(value) for pattern in _BOILERPLATE_PATTERNS)
+
 
 def join_lines(lines: list[str]) -> str:
     """拼接同一块内的多行文本：修复行尾断词，去掉孤立的页码/分隔符。"""
@@ -194,26 +219,73 @@ def split_mixed_blocks(blocks: list[RawBlock]) -> list[RawBlock]:
 
 
 def detect_columns(blocks: list[RawBlock], page_width: float, text_left: float, text_right: float) -> int:
-    """依据块的水平分布判断单/双栏：双栏要求左右两簇都有足够多、且窄的块。"""
-    candidates = [b for b in blocks if b.kind == "text" and b.bbox.width > 40 and b.text.strip()]
-    if len(candidates) < 6:
+    """依据「行」的水平分布判断单/双栏。
+
+    只在块级别统计会失真：双栏论文的两栏各自被合并成一两个大段块，块数不够；
+    而窄高的旋转水印又会被当成左栏块。改用行级几何：
+    - 左/右各至少 5 行，且两侧行数不能过于悬殊；
+    - 通栏行（标题/摘要/表格）只能是少数；
+    - 两侧都要有足够的纵向覆盖，排除「右侧只有图注」的版面。
+    """
+    lines: list[RawLine] = []
+    for block in blocks:
+        if block.kind != "text":
+            continue
+        # 只看长段正文块：作者/邮箱、图注、表格单元格都是短块，它们在单栏页上
+        # 也会左右分布（例如标题页左侧人名、右侧邮箱），会造成双栏误判。
+        if len(normalize_ws(block.text)) < 140 or block.bbox.width < 120:
+            continue
+        block_lines = [normalize_ws(line.text) for line in block.lines if normalize_ws(line.text)]
+        if block_lines and sum(len(text) for text in block_lines) / len(block_lines) < 30:
+            # 表格单元格：块内行很多但每行只有几个词
+            continue
+        for line in block.lines:
+            text = normalize_ws(line.text)
+            if not text or len(text) < 2 or line.bbox.width < 20:
+                continue
+            if is_boilerplate_text(text):
+                continue
+            lines.append(line)
+    if len(lines) < 8:
         return 1
-    usable_width = max(1.0, text_right - text_left)
-    narrow = [b for b in candidates if b.bbox.width < usable_width * 0.62]
-    if len(narrow) < max(4, len(candidates) // 3):
+    # 用「右栏起点」而不是页面中心做分界：两栏宽度不等时（如 2002.04745 左栏
+    # 75–271、右栏 307–543），页面中心 306 落在右栏首行左侧，会把右栏判成通栏行，
+    # 导致整页双栏被误判为单栏。右栏起点取右侧区域内最靠左的行首。
+    usable_width = text_right - text_left
+    right_candidates = [line.bbox.x0 for line in lines if line.bbox.x0 > text_left + usable_width * 0.42]
+    if len(right_candidates) < 5:
         return 1
-    mid = (text_left + text_right) / 2
-    left = [b for b in narrow if (b.bbox.x0 + b.bbox.x1) / 2 < mid - 6]
-    right = [b for b in narrow if (b.bbox.x0 + b.bbox.x1) / 2 > mid + 6]
-    if len(left) >= 3 and len(right) >= 3:
-        # 两簇的纵向分布应大体覆盖页面，排除“仅表格/页脚在右侧”的误判
-        coverage = (max(b.bbox.y1 for b in right) - min(b.bbox.y0 for b in right)) if right else 0
-        if coverage > (text_right - text_left) * 0.25:
-            return 2
-    return 1
+    right_start = min(right_candidates)
+    if right_start > text_left + usable_width * 0.72:
+        return 1
+    split = right_start - 8.0
+    left = [line for line in lines if line.bbox.x1 <= split]
+    right = [line for line in lines if line.bbox.x0 >= split]
+    spanning = [line for line in lines if line.bbox.x0 < split and line.bbox.x1 > split]
+    if len(left) < 5 or len(right) < 5:
+        return 1
+    if max(len(left), len(right)) / max(1, min(len(left), len(right))) > 3.0:
+        return 1
+    if len(spanning) > len(left) + len(right):
+        return 1
+
+    def coverage(items: list[RawLine]) -> float:
+        return max(line.bbox.y1 for line in items) - min(line.bbox.y0 for line in items) if items else 0.0
+
+    usable_height = text_right - text_left
+    if coverage(left) < usable_height * 0.3 or coverage(right) < usable_height * 0.3:
+        return 1
+    return 2
 
 
-def extract_page(page: Any, settings: Settings, *, page_number: int | None = None, dpi: int | None = None) -> PageText:
+def extract_page(
+    page: Any,
+    settings: Settings,
+    *,
+    page_number: int | None = None,
+    dpi: int | None = None,
+    lang: str = "",
+) -> PageText:
     """抽取单页：优先文本层；文本过少时自动 OCR。"""
     number = page_number if page_number is not None else page.number + 1
     rect = page.rect
@@ -240,7 +312,8 @@ def extract_page(page: Any, settings: Settings, *, page_number: int | None = Non
     rotation = int(page.rotation or 0)
 
     if text_chars < settings.ocr_text_threshold:
-        result = ocr_page(page, dpi=min(300, max(150, settings.page_render_dpi)), lang="")
+        # 200 dpi 是 EasyOCR 英文识别的甜点：150 太小、300 明显变慢
+        result = ocr_page(page, dpi=min(300, max(200, settings.page_render_dpi or 0)), lang=lang or "en-US")
         if result.text.strip():
             blocks = _ocr_blocks(result)
             text_chars = sum(len(b.text) for b in blocks)
@@ -287,6 +360,10 @@ def _ocr_blocks(result: Any) -> list[RawBlock]:
         x1 = max(w.bbox[2] for w in words)
         y1 = max(w.bbox[3] for w in words)
         height = max(1.0, y1 - y0)
+        # 竖排水印/页边数字（arXiv 左边界那条）会得到 h>>w 的窄高块，
+        # 其"字号"=行高，容易抢走标题；直接丢弃。
+        if (x1 - x0) < 45 and height > (x1 - x0) * 2.2:
+            continue
         raw_blocks.append(
             RawBlock(
                 bbox=BBox(x0, y0, x1, y1),
@@ -295,19 +372,29 @@ def _ocr_blocks(result: Any) -> list[RawBlock]:
                 ocr=True,
             )
         )
-    # 合并相邻行成段：同一栏、垂直间距 < 0.9 倍行高、且上一行未以句号式标点结束
+    # 合并相邻行成段：左边缘对齐、字号相近、垂直间距 < 0.45 倍行高，
+    # 且上一行未以句末标点结束；短标题行不并入正文。
     merged: list[RawBlock] = []
     for block in raw_blocks:
         if not merged:
             merged.append(block)
             continue
         prev = merged[-1]
-        same_column = abs(prev.bbox.x0 - block.bbox.x0) < 24
+        height_ratio = block.bbox.height / max(prev.bbox.height, 1.0)
+        aligned = abs(prev.bbox.x0 - block.bbox.x0) <= 8
         gap = block.bbox.y0 - prev.bbox.y1
-        line_height = max(prev.bbox.height, block.bbox.height)
-        continues = not re.search(r"[.。!?！？:：]$", prev.text.strip())
-        heading_like = len(prev.text) < 60 and re.match(r"^\d+(\.\d+)*\s+[A-Z]", prev.text)
-        if same_column and -2 <= gap <= line_height * 0.9 and continues and not heading_like:
+        line_height = min(prev.bbox.height, block.bbox.height)
+        ends_sentence = bool(re.search(r"[.。!?！？:：;；]$", prev.text.strip()))
+        short_heading = len(prev.text) <= 60 and (
+            re.match(r"^\d+(\.\d+)*\s+\S", prev.text) or prev.text.isupper()
+        )
+        if (
+            aligned
+            and 0.65 <= height_ratio <= 1.5
+            and -1.5 <= gap <= line_height * 0.45
+            and not ends_sentence
+            and not short_heading
+        ):
             prev.lines.append(block.lines[0])
             prev.bbox = prev.bbox.union(block.bbox)
         else:

@@ -99,6 +99,8 @@ class Settings:
 
     # 解析
     page_render_dpi: int = 150
+    max_pages: int = 1200
+    page_render_limit: int = 120
     ocr_text_threshold: int = 40
     max_upload_mb: int = 130
 
@@ -181,6 +183,8 @@ class Settings:
             translate_mode=_env("TRANSLATE_MODE", "auto").lower(),
             translate_timeout=_env_float("TRANSLATE_TIMEOUT", 6.0),
             page_render_dpi=_env_int("PAGE_RENDER_DPI", 150),
+            max_pages=_env_int("MAX_PAGES", 1200),
+            page_render_limit=_env_int("PAGE_RENDER_LIMIT", 120),
             ocr_text_threshold=_env_int("OCR_TEXT_THRESHOLD", 40),
             top_k=_env_int("TOP_K", 6),
             rrf_k=_env_int("RRF_K", 60),
@@ -198,6 +202,8 @@ _INT_OVERRIDES = {
     "arxiv_max_results",
     "tracker_interval_minutes",
     "page_render_dpi",
+    "max_pages",
+    "page_render_limit",
     "ocr_text_threshold",
     "top_k",
     "rrf_k",

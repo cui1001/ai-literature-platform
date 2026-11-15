@@ -90,6 +90,32 @@ async def compare(paper_id: str, other: str = Query(..., min_length=1)) -> dict[
     return service.compare(paper_id, other, settings=get_settings())
 
 
+def _ensure_page_png(settings: Any, paper_id: str, page: int) -> Path | None:
+    """返回页面 PNG；大文档只预渲染前 N 页，其余按需从存档 PDF 渲染并缓存。"""
+    src = settings.pages_dir / paper_id / f"p{page:03d}.png"
+    if src.exists():
+        return src
+    pdf_path = settings.papers_dir / f"{paper_id}.pdf"
+    if not pdf_path.is_file() or page < 1:
+        return None
+    try:
+        import fitz
+
+        from ..parsing.pdftext import render_page_png
+
+        with fitz.open(str(pdf_path)) as doc:
+            if page > doc.page_count:
+                return None
+            png = render_page_png(doc[page - 1], settings)
+        src.parent.mkdir(parents=True, exist_ok=True)
+        tmp = src.with_name(src.name + ".tmp")
+        tmp.write_bytes(png)
+        tmp.replace(src)
+        return src
+    except Exception:  # pragma: no cover - 渲染失败按不存在处理
+        return None
+
+
 @router.get("/{paper_id}/pages/{page}.png")
 async def page_image(
     paper_id: str,
@@ -106,8 +132,8 @@ async def page_image(
     这对弱网/跨地域访问的阅读器体验影响很大。
     """
     settings = get_settings()
-    src = settings.pages_dir / paper_id / f"p{page:03d}.png"
-    if not src.exists():
+    src = _ensure_page_png(settings, paper_id, page)
+    if src is None:
         raise NotFoundError(f"页面图不存在: {paper_id} p{page}（请先完成解析）")
 
     accept = request.headers.get("accept", "")

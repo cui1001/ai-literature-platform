@@ -1,10 +1,14 @@
 """OCR Provider：为扫描件页提供文字与词级坐标。
 
 引擎链（按可用性自动选择，结果中始终标注实际引擎）：
-1. ``winrt``     —— Windows 10/11 内置 Windows.Media.Ocr（无需安装，离线可用）；
-2. ``tesseract`` —— 若系统存在 tesseract 可执行文件；
-3. ``pymupdf``   —— PyMuPDF 内置 OCR 入口（需 TESSDATA_PREFIX）；
-4. ``none``      —— 均不可用，返回空文本并显式标记降级，绝不伪造内容。
+1. ``winrt``     —— Windows 10/11 内置 Windows.Media.Ocr（中英文取决于已装语言包）；
+2. ``easyocr``   —— 纯 Python 深度学习 OCR（需 easyocr + torch；首次会下载英文模型）；
+3. ``tesseract`` —— 若系统存在 tesseract 可执行文件；
+4. ``pymupdf``   —— PyMuPDF 内置 OCR 入口（需 TESSDATA_PREFIX）；
+5. ``none``      —— 均不可用，返回空文本并显式标记降级，绝不伪造内容。
+
+引擎顺序按目标语言决定：英文文档优先 easyocr/tesseract（Windows 中文语言包
+识别英文会产出 "ls/AII/GoogIe" 这类乱码）；中文文档优先 winrt。
 
 所有引擎返回的词级包围盒先以「渲染图像像素」为单位，再由 :func:`ocr_page`
 统一换算回 PDF 点坐标，保证高亮覆盖层与原文严格对齐。
@@ -143,7 +147,20 @@ class WinRTEngine:
         text = str(payload.get("text") or "").strip()
         if not text and words:
             text = " ".join(w.text for w in words)
-        return OCRText(text=text, engine=self.name, words=words, lang=str(payload.get("lang") or lang))
+        requested = (lang or self.lang or "en-US").lower()
+        actual = str(payload.get("lang") or "").lower()
+        if requested and actual and requested.split("-")[0] != actual.split("-")[0]:
+            # 没有对应语言包时 WinRT 会静默回落到用户配置语言（本机是中文），
+            # 英文扫描件会得到 "AII/GoogIe" 之类乱码，必须降级并交给下一个引擎。
+            return OCRText(
+                text=text,
+                engine=self.name,
+                words=words,
+                lang=actual,
+                degraded=True,
+                notes=f"Windows OCR 缺少 {requested} 语言包，实际回落到 {actual}",
+            )
+        return OCRText(text=text, engine=self.name, words=words, lang=actual or requested)
 
 
 class TesseractEngine:
@@ -214,7 +231,81 @@ class PyMuPDFEngine:
         return OCRText("", self.name, degraded=True, notes="PyMuPDF OCR 需要先注册可用的 Tesseract 环境")
 
 
-_ENGINES: list[OCREngine] = [WinRTEngine(), TesseractEngine(), PyMuPDFEngine()]
+
+class EasyOCREngine:
+    """EasyOCR：英文/中文都能识别，作为 Windows 只有中文语言包时的英文兜底。
+
+    ``available()`` 只做轻量模块探测（真正 import torch 需要十几秒），识别时再
+    懒加载 Reader 并缓存。首次使用需下载识别模型（约 15 MB）。
+    """
+
+    name = "easyocr"
+
+    def __init__(self) -> None:
+        self._readers: dict[tuple[str, ...], Any] = {}
+        self._lock = threading.Lock()
+
+    def available(self) -> bool:
+        import importlib.util
+
+        return bool(importlib.util.find_spec("easyocr")) and bool(importlib.util.find_spec("torch"))
+
+    @staticmethod
+    def _langs(lang: str) -> list[str]:
+        primary = (lang or "en").lower().split("-")[0].split("_")[0]
+        if primary in {"zh", "ch", "chi", "cn"}:
+            return ["ch_sim", "en"]
+        return ["en"]
+
+    def _reader(self, langs: list[str]) -> Any:
+        key = tuple(langs)
+        with self._lock:
+            if key not in self._readers:
+                import easyocr
+
+                self._readers[key] = easyocr.Reader(list(key), gpu=False, verbose=False)
+            return self._readers[key]
+
+    def recognize(self, png_bytes: bytes, lang: str) -> OCRText:
+        if not self.available():
+            return OCRText("", self.name, degraded=True, notes="easyocr 不可用")
+        try:
+            import io
+
+            import numpy as np
+            from PIL import Image
+
+            image = Image.open(io.BytesIO(png_bytes)).convert("RGB")
+            reader = self._reader(self._langs(lang))
+            boxes = reader.readtext(np.array(image), detail=1, paragraph=False)
+        except Exception as exc:  # noqa: BLE001
+            return OCRText("", self.name, degraded=True, notes=f"easyocr 识别失败：{exc}")
+        # CRAFT 检测框本身就是「行/短语」级，不再按 y 聚类（否则同一水平线上的
+        # 多栏邮箱会被拼成一行、包围盒横跨整页，标题字号也随之失真）。
+        raw_boxes: list[tuple[float, float, float, float, float, str]] = []
+        for item in boxes:
+            try:
+                points, text, conf = item[0], str(item[1]), float(item[2])
+            except Exception:
+                continue
+            text = text.strip()
+            if not text:
+                continue
+            xs = [float(p[0]) for p in points]
+            ys = [float(p[1]) for p in points]
+            raw_boxes.append((min(ys), min(xs), min(xs), min(ys), max(xs), max(ys), conf, text))
+        # 按阅读顺序编号：先上后下、同行内先左后右
+        raw_boxes.sort(key=lambda item: (round(item[0] / 8.0), item[1]))
+        words: list[OCRWord] = []
+        text_lines: list[str] = []
+        for index, item in enumerate(raw_boxes):
+            y0, x0, _x0, _y0, x1, y1, conf, text = item
+            word = OCRWord(text=text, bbox=(x0, y0, x1, y1), conf=conf, line=f"L{index}")
+            words.append(word)
+            text_lines.append(text)
+        return OCRText(text="\n".join(text_lines), engine=self.name, words=words, lang=",".join(self._langs(lang)))
+
+_ENGINES: list[OCREngine] = [WinRTEngine(), EasyOCREngine(), TesseractEngine(), PyMuPDFEngine()]
 
 
 def probe_ocr(force: bool = False) -> dict[str, Any]:
@@ -235,7 +326,8 @@ def probe_ocr(force: bool = False) -> dict[str, Any]:
             "active": active,
             "engines": available,
             "detail": {
-                "winrt": "Windows 10/11 内置 OCR（离线可用）",
+                "winrt": "Windows 10/11 内置 OCR（离线可用，语言取决于已装语言包）",
+                "easyocr": "EasyOCR（Python 深度学习，英文/中文均可）",
                 "tesseract": "系统 Tesseract 5.x + 语言包",
                 "pymupdf": "PyMuPDF OCR 入口 + TESSDATA_PREFIX",
                 "none": "无可用 OCR 引擎，扫描件将标记为未识别（不会伪造文本）",
@@ -248,11 +340,16 @@ def probe_ocr(force: bool = False) -> dict[str, Any]:
 def recognize_image(png_bytes: bytes, lang: str = "", engine: str | None = None) -> OCRText:
     """依次尝试引擎，返回第一个非降级结果。"""
     forced = engine or ""
+    primary = (lang or "en").lower().split("-")[0]
+    if primary in {"zh", "ch", "chi", "cn"}:
+        preferred = ["winrt", "easyocr", "tesseract", "pymupdf"]
+    else:
+        preferred = ["tesseract", "easyocr", "winrt", "pymupdf"]
     chain: Sequence[OCREngine]
     if forced:
         chain = [e for e in _ENGINES if e.name == forced] or []
     else:
-        chain = _ENGINES
+        chain = sorted(_ENGINES, key=lambda e: preferred.index(e.name) if e.name in preferred else 99)
     notes: list[str] = []
     for candidate in chain:
         try:

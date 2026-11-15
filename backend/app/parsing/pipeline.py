@@ -20,10 +20,10 @@ from .structure import analyze
 log = get_logger(__name__)
 
 MIN_TEXT_CHARS_PER_PAGE = 25
-MAX_PAGES = 400
+MAX_PAGES = 1200
 
 
-def _open_pdf(source: bytes | str | Path) -> Any:
+def _open_pdf(source: bytes | str | Path, max_pages: int = MAX_PAGES) -> Any:
     import fitz
 
     try:
@@ -41,11 +41,25 @@ def _open_pdf(source: bytes | str | Path) -> Any:
     if doc.page_count == 0:
         doc.close()
         raise ParseError("PDF 不含任何页面")
-    if doc.page_count > MAX_PAGES:
+    if doc.page_count > max_pages:
         pages = doc.page_count
         doc.close()
-        raise ParseError(f"页数过多（{pages} > {MAX_PAGES}），请拆分后再上传")
+        raise ParseError(f"页数过多（{pages} > {max_pages}），请拆分后再上传")
     return doc
+
+
+def _doc_language(doc: Any) -> str:
+    """用有文本层的前几页判断文档语言；纯扫描件默认英文（学术论文主流）。"""
+    import re as _re
+
+    cjk = latin = 0
+    for index in range(min(4, doc.page_count)):
+        text = doc[index].get_text("text") or ""
+        cjk += len(_re.findall(r"[\u4e00-\u9fff]", text))
+        latin += len(_re.findall(r"[A-Za-z]", text))
+    if cjk and cjk > latin * 0.15:
+        return "zh-Hans-CN"
+    return "en-US"
 
 
 def parse_pdf(
@@ -61,18 +75,22 @@ def parse_pdf(
     raw_bytes = source if isinstance(source, bytes) else Path(source).read_bytes()
     digest = sha256_bytes(raw_bytes)
     pid = paper_id or paper_id_from_bytes(raw_bytes)
-    doc = _open_pdf(raw_bytes)
+    doc = _open_pdf(raw_bytes, settings.max_pages)
     try:
         pages_text: list[PageText] = []
         page_infos: list[PageInfo] = []
+        doc_lang = _doc_language(doc)
         page_dir = settings.pages_dir / pid
-        if render_pages:
+        # 大文档只渲染前 N 页；其余页面图由 /pages/{n}.png 在首次访问时按需渲染，
+        # 避免 500+ 页书籍上传时一次生成上千张图（几分钟且数百 MB）。
+        render_limit = max(0, int(getattr(settings, "page_render_limit", 120))) if render_pages else 0
+        if render_limit:
             page_dir.mkdir(parents=True, exist_ok=True)
         for index in range(doc.page_count):
             page = doc[index]
-            page_text = extract_page(page, settings, page_number=index + 1)
+            page_text = extract_page(page, settings, page_number=index + 1, lang=doc_lang)
             pages_text.append(page_text)
-            if render_pages:
+            if index < render_limit:
                 try:
                     png = render_page_png(page, settings)
                     (page_dir / f"p{index + 1:03d}.png").write_bytes(png)
