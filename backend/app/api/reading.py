@@ -66,10 +66,16 @@ async def download_export(paper_id: str, fmt: str, lang: str = "zh", translate: 
         "bilingual": "text/html; charset=utf-8",
         "pdf": "application/pdf",
     }.get(info["format"], "application/octet-stream")
+    coverage = {
+        "X-Translated-Blocks": str(info.get("translated_blocks", 0)),
+        "X-Translatable-Blocks": str(info.get("translatable_blocks", 0)),
+        "X-Translation-Partial": "1" if info.get("partial") else "0",
+        "Access-Control-Expose-Headers": "X-Translated-Blocks, X-Translatable-Blocks, X-Translation-Partial, Content-Disposition",
+    }
     if info["format"] == "pdf":
-        return FileResponse(path, media_type=media, filename=info["filename"])
+        return FileResponse(path, media_type=media, filename=info["filename"], headers=coverage)
     text = open(path, encoding="utf-8").read()
-    headers = {"Content-Disposition": f'attachment; filename="{info["filename"]}"'}
+    headers = {"Content-Disposition": f'attachment; filename="{info["filename"]}"', **coverage}
     if info["format"] in {"html", "bilingual"}:
         return HTMLResponse(text, headers=headers)
     return PlainTextResponse(text, media_type=media, headers=headers)

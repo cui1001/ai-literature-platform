@@ -50,7 +50,8 @@ function paint(host) {
       <span class="badge ${paper.ocr_used ? "warn" : ""}">${paper.ocr_used ? `OCR · ${escapeHtml(paper.ocr_engine || "engine")}` : "文本层"}</span>
       <span class="badge">${paper.layout === "double" ? "双栏" : "单栏"}</span>
       <span class="spacer"></span>
-      <button class="btn small ${state.lang === "zh" ? "primary" : ""}" id="btn-zh">中文对照</button>
+      <button class="btn small ${state.lang !== "zh" ? "primary" : ""}" id="btn-en">原文</button>
+      <button class="btn small ${state.lang === "zh" && !state.bilingual ? "primary" : ""}" id="btn-zh">中文对照</button>
       <button class="btn small ${state.bilingual ? "primary" : ""}" id="btn-bilingual">双语并排</button>
       ${translationBadge(doc)}
       <span class="dim">导出</span>
@@ -82,6 +83,13 @@ function paint(host) {
     </div>
     <div id="inspector" class="inspector hidden"></div>`;
 
+  $("#btn-en", host).addEventListener("click", async () => {
+    state.lang = "en";
+    state.translations = false;
+    state.bilingual = false;
+    state.doc = await api.document(state.paperId, "en", false);
+    paint(host);
+  });
   $("#btn-zh", host).addEventListener("click", () => toggleZh(host));
   $("#btn-bilingual", host).addEventListener("click", async () => {
     if (state.bilingual) {
@@ -89,12 +97,12 @@ function paint(host) {
       paint(host);
       return;
     }
-    if (state.lang !== "zh" || !translationInfo(state.doc).count) {
-      await toggleZh(host);
-      if (state.lang !== "zh") return;
-    }
+    if (state.lang !== "zh") await toggleZh(host);
     state.bilingual = true;
     paint(host);
+  });
+  host.querySelectorAll("[data-retry]").forEach((btn) => {
+    btn.addEventListener("click", () => ensureTranslations(host));
   });
   host.querySelectorAll("[data-export]").forEach((btn) => {
     btn.addEventListener("click", async (event) => {
@@ -102,7 +110,12 @@ function paint(host) {
       const lang = state.lang === "zh" ? "zh" : "en";
       setBusy(event.currentTarget, true, "生成中…");
       try {
-        const { blob, filename } = await api.exportFile(state.paperId, fmt, lang, state.translations);
+        const { blob, filename, translated, translatable, partial } = await api.exportFile(
+          state.paperId,
+          fmt,
+          lang,
+          state.translations
+        );
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
@@ -111,7 +124,14 @@ function paint(host) {
         link.click();
         link.remove();
         setTimeout(() => URL.revokeObjectURL(url), 10000);
-        toast(`已导出 ${filename}`, "ok");
+        if (lang === "zh" && partial && translatable > translated) {
+          toast(
+            `已导出 ${filename}：仅 ${translated}/${translatable} 块已翻译，其余保留英文`,
+            "warn"
+          );
+        } else {
+          toast(`已导出 ${filename}`, "ok");
+        }
       } catch (err) {
         toast(err.message || "导出失败", "err");
       } finally {
@@ -119,26 +139,14 @@ function paint(host) {
       }
     });
   });
-  $("#btn-translate", host).addEventListener("click", async (event) => {
-    setBusy(event.currentTarget, true, "翻译中…");
-    try {
-      const result = await api.translate(state.paperId, "zh");
-      const list = (result.providers || []).filter(Boolean);
-      const providers = list.join("/") || "cache";
-      const glossaryOnly = list.length > 0 && list.every((name) => GLOSSARY_PROVIDERS.has(name));
-      if (glossaryOnly) {
-        toast(`已生成 ${result.count} 块译文，但当前仅术语级辅助（${providers}）`, "warn");
-      } else {
-        toast(`已翻译 ${result.count} 块（${providers}）`, "ok");
-      }
+  $("#btn-translate", host).addEventListener("click", async () => {
+    if (state.lang !== "zh") {
       state.lang = "zh";
       state.translations = true;
-      state.doc = await api.document(state.paperId, "zh", true);
+      state.bilingual = false;
       paint(host);
-    } catch (err) {
-      toast(err.message, "err");
-      setBusy(event.currentTarget, false);
     }
+    await ensureTranslations(host);
   });
   $("#jump-refs", host).addEventListener("click", () => {
     const node = document.querySelector(".refs-list");
@@ -173,7 +181,31 @@ function translationInfo(doc) {
   const count = meta.count || 0;
   const live = providers.filter((p) => !GLOSSARY_PROVIDERS.has(p));
   const glossaryOnly = count > 0 && live.length === 0;
-  return { count, providers, live, glossaryOnly };
+  let translated = 0;
+  let pending = 0;
+  let metadata = 0;
+  let skipped = 0;
+  for (const page of doc.pages || []) {
+    for (const block of page.blocks || []) {
+      if (!["paragraph", "heading", "caption", "table_text"].includes(block.kind)) continue;
+      if (block.translation) translated += 1;
+      else if (block.skip_reason === "metadata") metadata += 1;
+      else if (block.skip_reason) skipped += 1;
+      else pending += 1;
+    }
+  }
+  return {
+    count,
+    providers,
+    live,
+    glossaryOnly,
+    translated,
+    pending,
+    metadata,
+    skipped,
+    translating: Boolean(state.translating),
+    error: state.translationError || "",
+  };
 }
 
 function translationBadge(doc) {
@@ -184,16 +216,32 @@ function translationBadge(doc) {
 }
 
 function translationHint(doc) {
-  const { count, glossaryOnly } = translationInfo(doc);
-  if (!count) {
-    return `<div class="dim" style="font-size:11px;margin-top:6px">尚未生成译文；点「中文对照」按需翻译。</div>`;
+  const info = translationInfo(doc);
+  if (info.translating) {
+    return `<div class="dim" style="font-size:11px;margin-top:8px">正在翻译…（可继续阅读，完成后自动刷新）</div>`;
   }
-  if (glossaryOnly) {
-    return `<div style="margin-top:8px;padding:7px 8px;border:1px solid var(--warn,#8a6d3b);border-radius:6px;font-size:11px;line-height:1.5">
-      当前仅有<b>离线术语辅助</b>（英文中夹少量中文词）。整句机器翻译需要服务器可访问外网，请稍后重试「翻译全文」。
+  const retry = info.pending || info.error
+    ? `<button class="btn small ghost" data-retry style="margin-top:6px">${info.pending ? `重试未翻译的 ${info.pending} 块` : "重试翻译"}</button>`
+    : "";
+  if (info.error) {
+    return `<div class="warn-box" style="font-size:11px;line-height:1.5">
+      <b>翻译失败</b>：${escapeHtml(info.error)}${retry}
     </div>`;
   }
-  return `<div class="dim" style="font-size:11px;margin-top:6px">译文来自在线通道，公式/引用/数字保持原文。</div>`;
+  if (!info.count && !info.pending) {
+    return `<div class="dim" style="font-size:11px;margin-top:6px">本题录信息无需翻译；正文点「中文对照」按需生成。</div>`;
+  }
+  if (info.glossaryOnly) {
+    return `<div class="warn-box" style="font-size:11px;line-height:1.5">
+      当前仅有<b>离线术语辅助</b>（英文中夹少量中文词）。整句机器翻译需要服务器能访问外网，请稍后重试「翻译全文」。
+      ${retry}
+    </div>`;
+  }
+  const parts = [`已译 ${info.translated} 块`];
+  if (info.pending) parts.push(`待译 ${info.pending} 块`);
+  if (info.skipped) parts.push(`跳过 ${info.skipped} 块（非文本/过短）`);
+  parts.push(`题录 ${info.metadata} 块保持原文`);
+  return `<div class="dim" style="font-size:11px;margin-top:6px">${parts.join(" · ")}</div>${retry}`;
 }
 
 function outlineHtml(tree, depth = 1) {
@@ -310,12 +358,22 @@ function zhHtml(doc) {
     .map((page) => {
       const blocks = (page.blocks || []).filter((b) => wanted.has(b.kind));
       const body = blocks
-        .map((b) =>
-          b.translation
-            ? `<div class="zh-block" data-block="${escapeHtml(b.id)}">${escapeHtml(b.translation)}</div>`
-            : `<div class="zh-block pending" data-block="${escapeHtml(b.id)}">${escapeHtml(b.text)}
-                 <div class="dim" style="font-size:11px;margin-top:2px">（未翻译，点击查看原文）</div></div>`
-        )
+        .map((b) => {
+          if (b.translation) {
+            return `<div class="zh-block" data-block="${escapeHtml(b.id)}">${escapeHtml(b.translation)}</div>`;
+          }
+          if (b.skip_reason === "metadata") {
+            return `<div class="zh-block info" data-block="${escapeHtml(b.id)}">${escapeHtml(b.text)}
+                 <div class="dim" style="font-size:11px;margin-top:2px">题录信息（保留原文）</div></div>`;
+          }
+          if (b.skip_reason) {
+            return `<div class="zh-block skipped" data-block="${escapeHtml(b.id)}">${escapeHtml(b.text)}
+                 <div class="dim" style="font-size:11px;margin-top:2px">未翻译 · 非文本块（跳过）</div></div>`;
+          }
+          const note = state.translating ? "翻译中…" : "未翻译，点左侧「重试」";
+          return `<div class="zh-block pending" data-block="${escapeHtml(b.id)}">${escapeHtml(b.text)}
+                 <div class="dim" style="font-size:11px;margin-top:2px">${note}</div></div>`;
+        })
         .join("") || `<div class="dim" style="font-size:12px">本页暂无可读正文。</div>`;
       return `<section class="card" style="margin-bottom:14px" id="page-${page.number}">
         <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px">
@@ -351,12 +409,24 @@ function bilingualHtml(doc) {
           <div style="margin-bottom:16px" data-bipage="${page.number}">
             <div class="mono dim" style="margin-bottom:6px">PAGE ${page.number}</div>
             ${(page.blocks || [])
-              .filter((b) => b.translation)
-              .map(
-                (b) => `<div class="pair"><div class="src">${escapeHtml(b.text)}</div>
-                  <div class="dst">${escapeHtml(b.translation)}</div></div>`
-              )
-              .join("") || `<div class="dim" style="font-size:12px">本页暂无译文，点击左上「中文对照」生成。</div>`}
+              .filter((b) => ["paragraph", "heading", "caption", "table_text"].includes(b.kind))
+              .map((b) => {
+                if (b.translation) {
+                  return `<div class="pair"><div class="src">${escapeHtml(b.text)}</div>
+                  <div class="dst">${escapeHtml(b.translation)}</div></div>`;
+                }
+                const note =
+                  b.skip_reason === "metadata"
+                    ? "题录信息（保留原文）"
+                    : b.skip_reason
+                    ? "未翻译 · 非文本块（跳过）"
+                    : state.translating
+                    ? "翻译中…"
+                    : "未翻译（保留原文）";
+                return `<div class="pair missing"><div class="src">${escapeHtml(b.text)}</div>
+                  <div class="dst dim">${note}</div></div>`;
+              })
+              .join("") || `<div class="dim" style="font-size:12px">本页暂无可读正文。</div>`}
           </div>`
           )
           .join("")}
@@ -380,54 +450,68 @@ function bindScrollSync(host) {
   dst.addEventListener("scroll", sync(dst, src));
 }
 
+async function reloadDoc(host) {
+  state.doc = await api.document(state.paperId, state.lang, state.translations);
+  paint(host);
+}
+
+async function ensureTranslations(host) {
+  if (state.translating) return;
+  state.translating = true;
+  state.translationError = "";
+  paint(host);
+  try {
+    const info = translationInfo(state.doc);
+    const page1 = (state.doc.pages || [])[0] || { blocks: [] };
+    const ids = (page1.blocks || [])
+      .filter((b) => !b.translation && !b.skip_reason)
+      .map((b) => b.id);
+    if (info.pending && ids.length) {
+      // 先翻第 1 页，尽快出中文；失败则在下方提示重试
+      const first = await api.translate(state.paperId, "zh", ids);
+      state.translating = false;
+      await reloadDoc(host);
+      state.translating = true;
+      if (first.failed) throw new Error(`第 1 页有 ${first.failed} 块翻译失败`);
+    }
+    const full = await api.translate(state.paperId, "zh");
+    state.translating = false;
+    await reloadDoc(host);
+    if (full.failed) {
+      state.translationError = `${full.failed} 块翻译失败`;
+      toast(`翻译完成 ${full.count} 块，${full.failed} 块失败，可点「重试」`, "err");
+    } else {
+      toast(
+        `翻译完成：${full.count} 块${full.skipped ? `，跳过 ${full.skipped} 块（非文本/过短）` : ""}`,
+        "ok"
+      );
+    }
+  } catch (err) {
+    state.translationError = err.message || "翻译失败";
+    toast(`${state.translationError}，可点「重试」`, "err");
+  } finally {
+    state.translating = false;
+    paint(host);
+  }
+}
+
 async function toggleZh(host) {
   if (state.lang === "zh") {
+    // P7：再次点击 = 重试缺失块，而不是切回原文（切回原文用「原文」按钮）
     if (state.bilingual) {
       state.bilingual = false;
       paint(host);
       return;
     }
-    state.lang = "en";
-    state.translations = false;
-    state.doc = await api.document(state.paperId, "en", false);
-    paint(host);
+    await ensureTranslations(host);
     return;
   }
-
-  const info = translationInfo(state.doc);
-  if (!info.count) {
-    // 先翻译当前（第 1）页，尽快出中文；剩余页面后台继续，完成后自动刷新
-    const firstPage = (state.doc.pages || [])[0] || { blocks: [] };
-    const ids = (firstPage.blocks || []).map((b) => b.id);
-    try {
-      const first = await api.translate(state.paperId, "zh", ids);
-      state.lang = "zh";
-      state.translations = true;
-      state.doc = await api.document(state.paperId, "zh", true);
-      paint(host);
-      const providers = (first.providers || []).filter(Boolean).join("/") || "cache";
-      toast(`第 1 页已翻译（${providers}），其余页面后台生成中…`, "ok");
-    } catch (err) {
-      toast(err.message, "err");
-      return;
-    }
-    api
-      .translate(state.paperId, "zh")
-      .then(async (result) => {
-        state.doc = await api.document(state.paperId, "zh", true);
-        if (state.lang === "zh") paint(host);
-        toast(`全文翻译完成（${result.count} 块）`, "ok");
-      })
-      .catch(() => {
-        /* 后台补齐失败时保留第 1 页译文，不打扰阅读 */
-      });
-    return;
-  }
-
+  // P3：立即切到中文视图并逐块显示「翻译中」，再发起翻译，避免点击后长时间无反馈
   state.lang = "zh";
   state.translations = true;
-  state.doc = await api.document(state.paperId, "zh", true);
+  state.bilingual = false;
   paint(host);
+  await ensureTranslations(host);
 }
 
 

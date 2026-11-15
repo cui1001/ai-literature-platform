@@ -76,11 +76,71 @@ def has_letters(text: str, minimum: int = 8) -> bool:
     return sum(1 for ch in text if ch.isalpha()) >= minimum
 
 
+def _wordy(text: str) -> bool:
+    """块内是否至少有一个拉丁字母。短标题（5 Results）与表格行也算可翻译文本。"""
+    return bool(re.search(r"[A-Za-z]", text or ""))
+
+
 def translatable(block: TextBlock) -> bool:
     if block.kind in SKIP_KINDS or block.kind not in TRANSLATABLE_KINDS:
         return False
     text = (block.text or "").strip()
-    return len(text) >= MIN_SOURCE_CHARS and has_letters(text)
+    return len(text) >= MIN_SOURCE_CHARS and _wordy(text)
+
+
+def translatable_kind(block: TextBlock) -> bool:
+    """是否属于「本来应该翻译」的正文类型（与是否含字母无关）。"""
+    return block.kind in TRANSLATABLE_KINDS and block.kind not in SKIP_KINDS
+
+
+def skip_reason(block: TextBlock, abstract_top: float | None = None) -> str:
+    """返回该块不翻译的原因：metadata / too-short / no-words；可翻译时返回空串。"""
+    if not translatable_kind(block):
+        return ""
+    if abstract_top is not None and block.page == 1 and block.bbox.y1 <= abstract_top:
+        return "metadata"
+    text = (block.text or "").strip()
+    if len(text) < MIN_SOURCE_CHARS:
+        return "too-short"
+    if not _wordy(text):
+        return "no-words"
+    return ""
+
+
+def annotate_translation_status(paper: ParsedPaper, doc: dict[str, Any]) -> None:
+    """给 /document 的每个 block 标注 skip_reason，供前端区分「题录信息/跳过/待翻译」。"""
+    abstract_top = next(
+        (
+            block.bbox.y0
+            for block in paper.blocks
+            if block.kind == "heading" and (block.text or "").strip().lower().startswith("abstract")
+        ),
+        None,
+    )
+    reasons = {block.id: skip_reason(block, abstract_top) for block in paper.blocks}
+    for page in doc.get("pages") or []:
+        for block in page.get("blocks") or []:
+            if block.get("translation"):
+                block["skip_reason"] = ""
+            else:
+                block["skip_reason"] = reasons.get(block.get("id"), "")
+
+
+def translatable_blocks(paper: ParsedPaper) -> list[TextBlock]:
+    """整篇中真正需要翻译的块（排除题录元信息与无文字块），用于导出覆盖率统计。"""
+    abstract_top = next(
+        (
+            block.bbox.y0
+            for block in paper.blocks
+            if block.kind == "heading" and (block.text or "").strip().lower().startswith("abstract")
+        ),
+        None,
+    )
+    return [
+        block
+        for block in paper.blocks
+        if translatable_kind(block) and not skip_reason(block, abstract_top)
+    ]
 
 
 def _cache_tag(settings: Settings, target: str) -> str:
@@ -173,6 +233,11 @@ def _cache_valid(cached: dict[str, Any] | None, source: str, settings: Settings)
     if mode == "offline":
         return True
     return (cached.get("provider") or "") not in GLOSSARY_PROVIDERS
+
+
+def cached_translation_valid(cached: dict[str, Any] | None, source: str, settings: Settings) -> bool:
+    """供 /document 读路径复用：旧缓存（如 175 billion -> 175 亿）不应再展示。"""
+    return _cache_valid(cached, source, settings)
 
 
 def _unwrap_json_text(result: LLMResult) -> str:
@@ -422,13 +487,14 @@ def translate_paper(
         ),
         None,
     )
-    targets = [
+    scope = [
         block
         for block in paper.blocks
-        if translatable(block)
-        and not (abstract_top is not None and block.page == 1 and block.bbox.y1 <= abstract_top)
+        if translatable_kind(block)
         and (not wanted or block.id in wanted or block.sid in wanted)
     ]
+    targets = [block for block in scope if not skip_reason(block, abstract_top)]
+    skipped = [block for block in scope if skip_reason(block, abstract_top)]
     total = len(targets)
 
     def one(block: TextBlock) -> TranslationPiece:
@@ -467,6 +533,22 @@ def translate_paper(
     cached_count = sum(1 for piece in pieces if piece.cached)
     failed = sum(1 for piece in pieces if not piece.text)
     providers = sorted({piece.provider for piece in pieces if piece.provider and piece.text})
+    skipped_pieces = [
+        TranslationPiece(
+            anchor=block.id,
+            block_id=block.id,
+            page=block.page,
+            kind=block.kind,
+            source=(block.text or "").strip(),
+            text="",
+            provider="skipped",
+            coverage=0.0,
+            degraded=False,
+            notes=f"skipped:{skip_reason(block, abstract_top)}",
+        )
+        for block in skipped
+    ]
+    payload = [piece.to_dict() for piece in pieces] + [piece.to_dict() for piece in skipped_pieces]
     return {
         "paper_id": paper.paper_id,
         "lang": lang,
@@ -475,9 +557,10 @@ def translate_paper(
         "cached": cached_count,
         "translated": len(pieces) - cached_count,
         "failed": failed,
+        "skipped": len(skipped_pieces),
         "providers": providers,
         "degraded": any(piece.degraded for piece in pieces),
-        "pieces": [piece.to_dict() for piece in pieces],
+        "pieces": payload,
         "by_block": {piece.block_id: piece.text for piece in pieces},
     }
 

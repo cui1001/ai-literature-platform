@@ -91,7 +91,10 @@ export const api = {
     const cd = res.headers.get("content-disposition") || "";
     const match = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(cd);
     const filename = match ? decodeURIComponent(match[1]) : `paper-${id}.${fmt}`;
-    return { blob, filename };
+    const translated = Number(res.headers.get("x-translated-blocks") || 0);
+    const translatable = Number(res.headers.get("x-translatable-blocks") || 0);
+    const partial = res.headers.get("x-translation-partial") === "1";
+    return { blob, filename, translated, translatable, partial };
   },
   pageUrl(id, page) {
     return `/api/papers/${encodeURIComponent(id)}/pages/${page}.png`;

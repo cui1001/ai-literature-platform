@@ -150,7 +150,13 @@ def _render_derivative(src, out, target: str, width: int, quality: int) -> None:
         if target == "webp" and _is_text_page(image):
             import numpy as np
 
-            gray = np.asarray(image.convert("L"))
+            # P8：先按请求宽度缩放再二值化，避免文字页忽略 ?w=900 仍输出 1240 宽
+            mono = image.convert("L")
+            if mono.width > width:
+                mono = mono.resize(
+                    (width, max(1, round(mono.height * width / mono.width))), Image.LANCZOS
+                )
+            gray = np.asarray(mono)
             binary = ((gray > 200) * 255).astype("uint8")
             Image.fromarray(binary).save(tmp, "WEBP", lossless=True, method=4)
         else:

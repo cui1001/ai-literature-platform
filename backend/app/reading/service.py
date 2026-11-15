@@ -16,7 +16,15 @@ from ..parsing.pipeline import load_parsed
 from . import export as exporter
 from .layout import document_json, heading_tree
 from .links import backlinks, link_map, citation_occurrences
-from .translate import section_translations, translate_paper
+from .translate import (
+    annotate_translation_status,
+    cached_translation_valid,
+    section_translations,
+    skip_reason,
+    translate_paper,
+    translatable_blocks,
+    translatable_kind,
+)
 
 PAGE_IMAGE_NAME = "pages"
 
@@ -58,12 +66,22 @@ def document(
     paper = load_paper(paper_id, settings)
     prefix = f"/api/papers/{paper_id}/pages/"
     translations = translations_map(paper_id, lang) if (lang and include_translations) else {}
+    if translations:
+        # P1：旧缓存（如 175 billion 被译成 175 亿）在读取时即判无效，不再展示错误数字
+        blocks = {block.id: block for block in paper.blocks}
+        translations = {
+            anchor: item
+            for anchor, item in translations.items()
+            if anchor in blocks
+            and cached_translation_valid(item, (blocks[anchor].text or "").strip(), settings)
+        }
     doc = document_json(
         paper,
         image_prefix=prefix,
         translations=translations,
         backlinks=backlinks(paper),
     )
+    annotate_translation_status(paper, doc)
     doc["links"] = link_map(paper)
     doc["translation"] = {
         "lang": lang or "",
@@ -107,14 +125,29 @@ def export(
 ) -> dict[str, Any]:
     settings = settings or get_settings()
     paper = load_paper(paper_id, settings)
-    translations = {anchor: item.get("text", "") for anchor, item in translations_map(paper_id, lang).items()}
+    blocks = {block.id: block for block in paper.blocks}
+    raw_translations = translations_map(paper_id, lang)
+    translations = {
+        anchor: item.get("text", "")
+        for anchor, item in raw_translations.items()
+        if anchor in blocks
+        and cached_translation_valid(item, (blocks[anchor].text or "").strip(), settings)
+    }
     if translate and lang != "en" and not translations:
         # 导出前按需补翻译（有缓存时几乎不耗时；避免导出英文占位却不自知）
         try:
             translate_paper(paper, settings, lang=lang)
-            translations = {anchor: item.get("text", "") for anchor, item in translations_map(paper_id, lang).items()}
+            raw_translations = translations_map(paper_id, lang)
+            translations = {
+                anchor: item.get("text", "")
+                for anchor, item in raw_translations.items()
+                if anchor in blocks
+                and cached_translation_valid(item, (blocks[anchor].text or "").strip(), settings)
+            }
         except Exception:  # 翻译失败仍导出原文，不让导出整体失败
             translations = {}
+    targets = translatable_blocks(paper)
+    translated_count = sum(1 for block in targets if translations.get(block.id))
     path = exporter.export_paper(
         paper,
         fmt,
@@ -129,7 +162,9 @@ def export(
         "filename": path.name,
         "size": path.stat().st_size if path.exists() else 0,
         "lang": lang,
-        "translated_blocks": len(translations),
+        "translated_blocks": translated_count,
+        "translatable_blocks": len(targets),
+        "partial": bool(targets) and translated_count < len(targets),
     }
 
 
