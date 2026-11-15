@@ -45,6 +45,7 @@ export async function renderReader(host, paperId, params = null) {
   if (seq !== renderSeq || !isView("reader", host) || state.paperId !== paperId) return;
   state.doc = doc;
   paint(host);
+  highlightEvidence(host, params);
   const taskId = `translate:${paperId}`;
   if (getTask(taskId)?.status === "running") {
     // P2：回到阅读器时翻译仍在后台跑，续显进度并在完成后自动刷新译文
@@ -330,6 +331,34 @@ function labelOf(key) {
   );
 }
 
+/* 证据定位：URL 携带 page + bbox 时，滚动到对应页并高亮原文区域 */
+function highlightEvidence(host, params) {
+  const pageNo = Number(params?.get?.("page") || 0);
+  const raw = params?.get?.("bbox") || "";
+  if (!pageNo || !raw) return;
+  const bbox = raw.split(",").map((v) => Number(v));
+  if (bbox.length !== 4 || !bbox.every((v) => Number.isFinite(v)) || !bbox.some((v) => v > 0)) return;
+  requestAnimationFrame(() => {
+    const card = document.getElementById(`page-${pageNo}`);
+    if (!card) return;
+    card.scrollIntoView({ block: "center" });
+    const layer = card.querySelector(".blocks-layer");
+    const page = (state.doc?.pages || []).find((p) => p.number === pageNo) || { width: 595, height: 842 };
+    if (!layer) return;
+    layer.querySelectorAll(".evidence-hl").forEach((node) => node.remove());
+    const w = page.width || 595;
+    const h = page.height || 842;
+    const hl = document.createElement("div");
+    hl.className = "evidence-hl";
+    hl.style.left = `${(bbox[0] / w) * 100}%`;
+    hl.style.top = `${(bbox[1] / h) * 100}%`;
+    hl.style.width = `${Math.max(((bbox[2] - bbox[0]) / w) * 100, 1)}%`;
+    hl.style.height = `${Math.max(((bbox[3] - bbox[1]) / h) * 100, 0.6)}%`;
+    hl.title = "证据原文位置";
+    layer.appendChild(hl);
+  });
+}
+
 function pagesHtml(doc) {
   const pages = doc.pages || [];
   return `
@@ -341,7 +370,7 @@ function pagesHtml(doc) {
           <span class="badge">${page.columns === 2 ? "双栏" : "单栏"}</span>
           ${page.ocr ? `<span class="badge warn">OCR</span>` : ""}
           <span class="spacer"></span><span class="dim mono">${page.blocks?.length || 0} blocks</span></div>
-        <div class="page-wrap" style="max-width:${Math.round((page.width || 595) * 1.05)}px">
+        <div class="page-wrap" style="max-width:${Math.round((page.width || 595) * 1.05)}px;aspect-ratio:${page.width || 595}/${page.height || 842}">
           <img src="${escapeHtml(pageSrc(page.image))}" alt="page ${page.number}" loading="${page.number === 1 ? "eager" : "lazy"}" ${page.number === 1 ? 'fetchpriority="high"' : 'fetchpriority="low"'} />
           <div class="blocks-layer">${blocksHtml(page)}</div>
         </div>

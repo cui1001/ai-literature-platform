@@ -137,6 +137,7 @@ def meta_chunk(paper: ParsedPaper) -> Chunk | None:
 
 def chunk_paper(paper: ParsedPaper) -> list[Chunk]:
     sections = {s.sid: s for s in paper.sections}
+    blocks = paper.block_map()
     chunks: list[Chunk] = []
     order = 0
     buffer: list[Any] = []
@@ -248,13 +249,16 @@ def chunk_paper(paper: ParsedPaper) -> list[Chunk]:
         if len(ref.raw) < 8:
             continue
         text = f"参考文献 [{ref.idx}]: {ref.raw}"
+        # 参考文献块的真实位置：用解析阶段记录的 block_id 回查 bbox，
+        # 否则证据列表会显示 bbox 0,0,0,0，前端也无法高亮原文。
+        ref_block = blocks.get(ref.block_id) if ref.block_id else None
         chunks.append(
             Chunk(
                 chunk_id=chunk_id(paper.paper_id, ref.page or 1, order, text),
                 paper_id=paper.paper_id,
                 sid="",
                 page=ref.page or 1,
-                bbox=BBox(0, 0, 0, 0),
+                bbox=ref_block.bbox if ref_block is not None else BBox(0, 0, 0, 0),
                 text=text,
                 order_idx=order,
                 token_len=len(tokens(text)),

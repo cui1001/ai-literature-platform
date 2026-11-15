@@ -478,7 +478,7 @@ function renderAnswer(result, host) {
       <div class="evidence" style="margin-top:10px">
         ${citations
           .map(
-            (cite, idx) => `<div class="ev" data-evidence="${idx}">
+            (cite, idx) => `<div class="ev" data-evidence="${idx}" role="button" tabindex="0">
               <b>[E${cite.evidence_id?.replace(/^E/, "") || idx + 1}] ${escapeHtml(cite.paper_title || "")} · p${cite.page}${cite.section ? " · " + escapeHtml(cite.section) : ""}</b>
               <div>${escapeHtml((cite.quote || "").slice(0, 240))}</div>
               <div class="mono dim" style="font-size:10.5px">bbox ${(cite.bbox || []).map((v) => Math.round(v)).join(", ")} · ${escapeHtml(cite.chunk_id || "")}</div>
@@ -488,18 +488,34 @@ function renderAnswer(result, host) {
       </div>
     </div>`;
   host.querySelectorAll("[data-evidence]").forEach((node) => {
-    node.addEventListener("click", () => {
+    const open = () => {
       const cite = citations[Number(node.dataset.evidence)];
-      if (cite) location.hash = `#reader/${cite.paper_id}?page=${cite.page}`;
+      if (cite) location.hash = readerLink(cite.paper_id, cite.page, cite.bbox);
+    };
+    node.addEventListener("click", open);
+    node.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        open();
+      }
     });
   });
   host.querySelectorAll("[data-cite]").forEach((chip) => {
     chip.addEventListener("click", () => {
       const id = chip.dataset.cite;
       const cite = citations.find((item) => String(item.evidence_id || "").replace(/^E/, "") === id);
-      if (cite) location.hash = `#reader/${cite.paper_id}?page=${cite.page}`;
+      if (cite) location.hash = readerLink(cite.paper_id, cite.page, cite.bbox);
     });
   });
+}
+
+/** 证据定位链接：把 bbox 一并带上，阅读器可精确高亮原文区域 */
+function readerLink(paperId, page, bbox) {
+  const params = new URLSearchParams({ page: String(page || 1) });
+  if (Array.isArray(bbox) && bbox.length === 4 && bbox.some((v) => Number(v) > 0)) {
+    params.set("bbox", bbox.map((v) => Math.round(Number(v))).join(","));
+  }
+  return `#reader/${paperId}?${params.toString()}`;
 }
 
 function renderCompare(result, host) {
