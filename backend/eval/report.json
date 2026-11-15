@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-01T13:33:39Z",
+  "generated_at": "2026-11-15T10:20:18Z",
   "modules": {
     "ingest_parse": {
       "ingested": 14,
@@ -8,19 +8,19 @@
         {
           "key": "udl_scan",
           "paper_id": "736cd837318adc42",
-          "title": "Understanding Deep Learning: Chapter 1 - lntroduction",
+          "title": "Understanding Deep Learning: Chapter 1",
           "year": 2023,
           "layout": "single",
           "ocr": true,
-          "ocr_engine": "winrt",
+          "ocr_engine": "easyocr",
           "pages": 5,
-          "sections": 9,
+          "sections": 11,
           "tables": 0,
           "figures": 0,
-          "equations": 1,
-          "references": 0,
-          "chars": 16342,
-          "quality": 0.66,
+          "equations": 0,
+          "references": 10,
+          "chars": 16302,
+          "quality": 0.84,
           "fact_hits": {
             "gpu": true,
             "params": false,
@@ -40,8 +40,8 @@
           "tables": 2,
           "figures": 1,
           "equations": 8,
-          "references": 12,
-          "chars": 24802,
+          "references": 11,
+          "chars": 24730,
           "quality": 1.0,
           "fact_hits": {
             "gpu": true,
@@ -62,8 +62,8 @@
           "tables": 2,
           "figures": 1,
           "equations": 8,
-          "references": 12,
-          "chars": 27416,
+          "references": 11,
+          "chars": 27344,
           "quality": 1.0,
           "fact_hits": {
             "gpu": true,
@@ -85,7 +85,7 @@
           "figures": 2,
           "equations": 2,
           "references": 12,
-          "chars": 15758,
+          "chars": 15741,
           "quality": 1.0,
           "fact_hits": {
             "gpu": true,
@@ -151,7 +151,7 @@
           "figures": 1,
           "equations": 2,
           "references": 10,
-          "chars": 11856,
+          "chars": 11925,
           "quality": 1.0,
           "fact_hits": {
             "gpu": true,
@@ -169,11 +169,11 @@
           "ocr_engine": "",
           "pages": 4,
           "sections": 16,
-          "tables": 3,
-          "figures": 2,
+          "tables": 2,
+          "figures": 1,
           "equations": 2,
           "references": 10,
-          "chars": 12462,
+          "chars": 12825,
           "quality": 1.0,
           "fact_hits": {
             "gpu": true,
@@ -294,19 +294,19 @@
         {
           "key": "survey",
           "paper_id": "cfadd787abd07555",
-          "title": "A Survey of Large Language Models: Progress, Challenges and Future Directions",
+          "title": "A Survey of Large Language Models: Progress,",
           "year": 2024,
           "layout": "double",
           "ocr": false,
           "ocr_engine": "",
           "pages": 6,
-          "sections": 25,
+          "sections": 24,
           "tables": 2,
-          "figures": 1,
-          "equations": 3,
-          "references": 18,
-          "chars": 22161,
-          "quality": 1.0,
+          "figures": 2,
+          "equations": 0,
+          "references": 16,
+          "chars": 22604,
+          "quality": 0.96,
           "fact_hits": {
             "gpu": true,
             "params": true,
@@ -320,24 +320,24 @@
           "status": "imported",
           "paper_id": "736cd837318adc42",
           "duplicate_kind": "none",
-          "index": 15,
-          "elapsed_ms": 17897.3
+          "index": 27,
+          "elapsed_ms": 113688.4
         },
         {
           "key": "transformer_v1",
           "status": "imported",
           "paper_id": "5d92863e30f96952",
           "duplicate_kind": "none",
-          "index": 51,
-          "elapsed_ms": 2425.7
+          "index": 50,
+          "elapsed_ms": 2216.3
         },
         {
           "key": "transformer_v7",
           "status": "replaced",
           "paper_id": "6a22909f7036c893",
           "duplicate_kind": "version",
-          "index": 54,
-          "elapsed_ms": 2546.7
+          "index": 53,
+          "elapsed_ms": 3705.1
         },
         {
           "key": "bert",
@@ -345,7 +345,7 @@
           "paper_id": "12448426a1216329",
           "duplicate_kind": "none",
           "index": 39,
-          "elapsed_ms": 1603.4
+          "elapsed_ms": 1575.0
         },
         {
           "key": "gpt1",
@@ -353,7 +353,7 @@
           "paper_id": "3d225922b11e6a1d",
           "duplicate_kind": "none",
           "index": 38,
-          "elapsed_ms": 1483.4
+          "elapsed_ms": 1143.3
         },
         {
           "key": "gpt2",
@@ -361,7 +361,7 @@
           "paper_id": "b927beae26b553c9",
           "duplicate_kind": "none",
           "index": 30,
-          "elapsed_ms": 1337.6
+          "elapsed_ms": 972.3
         },
         {
           "key": "gpt3",
@@ -369,15 +369,15 @@
           "paper_id": "1392672e8e90e8b8",
           "duplicate_kind": "none",
           "index": 35,
-          "elapsed_ms": 1285.0
+          "elapsed_ms": 979.5
         },
         {
           "key": "resnet",
           "status": "imported",
           "paper_id": "a245cfbec8a8a9ff",
           "duplicate_kind": "none",
-          "index": 32,
-          "elapsed_ms": 1439.0
+          "index": 30,
+          "elapsed_ms": 1081.8
         },
         {
           "key": "alexnet",
@@ -385,7 +385,7 @@
           "paper_id": "fbd960070570c3a1",
           "duplicate_kind": "none",
           "index": 36,
-          "elapsed_ms": 1514.5
+          "elapsed_ms": 1230.9
         },
         {
           "key": "vit",
@@ -393,7 +393,7 @@
           "paper_id": "e26ef756d4dba4f2",
           "duplicate_kind": "none",
           "index": 35,
-          "elapsed_ms": 1273.8
+          "elapsed_ms": 963.2
         },
         {
           "key": "lora",
@@ -401,7 +401,7 @@
           "paper_id": "f79400f00f51eda7",
           "duplicate_kind": "none",
           "index": 33,
-          "elapsed_ms": 1197.5
+          "elapsed_ms": 916.6
         },
         {
           "key": "rag",
@@ -409,7 +409,7 @@
           "paper_id": "1f6fecfd9d16c6c2",
           "duplicate_kind": "none",
           "index": 30,
-          "elapsed_ms": 1079.4
+          "elapsed_ms": 824.1
         },
         {
           "key": "chain_of_thought",
@@ -417,25 +417,25 @@
           "paper_id": "ec284b625de82465",
           "duplicate_kind": "none",
           "index": 31,
-          "elapsed_ms": 1259.4
+          "elapsed_ms": 942.7
         },
         {
           "key": "survey",
           "status": "imported",
           "paper_id": "cfadd787abd07555",
           "duplicate_kind": "none",
-          "index": 52,
-          "elapsed_ms": 2243.7
+          "index": 47,
+          "elapsed_ms": 2084.2
         }
       ],
       "metrics": {
         "parse_success_rate": 1.0,
-        "avg_quality": 0.971,
+        "avg_quality": 0.981,
         "papers_with_tables": 13,
-        "papers_with_references": 13,
-        "ocr_engine": "winrt",
-        "ocr_chars": 16342,
-        "ocr_quality": 0.66,
+        "papers_with_references": 14,
+        "ocr_engine": "easyocr",
+        "ocr_chars": 16302,
+        "ocr_quality": 0.84,
         "fact_coverage": 0.619
       }
     },
@@ -454,10 +454,10 @@
     },
     "qa": {
       "total": 115,
-      "matched": 104,
-      "accuracy": 0.904,
+      "matched": 105,
+      "accuracy": 0.913,
       "answer_rate": 1.0,
-      "verified_rate": 0.626,
+      "verified_rate": 0.974,
       "anchor_rate": 1.0,
       "by_kind": {
         "author": {
@@ -486,7 +486,7 @@
         },
         "citation": {
           "total": 13,
-          "matched": 7
+          "matched": 8
         },
         "future_work": {
           "total": 3,
@@ -508,8 +508,8 @@
           "anchored": 4,
           "pages": [
             1,
-            5,
-            6
+            2,
+            3
           ]
         },
         {
@@ -578,6 +578,7 @@
           "anchored": 3,
           "pages": [
             1,
+            3,
             4
           ]
         },
@@ -591,11 +592,9 @@
           "refused": false,
           "verified": true,
           "confidence": 0.95,
-          "citations": 4,
-          "anchored": 4,
+          "citations": 3,
+          "anchored": 3,
           "pages": [
-            1,
-            4,
             5
           ]
         },
@@ -609,11 +608,10 @@
           "refused": false,
           "verified": true,
           "confidence": 0.95,
-          "citations": 4,
-          "anchored": 4,
+          "citations": 3,
+          "anchored": 3,
           "pages": [
             1,
-            4,
             5
           ]
         },
@@ -666,8 +664,8 @@
           "anchored": 4,
           "pages": [
             1,
-            5,
-            6
+            2,
+            3
           ]
         },
         {
@@ -737,6 +735,7 @@
           "anchored": 3,
           "pages": [
             1,
+            3,
             4
           ]
         },
@@ -750,10 +749,9 @@
           "refused": false,
           "verified": true,
           "confidence": 0.95,
-          "citations": 3,
-          "anchored": 3,
+          "citations": 4,
+          "anchored": 4,
           "pages": [
-            1,
             5,
             6
           ]
@@ -766,14 +764,13 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
-          "citations": 4,
-          "anchored": 4,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 3,
+          "anchored": 3,
           "pages": [
             1,
-            5,
-            6
+            5
           ]
         },
         {
@@ -853,8 +850,8 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -873,8 +870,8 @@
           "refused": false,
           "verified": true,
           "confidence": 0.95,
-          "citations": 4,
-          "anchored": 4,
+          "citations": 3,
+          "anchored": 3,
           "pages": [
             2,
             3,
@@ -889,8 +886,8 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -907,12 +904,13 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 5,
           "anchored": 5,
           "pages": [
             1,
+            2,
             3,
             4
           ]
@@ -927,11 +925,13 @@
           "refused": false,
           "verified": true,
           "confidence": 0.95,
-          "citations": 5,
-          "anchored": 5,
+          "citations": 4,
+          "anchored": 4,
           "pages": [
+            1,
             2,
-            3
+            3,
+            4
           ]
         },
         {
@@ -961,11 +961,12 @@
           "refused": false,
           "verified": true,
           "confidence": 0.95,
-          "citations": 6,
-          "anchored": 6,
+          "citations": 4,
+          "anchored": 4,
           "pages": [
             1,
             2,
+            3,
             4
           ]
         },
@@ -977,13 +978,11 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
-          "citations": 5,
-          "anchored": 5,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
           "pages": [
-            1,
-            2,
             4
           ]
         },
@@ -995,8 +994,8 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -1048,8 +1047,8 @@
           "refused": false,
           "verified": true,
           "confidence": 0.95,
-          "citations": 5,
-          "anchored": 5,
+          "citations": 4,
+          "anchored": 4,
           "pages": [
             1,
             2,
@@ -1084,8 +1083,8 @@
           "refused": false,
           "verified": true,
           "confidence": 0.95,
-          "citations": 5,
-          "anchored": 5,
+          "citations": 4,
+          "anchored": 4,
           "pages": [
             1,
             2,
@@ -1116,12 +1115,11 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
-          "citations": 4,
-          "anchored": 4,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 3,
+          "anchored": 3,
           "pages": [
-            1,
             2,
             4
           ]
@@ -1167,8 +1165,8 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -1185,8 +1183,8 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -1226,7 +1224,8 @@
           "anchored": 5,
           "pages": [
             1,
-            2
+            2,
+            4
           ]
         },
         {
@@ -1243,8 +1242,7 @@
           "anchored": 4,
           "pages": [
             1,
-            2,
-            3
+            2
           ]
         },
         {
@@ -1255,8 +1253,8 @@
           "hit": 0.857,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.64,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 5,
           "anchored": 5,
           "pages": [
@@ -1274,8 +1272,8 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -1310,10 +1308,12 @@
           "refused": false,
           "verified": true,
           "confidence": 0.95,
-          "citations": 4,
-          "anchored": 4,
+          "citations": 6,
+          "anchored": 6,
           "pages": [
-            1
+            1,
+            2,
+            3
           ]
         },
         {
@@ -1326,8 +1326,8 @@
           "refused": false,
           "verified": true,
           "confidence": 0.95,
-          "citations": 6,
-          "anchored": 6,
+          "citations": 5,
+          "anchored": 5,
           "pages": [
             1,
             2,
@@ -1348,7 +1348,8 @@
           "anchored": 4,
           "pages": [
             1,
-            2
+            2,
+            3
           ]
         },
         {
@@ -1377,8 +1378,8 @@
           "hit": 0.6,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -1397,8 +1398,8 @@
           "refused": false,
           "verified": true,
           "confidence": 0.95,
-          "citations": 5,
-          "anchored": 5,
+          "citations": 6,
+          "anchored": 6,
           "pages": [
             1,
             2
@@ -1409,8 +1410,8 @@
           "question": "Which Transformer architecture does GPT-3 build on?",
           "gold": "the Transformer, following Vaswani et al. (2017)",
           "kind": "citation",
-          "hit": 0.5,
-          "matched": false,
+          "hit": 0.833,
+          "matched": true,
           "refused": false,
           "verified": true,
           "confidence": 0.95,
@@ -1430,8 +1431,8 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -1467,8 +1468,8 @@
           "refused": false,
           "verified": true,
           "confidence": 0.95,
-          "citations": 4,
-          "anchored": 4,
+          "citations": 5,
+          "anchored": 5,
           "pages": [
             1,
             2
@@ -1500,8 +1501,8 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 6,
           "anchored": 6,
           "pages": [
@@ -1554,8 +1555,8 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -1571,8 +1572,8 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -1607,8 +1608,8 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.64,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -1626,8 +1627,8 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -1661,8 +1662,8 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -1679,8 +1680,8 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -1699,12 +1700,11 @@
           "refused": false,
           "verified": true,
           "confidence": 0.95,
-          "citations": 6,
-          "anchored": 6,
+          "citations": 5,
+          "anchored": 5,
           "pages": [
             1,
-            2,
-            3
+            2
           ]
         },
         {
@@ -1712,11 +1712,11 @@
           "question": "Who are the authors of the ViT paper?",
           "gold": "Alexey Dosovitskiy, Lucas Beyer, Alexander Kolesnikov, Dirk Weissenborn, Xiaohua Zhai, Thomas Unterthiner, Mostafa Dehghani, Matthias Minderer, Georg Heigold, Sylvain Gelly, Jakob Uszkoreit, Neil Houlsby",
           "kind": "author",
-          "hit": 0.958,
+          "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.64,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -1751,12 +1751,13 @@
           "matched": true,
           "refused": false,
           "verified": true,
-          "confidence": 0.95,
+          "confidence": 0.9,
           "citations": 4,
           "anchored": 4,
           "pages": [
             1,
-            3
+            2,
+            4
           ]
         },
         {
@@ -1774,8 +1775,7 @@
           "pages": [
             1,
             2,
-            3,
-            4
+            3
           ]
         },
         {
@@ -1786,13 +1786,12 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
             1,
-            2,
             3,
             4
           ]
@@ -1842,8 +1841,8 @@
           "hit": 0.667,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 3,
           "anchored": 3,
           "pages": [
@@ -1857,7 +1856,7 @@
           "question": "Who are the authors of the LoRA paper?",
           "gold": "Edward J. Hu, Yelong Shen, Phillip Wallis, Zeyuan Allen-Zhu, Yuanzhi Li, Shean Wang, Lu Wang, Weizhu Chen",
           "kind": "author",
-          "hit": 0.941,
+          "hit": 1.0,
           "matched": true,
           "refused": false,
           "verified": true,
@@ -1897,8 +1896,8 @@
           "refused": false,
           "verified": true,
           "confidence": 0.95,
-          "citations": 3,
-          "anchored": 3,
+          "citations": 4,
+          "anchored": 4,
           "pages": [
             1,
             2
@@ -1982,12 +1981,12 @@
           "matched": true,
           "refused": false,
           "verified": true,
-          "confidence": 0.95,
+          "confidence": 0.9,
           "citations": 4,
           "anchored": 4,
           "pages": [
-            1,
-            2
+            2,
+            3
           ]
         },
         {
@@ -1998,8 +1997,8 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -2016,8 +2015,8 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -2052,8 +2051,8 @@
           "hit": 0.75,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -2070,8 +2069,8 @@
           "hit": 0.75,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -2093,7 +2092,6 @@
           "citations": 6,
           "anchored": 6,
           "pages": [
-            1,
             2,
             3
           ]
@@ -2106,8 +2104,8 @@
           "hit": 0.667,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 5,
           "anchored": 5,
           "pages": [
@@ -2124,8 +2122,8 @@
           "hit": 0.273,
           "matched": false,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -2139,16 +2137,17 @@
           "question": "Who are the authors of the chain-of-thought paper?",
           "gold": "Jason Wei, Xuezhi Wang, Dale Schuurmans, Maarten Bosma, Brian Ichter, Fei Xia, Ed Chi, Quoc Le, Denny Zhou",
           "kind": "author",
-          "hit": 0.944,
+          "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
             1,
-            2
+            2,
+            4
           ]
         },
         {
@@ -2159,8 +2158,8 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.64,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -2177,8 +2176,8 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -2212,14 +2211,13 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.64,
-          "citations": 5,
-          "anchored": 5,
+          "verified": true,
+          "confidence": 0.95,
+          "citations": 4,
+          "anchored": 4,
           "pages": [
             1,
             2,
-            3,
             4
           ]
         },
@@ -2231,8 +2229,8 @@
           "hit": 0.8,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -2265,8 +2263,8 @@
           "hit": 0.111,
           "matched": false,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -2283,8 +2281,8 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -2300,13 +2298,12 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.61,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
             1,
-            5,
             6
           ]
         },
@@ -2318,12 +2315,13 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 5,
           "anchored": 5,
           "pages": [
             1,
+            2,
             6
           ]
         },
@@ -2340,6 +2338,7 @@
           "citations": 4,
           "anchored": 4,
           "pages": [
+            2,
             3,
             5
           ]
@@ -2354,12 +2353,11 @@
           "refused": false,
           "verified": true,
           "confidence": 0.95,
-          "citations": 5,
-          "anchored": 5,
+          "citations": 4,
+          "anchored": 4,
           "pages": [
             2,
-            3,
-            5
+            3
           ]
         },
         {
@@ -2394,8 +2392,8 @@
           "anchored": 5,
           "pages": [
             1,
-            3,
-            5
+            5,
+            6
           ]
         },
         {
@@ -2406,8 +2404,8 @@
           "hit": 0.769,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.9,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -2423,8 +2421,8 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -2440,8 +2438,8 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": false,
-          "confidence": 0.67,
+          "verified": true,
+          "confidence": 0.95,
           "citations": 4,
           "anchored": 4,
           "pages": [
@@ -2462,10 +2460,10 @@
           "citations": 4,
           "anchored": 4,
           "pages": [
-            1,
             2,
             3,
-            4
+            4,
+            5
           ]
         },
         {
@@ -2478,11 +2476,10 @@
           "refused": false,
           "verified": true,
           "confidence": 0.95,
-          "citations": 3,
-          "anchored": 3,
+          "citations": 4,
+          "anchored": 4,
           "pages": [
             2,
-            4,
             5
           ]
         },
@@ -2491,7 +2488,7 @@
           "question": "Why does depth help according to this chapter?",
           "gold": "Because many functions have a compositional structure, and depth enables abstraction and reuse of intermediate representations",
           "kind": "comparison",
-          "hit": 0.091,
+          "hit": 0.182,
           "matched": false,
           "refused": false,
           "verified": false,
@@ -2500,7 +2497,8 @@
           "anchored": 4,
           "pages": [
             1,
-            3
+            3,
+            4
           ]
         },
         {
@@ -2511,12 +2509,11 @@
           "hit": 1.0,
           "matched": true,
           "refused": false,
-          "verified": true,
-          "confidence": 0.95,
-          "citations": 4,
-          "anchored": 4,
+          "verified": false,
+          "confidence": 0.67,
+          "citations": 3,
+          "anchored": 3,
           "pages": [
-            1,
             2,
             4,
             5
@@ -2541,7 +2538,7 @@
         "1024": true,
         "2048": true
       },
-      "markdown": "| 维度 | Improving Language Understanding by Generative Pre-Training | Language Models are Unsupervised Multitask Learners | Language Models are Few-Shot Learners |\n| --- | --- | --- | --- |\n| 模型参数量 | Our model is a 12-layer Transformer decoder with 768 hidden units, 12 attention heads, a context window of 512 tokens, and 117 million parameters. | Accuracy increases monotonically with model size, from 83.1 percent for the 117 million parameter model to 87.65 percent for the 1.5 billion parameter model. | The largest model has 96 layers, a hidden size of 12288, 96 attention heads, and 175 billion parameters, and was trained on 10000 NVIDIA V100 GPUs with a batch size of 3.2 million tokens. |\n| 层数与结构 | Our model is a 12-layer Transformer decoder with 768 hidden units, 12 attention heads, a context window of 512 tokens, and 117 million parameters. | Table 1: Model sizes and zero-shot results. | GPT-3 is an autoregressive Transformer language model with 175 billion parameters, 96 layers, a hidden size of 12288, and 96 attention heads. |\n| 上下文窗口 | Our model is a 12-layer Transformer decoder with 768 hidden units, 12 attention heads, a context window of 512 tokens, and 117 million parameters. | The context window is 1024 tokens, and the tokenizer is a byte-level byte pair encoding with a vocabulary of 50,257 tokens. | alternating dense and locally banded sparse attention layers, and the context window is 2048 tokens. |\n| 训练硬件 | Training takes 30 days on a single machine with 8 GPUs. | The largest model is trained with a batch size of 512 sequences, a learning rate that is warmed up o | The largest model has 96 layers, a hidden size of 12288, 96 attention heads, and 175 billion parameters, and was trained on 10000 NVIDIA V100 GPUs with a batch size of 3.2 million tokens. |\n\n- **模型参数量**：模型参数量：Improving Language Understanding by Generative Pre-Training 为「Our model is a 12-layer Transformer decoder with 768 hidden…」；Language Models are Unsupervised Multitask Learners 为「Accuracy increases monotonically with model size, from 83.1…」；Language Models are Few-Shot Learners 为「The largest model has 96 layers, a hidden size of 12288, 96…」。\n- **层数与结构**：层数与结构：Improving Language Understanding by Generative Pre-Training 为「Our model is a 12-layer Transformer decoder with 768 hidden…」；Language Models are Unsupervised Multitask Learners 为「Table 1: Model sizes and zero-shot results.」；Language Models are Few-Shot Learners 为「GPT-3 is an autoregressive Transformer language model with…」。\n- **上下文窗口**：上下文窗口：Improving Language Understanding by Generative Pre-Training 为「Our model is a 12-layer Transformer decoder with 768 hidden…」；Language Models are Unsupervised Multitask Learners 为「The context window is 1024 tokens, and the tokenizer is a b…」；Language Models are Few-Shot Learners 为「alternating dense and locally banded sparse attention layer…」。\n- **训练硬件**：训练硬件：Improving Language Understanding by Generative Pre-Training 为「Training takes 30 days on a single machine with 8 GPUs.」；Language Models are Unsupervised Multitask Learners 为「The largest model is trained with a batch size of 512 seque…」；Language Models are Few-Shot Learners 为「The largest model has 96 layers, a hidden size of 12288, 96…」。"
+      "markdown": "| 维度 | Improving Language Understanding by Generative Pre-Training | Language Models are Unsupervised Multitask Learners | Language Models are Few-Shot Learners |\n| --- | --- | --- | --- |\n| 模型参数量 | Our model is a 12-layer Transformer decoder with 768 hidden units, 12 attention heads, a context window of 512 tokens, and 117 million parameters. | Accuracy increases monotonically with model size, from 83.1 percent for the 117 million parameter model to 87.65 percent for the 1.5 billion parameter model. | Table 1 compares the eight model sizes that we train, from 125 million to 175 billion parameters. |\n| 层数与结构 | Our model is a 12-layer Transformer decoder with 768 hidden units, 12 attention heads, a context window of 512 tokens, and 117 million parameters. | Table 1: Model sizes and zero-shot results. | GPT-3 is an autoregressive Transformer language model with 175 billion parameters, 96 layers, a hidden size of 12288, and 96 attention heads. |\n| 上下文窗口 | Our model is a 12-layer Transformer decoder with 768 hidden units, 12 attention heads, a context window of 512 tokens, and 117 million parameters. | The context window is 1024 tokens, and the tokenizer is a byte-level byte pair encoding with a vocabulary of 50,257 tokens. | The context window is 2048 tokens, and the vocabulary is a byte-level byte pair encoding with 50257 tokens. |\n| 训练硬件 | Training takes 30 days on a single machine with 8 GPUs. | The largest model is trained with a batch size of 512 sequences, a learning rate that is warmed up o | The largest model has 96 layers, a hidden size of 12288, 96 attention heads, and 175 billion parameters, and was trained on 10000 NVIDIA V100 GPUs with a batch size of 3.2 million tokens. |\n\n- **模型参数量**：模型参数量：Improving Language Understanding by Generative Pre-Training 为「Our model is a 12-layer Transformer decoder with 768 hidden…」；Language Models are Unsupervised Multitask Learners 为「Accuracy increases monotonically with model size, from 83.1…」；Language Models are Few-Shot Learners 为「Table 1 compares the eight model sizes that we train, from…」。\n- **层数与结构**：层数与结构：Improving Language Understanding by Generative Pre-Training 为「Our model is a 12-layer Transformer decoder with 768 hidden…」；Language Models are Unsupervised Multitask Learners 为「Table 1: Model sizes and zero-shot results.」；Language Models are Few-Shot Learners 为「GPT-3 is an autoregressive Transformer language model with…」。\n- **上下文窗口**：上下文窗口：Improving Language Understanding by Generative Pre-Training 为「Our model is a 12-layer Transformer decoder with 768 hidden…」；Language Models are Unsupervised Multitask Learners 为「The context window is 1024 tokens, and the tokenizer is a b…」；Language Models are Few-Shot Learners 为「The context window is 2048 tokens, and the vocabulary is a…」。\n- **训练硬件**：训练硬件：Improving Language Understanding by Generative Pre-Training 为「Training takes 30 days on a single machine with 8 GPUs.」；Language Models are Unsupervised Multitask Learners 为「The largest model is trained with a batch size of 512 seque…」；Language Models are Few-Shot Learners 为「The largest model has 96 layers, a hidden size of 12288, 96…」。"
     },
     "reader": {
       "paper_id": "6a22909f7036c893",
@@ -2550,7 +2547,7 @@
       "sections": 26,
       "reference_links": 0,
       "unresolved": 0,
-      "uncited": 12,
+      "uncited": 11,
       "page_images": 6,
       "sample_anchors": []
     },
@@ -2564,28 +2561,80 @@
     },
     "graph": {
       "nodes": 14,
-      "edges": 10,
-      "density": 0.0549,
-      "components": 6,
+      "edges": 26,
+      "density": 0.1429,
+      "components": 1,
       "foundation": [
+        "ImageNet Classification with Deep Convolutional Neural",
+        "Attention Is All You Need",
         "Deep Residual Learning for Image Recognition",
+        "Improving Language Understanding by Generative Pre-Training",
         "Language Models are Few-Shot Learners"
       ],
       "bridge": [],
-      "peripheral_count": 9,
+      "peripheral_count": 7,
       "insights": [
-        "图谱覆盖 14 篇文献、10 条引用边，密度 0.055，弱连通分量 6 个，平均聚类系数 0.205，时间跨度 2012–2024 年。",
-        "基石论文《Deep Residual Learning for Image Recognition》（2015）被引 4 次、pagerank=0.192，为全图中位数 0.052 的 3.72 倍；自身引用 0 篇文献，连接主题：task · model · transformer、model · language · large。",
-        "基石论文《Language Models are Few-Shot Learners》（2020）被引 3 次、pagerank=0.163，为全图中位数 0.052 的 3.16 倍；自身引用 0 篇文献，连接主题：model · language · large。",
+        "图谱覆盖 14 篇文献、26 条引用边，密度 0.143，弱连通分量 1 个，平均聚类系数 0.644，时间跨度 2012–2024 年。",
+        "基石论文《ImageNet Classification with Deep Convolutional Neural》（2012）被引 4 次、pagerank=0.258，为全图中位数 0.029 的 8.91 倍；自身引用 0 篇文献，连接主题：model · task · language、learning · network · layer。",
+        "基石论文《Attention Is All You Need》（2017）被引 9 次、pagerank=0.193，为全图中位数 0.029 的 6.67 倍；自身引用 2 篇文献，连接主题：model · task · language、model · language · large、learning · network · layer。",
+        "基石论文《Deep Residual Learning for Image Recognition》（2015）被引 5 次、pagerank=0.161，为全图中位数 0.029 的 5.54 倍；自身引用 1 篇文献，连接主题：model · task · language、learning · network · layer、model · language · large。",
         "未出现 betweenness 大于 0 的桥梁节点（0 个），引用关系以直接继承为主。",
-        "边缘衍生论文 9 篇，尚未被本地库其他工作引用，例如 《BERT: Pre-training of Deep Bidirectional Transformers》（入度 0、出度 0、pagerank 0.052）、《Improving Language Understanding by Generative Pre-Training》（入度 0、出度 0、pagerank 0.052）、《Attention Is All You Need》（入度 0、出度 1、pagerank 0.052）。"
+        "边缘衍生论文 7 篇，尚未被本地库其他工作引用，例如 《BERT: Pre-training of Deep Bidirectional Transformers》（入度 0、出度 2、pagerank 0.026）、《Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks》（入度 0、出度 1、pagerank 0.026）、《Attention Is All You Need》（入度 0、出度 2、pagerank 0.026）。"
       ],
       "edges_list": [
+        {
+          "source": "12448426a1216329",
+          "target": "3d225922b11e6a1d",
+          "kind": null,
+          "evidence": "标题匹配（ref#3，score 1.000）：Radford et al. Improving Language Understanding by Generative Pre-Training. OpenAI Technical Rep"
+        },
+        {
+          "source": "12448426a1216329",
+          "target": "5d92863e30f96952",
+          "kind": null,
+          "evidence": "标题匹配（ref#1，score 1.000）：Vaswani et al. Attention Is All You Need. NeurIPS, 2017."
+        },
+        {
+          "source": "1392672e8e90e8b8",
+          "target": "3d225922b11e6a1d",
+          "kind": null,
+          "evidence": "标题匹配（ref#4，score 1.000）：Radford et al. Improving Language Understanding by Generative Pre-Training. OpenAI Technical Rep"
+        },
+        {
+          "source": "1392672e8e90e8b8",
+          "target": "5d92863e30f96952",
+          "kind": null,
+          "evidence": "标题匹配（ref#1，score 1.000）：Vaswani et al. Attention Is All You Need. NeurIPS, 2017."
+        },
+        {
+          "source": "1392672e8e90e8b8",
+          "target": "b927beae26b553c9",
+          "kind": null,
+          "evidence": "标题匹配（ref#2，score 1.000）：Radford et al. Language Models are Unsupervised Multitask Learners. OpenAI Technical Report, 201"
+        },
+        {
+          "source": "1f6fecfd9d16c6c2",
+          "target": "5d92863e30f96952",
+          "kind": null,
+          "evidence": "标题匹配（ref#6，score 1.000）：Vaswani et al. Attention Is All You Need. NeurIPS, 2017."
+        },
+        {
+          "source": "3d225922b11e6a1d",
+          "target": "5d92863e30f96952",
+          "kind": null,
+          "evidence": "标题匹配（ref#1，score 1.000）：Vaswani et al. Attention Is All You Need. NeurIPS, 2017."
+        },
         {
           "source": "5d92863e30f96952",
           "target": "a245cfbec8a8a9ff",
           "kind": null,
           "evidence": "标题匹配（ref#11，score 1.000）：He et al. Deep Residual Learning for Image Recognition. CVPR, 2016."
+        },
+        {
+          "source": "5d92863e30f96952",
+          "target": "fbd960070570c3a1",
+          "kind": null,
+          "evidence": "标题匹配（ref#12，score 0.916）：Krizhevsky, Sutskever, and Hinton. ImageNet Classification with Deep Convolutional Neural Netwo"
         },
         {
           "source": "6a22909f7036c893",
@@ -2594,34 +2643,64 @@
           "evidence": "标题匹配（ref#11，score 1.000）：He et al. Deep Residual Learning for Image Recognition. CVPR, 2016."
         },
         {
-          "source": "cfadd787abd07555",
-          "target": "1392672e8e90e8b8",
+          "source": "6a22909f7036c893",
+          "target": "fbd960070570c3a1",
           "kind": null,
-          "evidence": "标题匹配（ref#5，score 1.000）：Brown et al. Language Models are Few-Shot Learners. NeurIPS, 2020."
+          "evidence": "标题匹配（ref#12，score 0.916）：Krizhevsky, Sutskever, and Hinton. ImageNet Classification with Deep Convolutional Neural Netwo"
+        },
+        {
+          "source": "736cd837318adc42",
+          "target": "a245cfbec8a8a9ff",
+          "kind": null,
+          "evidence": "标题匹配（ref#2，score 1.000）：He et al. Deep Residual Learning for Image Recognition. CVPR, 2016_"
+        },
+        {
+          "source": "a245cfbec8a8a9ff",
+          "target": "fbd960070570c3a1",
+          "kind": null,
+          "evidence": "标题匹配（ref#1，score 0.916）：Krizhevsky, Sutskever, and Hinton. ImageNet Classification with Deep Convolutional Neural Networ"
+        },
+        {
+          "source": "b927beae26b553c9",
+          "target": "3d225922b11e6a1d",
+          "kind": null,
+          "evidence": "标题匹配（ref#2，score 1.000）：Radford et al. Improving Language Understanding by Generative Pre-Training. OpenAI Technical Rep"
+        },
+        {
+          "source": "b927beae26b553c9",
+          "target": "5d92863e30f96952",
+          "kind": null,
+          "evidence": "标题匹配（ref#1，score 1.000）：Vaswani et al. Attention Is All You Need. NeurIPS, 2017."
         },
         {
           "source": "cfadd787abd07555",
-          "target": "1f6fecfd9d16c6c2",
+          "target": "1392672e8e90e8b8",
           "kind": null,
-          "evidence": "标题匹配（ref#10，score 1.000）：Lewis et al. Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks. NeurIPS, 2020."
+          "evidence": "标题匹配（ref#5，score 1.000）：Brown et al. Language Models are Few-Shot Learners. Table 1: Representative model families and t"
+        },
+        {
+          "source": "cfadd787abd07555",
+          "target": "5d92863e30f96952",
+          "kind": null,
+          "evidence": "标题匹配（ref#1，score 1.000）：Vaswani et al. Attention Is All You Need. NeurIPS, 2017."
         },
         {
           "source": "cfadd787abd07555",
           "target": "a245cfbec8a8a9ff",
           "kind": null,
-          "evidence": "标题匹配（ref#6，score 1.000）：He et al. Deep Residual Learning for Image Recognition. CVPR, 2016."
+          "evidence": "标题匹配（ref#6，score 1.000）：He et al. Deep Residual Learning for Image Recognition. Family Model Params Context CVPR, 2016."
         },
         {
           "source": "cfadd787abd07555",
           "target": "ec284b625de82465",
           "kind": null,
-          "evidence": "标题匹配（ref#11，score 1.000）：Wei et al. Chain-of-Thought Prompting Elicits Reasoning in Large Language Models. NeurIPS, 2022"
+          "evidence": "标题匹配（ref#11，score 0.862）：Wei et al. Chain-of-Thought Prompting Elicits Method Task Result Reasoning in Large Language Mo"
         },
         {
-          "source": "cfadd787abd07555",
-          "target": "f79400f00f51eda7",
+          "source": "e26ef756d4dba4f2",
+          "target": "5d92863e30f96952",
           "kind": null,
-          "evidence": "标题匹配（ref#9，score 1.000）：Hu et al. LoRA: Low-Rank Adaptation of Large Language Models. ICLR, 2022."
+          "evidence": "标题匹配（ref#1，score 1.000）：Vaswani et al. Attention Is All You Need. NeurIPS, 2017."
         },
         {
           "source": "e26ef756d4dba4f2",
@@ -2630,21 +2709,39 @@
           "evidence": "标题匹配（ref#2，score 1.000）：He et al. Deep Residual Learning for Image Recognition. CVPR, 2016."
         },
         {
+          "source": "e26ef756d4dba4f2",
+          "target": "fbd960070570c3a1",
+          "kind": null,
+          "evidence": "标题匹配（ref#3，score 0.916）：Krizhevsky, Sutskever, and Hinton. ImageNet Classification with Deep Convolutional Neural Networ"
+        },
+        {
           "source": "ec284b625de82465",
           "target": "1392672e8e90e8b8",
           "kind": null,
           "evidence": "标题匹配（ref#1，score 1.000）：Brown et al. Language Models are Few-Shot Learners. NeurIPS, 2020."
         },
         {
+          "source": "ec284b625de82465",
+          "target": "5d92863e30f96952",
+          "kind": null,
+          "evidence": "标题匹配（ref#2，score 1.000）：Vaswani et al. Attention Is All You Need. NeurIPS, 2017."
+        },
+        {
           "source": "f79400f00f51eda7",
           "target": "1392672e8e90e8b8",
           "kind": null,
           "evidence": "标题匹配（ref#1，score 1.000）：Brown et al. Language Models are Few-Shot Learners. NeurIPS, 2020."
+        },
+        {
+          "source": "f79400f00f51eda7",
+          "target": "5d92863e30f96952",
+          "kind": null,
+          "evidence": "标题匹配（ref#2，score 1.000）：Vaswani et al. Attention Is All You Need. NeurIPS, 2017."
         }
       ],
       "survey": {
         "sections": 4,
-        "chars": 18519,
+        "chars": 19013,
         "future_directions": 21,
         "open_directions": 19,
         "solved_directions": 2,
@@ -2687,15 +2784,15 @@
   },
   "metrics": {
     "parse_success_rate": 1.0,
-    "avg_quality": 0.971,
-    "qa_accuracy": 0.904,
+    "avg_quality": 0.981,
+    "qa_accuracy": 0.913,
     "qa_anchor_rate": 1.0,
-    "qa_verified_rate": 0.626,
-    "graph_edges": 10,
-    "foundation_count": 2,
+    "qa_verified_rate": 0.974,
+    "graph_edges": 26,
+    "foundation_count": 5,
     "outline_checks_passed": true,
     "chart_deterministic": true,
-    "elapsed_s": 50.0
+    "elapsed_s": 142.0
   },
-  "elapsed_s": 50.0
+  "elapsed_s": 142.0
 }
