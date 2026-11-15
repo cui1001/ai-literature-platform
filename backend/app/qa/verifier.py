@@ -20,6 +20,23 @@ from .citations import Citation, parse_markers, strip_markers
 NUMBER_RE = re.compile(r"(?<![\w.\-])\d[\d,]*(?:\.\d+)?\s?%?(?![\w])")
 SUPPORT_THRESHOLD = 0.28
 
+# 答案里的结构性数字（引文编号、页码、arXiv 号）不是事实断言，校验前先剥离。
+_NOISE_PATTERNS = (
+    re.compile(r"\[[\d,\s\-–]+\]"),                      # [25] / [34, 2, 9]
+    re.compile(r"第\s*\d+\s*页"),                           # 第 7 页
+    re.compile(r"\bpp?\.?\s*\d+(?:\s*[-–]\s*\d+)?\b"),  # p7 / pp. 3-4
+    re.compile(r"\b\d{4}\.\d{4,5}(?:v\d+)?\b"),          # 1706.03762v1
+    re.compile(r"arXiv:\s*\S+", re.IGNORECASE),
+)
+
+
+def strip_numeric_noise(text: str) -> str:
+    """移除引文编号、页码与 arXiv 标识，避免把结构信息当成数值断言。"""
+    cleaned = text or ""
+    for pattern in _NOISE_PATTERNS:
+        cleaned = pattern.sub(" ", cleaned)
+    return cleaned
+
 
 def numbers_in(text: str) -> list[str]:
     out: list[str] = []
@@ -61,7 +78,8 @@ class VerificationResult:
 def _evidence_text(citations: Sequence[Citation], full_texts: dict[str, str] | None) -> str:
     parts: list[str] = []
     for citation in citations:
-        parts.append(citation.quote)
+        # 引用块的完整正文比 240 字摘录更可靠地支撑数字断言
+        parts.append(citation.text or citation.quote)
         if full_texts and citation.chunk_id in full_texts:
             parts.append(full_texts[citation.chunk_id])
     return "\n".join(parts)
@@ -101,7 +119,7 @@ def verify_answer(
     # 2) 数值可溯源
     evidence_text = _evidence_text(cited, full_texts)
     evidence_numbers = set(numbers_in(evidence_text))
-    answer_numbers = numbers_in(body)
+    answer_numbers = numbers_in(strip_numeric_noise(body))
     unsupported_numbers = [n for n in answer_numbers if n not in evidence_numbers]
     if unsupported_numbers:
         # 容忍「第 3 节」这类结构性数字：若该数字在任一被引用块所在页出现，也算支持

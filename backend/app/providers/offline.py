@@ -84,14 +84,20 @@ def _sentence_score(
             if re.search(pattern, lowered):
                 score += 0.9
                 break
-    extra_tokens = {t.lower() for t in extras if t}
+    extra_tokens = {
+        token for term in extras for token in tokens(str(term)) if token not in _STOP and len(token) > 2
+    }
     if extra_tokens:
         extra_hits = len(extra_tokens & s_tokens)
-        score += 0.22 * min(extra_hits, 2)
+        score += 0.3 * min(extra_hits, 3)
     if wants_number and extract_numbers(sentence):
         score += 0.5
         if hits >= 2 or extra_tokens & s_tokens:
             score += 0.35
+        # 参数量/规模题：模型规模常写成 117M / 1.5B / 175 billion，
+        # 纯数字句（表格行、flops）会抢走名次，这里按单位补分。
+        if re.search(r"\b\d+(?:\.\d+)?\s?(?:M|B|billion|million)\b", sentence):
+            score += 0.55
     if "|" in sentence:
         # 表格行/表注不是自然语言证据，避免把多行表格当作答案
         score -= 0.45
@@ -147,6 +153,17 @@ def _select_claims(
         )
     )
     candidates = _sentences_with_evidence(evidence)
+    # "哪篇论文提出了 X / which paper introduced X" 这类问题的答案本身就是
+    # 参考文献条目的作者+标题；若仍按 citation 意图给 reference 块降权，答案会退化成
+    # 只复述正文里 "the Transformer architecture" 的句子，丢掉 Vaswani et al.。
+    wants_source = bool(
+        re.search(
+            r"which\s+(?:paper|work|study|article|reference)|who\s+(?:introduced|proposed)|"
+            r"introduced\s+(?:by|in)|proposed\s+(?:by|in)|哪(?:一)?篇|谁(?:提出|引入)",
+            question,
+            re.IGNORECASE,
+        )
+    )
     for cand in candidates:
         cand["score"] = _sentence_score(
             cand["sentence"], question, intents, wants_number=wants_number, extras=extras
@@ -160,7 +177,7 @@ def _select_claims(
             cand["score"] = max(cand["score"], 2.6)
         if cand["kind"] == "reference" and "citation" in intents:
             # 参考文献块只用于补出处，不参与正文主张排序，否则答案会变成引用列表
-            cand["score"] -= 0.7
+            cand["score"] += 0.4 if wants_source else -0.7
     candidates.sort(key=lambda c: (-c["score"], c["paper_id"], c["page"], c["sentence_idx"]))
     selected: list[dict[str, Any]] = []
     seen_blocks: set[Any] = set()
@@ -184,13 +201,43 @@ def _select_claims(
         # 避免同段里并列的多个数据集结果被高分泛化句挤掉。
         numeric = [
             c for c in candidates
-            if c not in selected and re.search(r"\d", c["sentence"]) and c["score"] >= 0.4
+            if c not in selected and re.search(r"\d", c["sentence"]) and c["score"] >= 0.3
         ]
         numeric.sort(key=lambda c: (-c["score"], c["paper_id"], c["page"]))
         for cand in numeric[:2]:
             if len(selected) >= max(max_claims, 6):
                 break
             selected.append(cand)
+        # 指标类问题（BLEU/准确率/F1）的「此前 SOTA」常常只在表格里，
+        # 补一条与指标同名的表格证据，避免答案只有新成绩、没有对比基线。
+        metric = re.search(r"bleu|accuracy|f1|perplexity|ppl|准确率|分数|指标", question, re.I)
+        if metric and len(selected) < max(max_claims, 6):
+            covered_numbers = set().union(
+                *(set(re.findall(r"\d+(?:\.\d+)?", c["sentence"])) for c in selected)
+            )
+            tables = [
+                c
+                for c in candidates
+                if c not in selected
+                and c["kind"] == "table"
+                and re.search(metric.pattern, c["sentence"], re.I)
+                and set(re.findall(r"\d+(?:\.\d+)?", c["sentence"])) - covered_numbers
+            ]
+            if tables:
+                tables.sort(key=lambda c: -len(set(re.findall(r"\d+(?:\.\d+)?", c["sentence"])) - covered_numbers))
+                selected.append(tables[0])
+    if selected and len({c.get("paper_id") for c in candidates}) >= 2:
+        # 跨文献对比题：每篇至少给一条证据，否则答案只覆盖被高分段落主导的一篇
+        covered = {c.get("paper_id") for c in selected}
+        for cand in candidates:
+            if len(selected) >= max(max_claims, 4) + 4:
+                break
+            if cand.get("paper_id") in covered or cand["score"] < 0.45:
+                continue
+            if any(jaccard(tokens(cand["sentence"]), tokens(s["sentence"])) > 0.8 for s in selected):
+                continue
+            selected.append(cand)
+            covered.add(cand.get("paper_id"))
     return selected
 
 

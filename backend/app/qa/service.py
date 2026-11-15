@@ -10,13 +10,14 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
+import re
 from typing import Any, Sequence
 
 from ..core.config import Settings, get_settings
 from ..core.errors import ProviderUnavailable, ValidationError
 from ..core.logging import get_logger
 from ..db import repo
-from ..indexing.retriever import expand_query, get_retriever
+from ..indexing.retriever import RetrievalResult, expand_query, get_retriever
 from ..providers.base import LLMResult
 from ..providers.llm import get_llm
 from ..providers.offline import run_offline
@@ -26,6 +27,40 @@ from .verifier import VerificationResult, verify_answer
 logger = get_logger(__name__)
 
 REFUSAL_MARKERS = ("未找到直接证据", "不作回答", "未能在所选的", "证据不足", "无法回答")
+
+
+def _search_evidence(
+    retriever,
+    question: str,
+    paper_ids: Sequence[str] | None,
+    top_k: int,
+    mode: str,
+) -> RetrievalResult:
+    """多篇对比题按篇检索再合并。
+
+    单次检索会在不同论文之间争抢名次，GPT-1/GPT-2 这类「只有一句话直接相关」的
+    证据很容易被 GPT-3 的高频段落挤出 top-k，导致跨文献对比题漏掉关键数字。
+    逐篇检索保证每篇至少贡献若干证据，再按原打分合并。
+    """
+    ids = [pid for pid in (paper_ids or []) if pid]
+    if len(ids) < 2:
+        return retriever.search(question, paper_ids=paper_ids, top_k=top_k, mode=mode)
+    per_paper = max(3, top_k // len(ids) + 1)
+    merged = []
+    seen: set[str] = set()
+    for pid in ids:
+        result = retriever.search(question, paper_ids=[pid], top_k=per_paper, mode=mode)
+        for chunk in result.chunks:
+            if chunk.chunk_id in seen:
+                continue
+            seen.add(chunk.chunk_id)
+            merged.append(chunk)
+    merged.sort(key=lambda chunk: (-max(chunk.scores.values(), default=0.0), chunk.paper_id, chunk.page))
+    return RetrievalResult(
+        query=question,
+        chunks=merged[: max(top_k * 2, 12)],
+        stats={"mode": mode, "per_paper": True, "papers": len(ids), "candidates": len(merged)},
+    )
 
 
 @dataclass
@@ -107,7 +142,35 @@ def answer_question(
 
     started = time.perf_counter()
     retriever = get_retriever(settings)
-    retrieval = retriever.search(question, paper_ids=paper_ids, top_k=top_k or max(settings.top_k, 8), mode=mode)
+    # 「哪篇论文提出了 X」类问题的答案在参考文献里；默认 top-k（6~8）常把
+    # 目标条目挤出候选（survey 的 [1] Vaswani 就被 [15]/[18] 挡掉），这里放宽。
+    wants_source = bool(
+        re.search(
+            r"which\s+(?:paper|work|study|article|reference)|who\s+(?:introduced|proposed)|"
+            r"introduced\s+(?:by|in)|proposed\s+(?:by|in)|哪(?:一)?篇|谁(?:提出|引入)",
+            question,
+            re.IGNORECASE,
+        )
+    )
+    # 指标题（BLEU/F1/准确率）的「此前 SOTA」常落在表格行里，而表格块在混合检索中
+    # 排名靠后；放宽候选，避免「28.4 有了、26.36 却没有」的半截答案。
+    wants_metric = bool(
+        re.search(
+            r"bleu|accuracy|percentage|percent|f1\b|ppl|perplexity|score|"
+            r"准确率|准确度|分数|指标",
+            question,
+            re.IGNORECASE,
+        )
+    )
+    retrieval = _search_evidence(
+        retriever,
+        question,
+        paper_ids,
+        (top_k or max(settings.top_k, 8))
+        + (6 if wants_source else 0)
+        + (12 if wants_metric else 0),
+        mode,
+    )
     chunks = retrieval.chunks
 
     if not chunks:
