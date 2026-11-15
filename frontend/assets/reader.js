@@ -206,6 +206,7 @@ function paint(host) {
     node.addEventListener("click", () => showBlock(node));
   });
   bindReferenceJumps(host);
+  bindCitationHotspots(host);
   if (state.bilingual) bindScrollSync(host);
 }
 
@@ -361,6 +362,7 @@ function highlightEvidence(host, params) {
 
 function pagesHtml(doc) {
   const pages = doc.pages || [];
+  const hotspots = citationHotspots(doc);
   return `
     ${pages
       .map(
@@ -372,7 +374,7 @@ function pagesHtml(doc) {
           <span class="spacer"></span><span class="dim mono">${page.blocks?.length || 0} blocks</span></div>
         <div class="page-wrap" style="max-width:${Math.round((page.width || 595) * 1.05)}px;aspect-ratio:${page.width || 595}/${page.height || 842}">
           <img src="${escapeHtml(pageSrc(page.image))}" alt="page ${page.number}" loading="${page.number === 1 ? "eager" : "lazy"}" ${page.number === 1 ? 'fetchpriority="high"' : 'fetchpriority="low"'} />
-          <div class="blocks-layer">${blocksHtml(page)}</div>
+          <div class="blocks-layer">${blocksHtml(page, hotspots)}</div>
         </div>
       </div>`
       )
@@ -380,10 +382,29 @@ function pagesHtml(doc) {
     ${referencesHtml(doc.references || [])}`;
 }
 
-function blocksHtml(page) {
+function citationHotspots(doc) {
+  const map = new Map();
+  const occ = doc?.links?.occurrences || [];
+  for (const item of occ) {
+    const rect = item.rects?.[0];
+    if (!rect || !item.block_id) continue;
+    const list = map.get(item.block_id) || [];
+    const key = item.marker || String(item.number);
+    let group = list.find((g) => g.marker === key && g.rect.join() === rect.join());
+    if (!group) {
+      group = { marker: key, rect, numbers: [] };
+      list.push(group);
+      map.set(item.block_id, list);
+    }
+    if (Number.isFinite(item.number) && !group.numbers.includes(item.number)) group.numbers.push(item.number);
+  }
+  return map;
+}
+
+function blocksHtml(page, hotspots) {
   const w = page.width || 595;
   const h = page.height || 842;
-  return (page.blocks || [])
+  const blocks = (page.blocks || [])
     .filter((b) => b.bbox && b.text)
     .map((b) => {
       const [x0, y0, x1, y1] = b.bbox;
@@ -396,6 +417,23 @@ function blocksHtml(page) {
         style="left:${left.toFixed(3)}%;top:${top.toFixed(3)}%;width:${width.toFixed(3)}%;height:${height.toFixed(3)}%"></div>`;
     })
     .join("");
+  const layer = (page.blocks || [])
+    .flatMap((b) => {
+      const spots = hotspots?.get(b.id) || [];
+      return spots.map((g) => {
+        const [x0, y0, x1, y1] = g.rect;
+        const left = (x0 / w) * 100;
+        const top = (y0 / h) * 100;
+        const width = Math.max(((x1 - x0) / w) * 100, 0.7);
+        const height = Math.max(((y1 - y0) / h) * 100, 0.65);
+        const nums = g.numbers.join(",");
+        const label = nums ? `[${nums}]` : g.marker;
+        return `<button class="cite-hot" data-block="${escapeHtml(b.id)}" data-jump-refs="${nums}" title="${escapeHtml(label)} → 跳转参考文献"
+          style="left:${left.toFixed(3)}%;top:${top.toFixed(3)}%;width:${width.toFixed(3)}%;height:${height.toFixed(3)}%"></button>`;
+      });
+    })
+    .join("");
+  return blocks + layer;
 }
 
 function referencesHtml(refs) {
@@ -675,6 +713,35 @@ function focusReference(number) {
   );
 }
 
+function bindCitationHotspots(host) {
+  host.addEventListener("click", (event) => {
+    const btn = event.target.closest?.(".cite-hot");
+    if (!btn) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const numbers = (btn.dataset.jumpRefs || "")
+      .split(",")
+      .map((n) => Number(n))
+      .filter((n) => Number.isFinite(n) && n > 0);
+    if (numbers.length <= 1) {
+      if (numbers.length) focusReference(numbers[0]);
+      return;
+    }
+    openModal(
+      `该处引用了 ${numbers.length} 篇文献`,
+      `<div class="row" style="flex-wrap:wrap;gap:6px">${numbers
+        .map((n) => `<button class="badge accent" data-pick-ref="${n}">[${n}]</button>`)
+        .join("")}</div>`
+    );
+    document.querySelectorAll("[data-pick-ref]").forEach((node) =>
+      node.addEventListener("click", () => {
+        document.getElementById("modal").close();
+        focusReference(Number(node.dataset.pickRef));
+      })
+    );
+  });
+}
+
 function bindReferenceJumps(host) {
   host.querySelectorAll("[data-ref]").forEach((item) => {
     item.addEventListener("click", () => {
@@ -694,6 +761,10 @@ function bindReferenceJumps(host) {
           const target = document.querySelector(`[data-block="${btn.dataset.goto}"]`);
           target?.scrollIntoView({ behavior: "smooth", block: "center" });
           target?.classList.add("active");
+          host.querySelectorAll(`.cite-hot[data-block="${btn.dataset.goto}"]`).forEach((hot) => {
+            hot.classList.add("flash");
+            setTimeout(() => hot.classList.remove("flash"), 1800);
+          });
         })
       );
     });

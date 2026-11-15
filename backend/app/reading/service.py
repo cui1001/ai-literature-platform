@@ -83,12 +83,77 @@ def document(
     )
     annotate_translation_status(paper, doc)
     doc["links"] = link_map(paper)
+    _attach_citation_rects(paper_id, doc["links"], settings)
     doc["translation"] = {
         "lang": lang or "",
         "count": len(translations),
         "providers": sorted({item.get("provider", "") for item in translations.values() if item.get("provider")}),
     }
     return doc
+
+
+def _attach_citation_rects(paper_id: str, links: dict[str, Any], settings: Settings) -> None:
+    """为每次正文引用标记补上 PDF 里的精确包围盒（P2-2 正文 [n] 可点击）。
+
+    ``link_map`` 只给出所在块的 bbox；这里用 PyMuPDF 在同页搜索 ``[11]`` 之类
+    的标记文本，取落在块 bbox 内的命中，前端即可把不可见的页面图叠加层变成
+    可点击热区。扫描件或跨行标记搜不到时静默跳过，前端回退到块级 chip。
+    """
+    occurrences = links.get("occurrences") or []
+    if not occurrences:
+        return
+    pdf_path = settings.papers_dir / f"{paper_id}.pdf"
+    if not pdf_path.exists():
+        return
+    try:
+        import fitz
+    except Exception:  # pragma: no cover - PyMuPDF 是硬依赖，缺失时不影响阅读
+        return
+    try:
+        doc = fitz.open(pdf_path)
+    except Exception:
+        return
+    attached = 0
+    try:
+        by_page: dict[int, list[dict[str, Any]]] = {}
+        for occ in occurrences:
+            by_page.setdefault(int(occ.get("page") or 0), []).append(occ)
+        for page_no, items in by_page.items():
+            if page_no < 1 or page_no > doc.page_count:
+                continue
+            page = doc[page_no - 1]
+            searches: dict[str, list[Any]] = {}
+            cursors: dict[tuple[str, str], int] = {}
+            for occ in items:
+                marker = str(occ.get("marker") or "")
+                if not marker:
+                    continue
+                if marker not in searches:
+                    try:
+                        searches[marker] = page.search_for(marker)
+                    except Exception:
+                        searches[marker] = []
+                rects = searches[marker]
+                if not rects:
+                    continue
+                x0, y0, x1, y1 = [float(v) for v in (occ.get("bbox") or [0, 0, 0, 0])]
+                inside = [
+                    rect
+                    for rect in rects
+                    if rect.x0 >= x0 - 4 and rect.y0 >= y0 - 4 and rect.x1 <= x1 + 4 and rect.y1 <= y1 + 4
+                ]
+                pool = inside or rects
+                key = (str(occ.get("block_id") or ""), marker)
+                index = cursors.get(key, 0)
+                cursors[key] = index + 1
+                rect = pool[index] if index < len(pool) else pool[-1]
+                occ["rects"] = [
+                    [round(rect.x0, 2), round(rect.y0, 2), round(rect.x1, 2), round(rect.y1, 2)]
+                ]
+                attached += 1
+    finally:
+        doc.close()
+    links.setdefault("stats", {})["marker_rects"] = attached
 
 
 def translate(

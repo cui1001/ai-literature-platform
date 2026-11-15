@@ -153,6 +153,24 @@ main { max-width: 1560px; margin: 0 auto; padding: 22px 22px 60px; }
 .block.active { background: rgba(240,182,87,.25); outline: 1.5px solid var(--warn); }
 .block.cite { background: rgba(125,226,195,.12); }
 .block.cite:hover { background: rgba(125,226,195,.3); }
+.cite-hot {
+  position: absolute; z-index: 4; padding: 0; border: 0; border-radius: 2px;
+  background: transparent; cursor: pointer; transition: background .12s, box-shadow .12s;
+}
+.cite-hot:hover, .cite-hot:focus-visible {
+  background: rgba(127, 224, 176, 0.26);
+  box-shadow: 0 0 0 1.5px rgba(127, 224, 176, 0.85) inset;
+  outline: none;
+}
+.cite-hot.flash {
+  background: rgba(240, 182, 87, 0.42);
+  box-shadow: 0 0 0 2px var(--warn) inset;
+  animation: expressFlash 1.6s ease-out;
+}
+@keyframes expressFlash {
+  0% { background: rgba(240, 182, 87, 0.75); }
+  100% { background: rgba(240, 182, 87, 0.42); }
+}
 .page-label { position: sticky; top: 58px; z-index: 5; }
 .bilingual { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px; }
 .bilingual .col { max-height: calc(100vh - 130px); overflow: auto; padding-right: 6px; }
