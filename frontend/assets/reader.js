@@ -1,6 +1,8 @@
 /* 版式感知阅读器：服务端页面图 + 结构化 bbox 覆盖层 + 引用双向跳转 */
 
 import { api } from "./api.js";
+import { isView, pushReaderMode, readerMode } from "./router.js";
+import { finishTask, getTask, startTask, subscribe, updateTask } from "./tasks.js";
 import { $, escapeHtml, openModal, pct, setBusy, toast } from "./ui.js";
 
 const state = {
@@ -12,23 +14,51 @@ const state = {
   translations: false,
 };
 
-export async function renderReader(host, paperId) {
+let renderSeq = 0;
+let unsubscribeTask = null;
+
+export async function renderReader(host, paperId, params = null) {
+  const seq = ++renderSeq;
   state.paperId = paperId;
-  // 支持 #reader/{id}?zh=1 直接进入中英对照（便于演示与截图）
-  if (location.hash.includes("zh=1")) {
-    state.lang = "zh";
-    state.translations = true;
-  }
+  // 导航离开再回来时，旧的后台翻译可能仍在进行；这里重置，避免按钮被永久锁死
+  state.translating = false;
+  state.translationError = "";
+  unsubscribeTask?.();
+  unsubscribeTask = null;
+  // P3：阅读器模式写进 URL（#reader/{id}?mode=zh|bilingual），刷新/分享/后退都能还原
+  const mode = readerMode(params);
+  state.lang = mode === "en" ? "en" : "zh";
+  state.bilingual = mode === "bilingual";
+  state.translations = mode !== "en";
   host.innerHTML = `<div class="empty"><span class="spinner"></span> 正在加载版式文档…</div>`;
+  let doc;
   try {
-    state.doc = await api.document(paperId, state.lang, state.translations);
+    doc = await api.document(paperId, state.lang, state.translations);
   } catch (err) {
+    if (seq !== renderSeq || !isView("reader", host) || state.paperId !== paperId) return;
     host.innerHTML = `<div class="empty">无法打开文献：${escapeHtml(err.message)}<br/><br/>
       <button class="btn" id="back-lib">返回文献库</button></div>`;
     $("#back-lib", host)?.addEventListener("click", () => (location.hash = "#library"));
     return;
   }
+  // 路由已切到别的板块/别的论文时，丢弃这次迟到的响应，不能覆盖当前视图
+  if (seq !== renderSeq || !isView("reader", host) || state.paperId !== paperId) return;
+  state.doc = doc;
   paint(host);
+  const taskId = `translate:${paperId}`;
+  if (getTask(taskId)?.status === "running") {
+    // P2：回到阅读器时翻译仍在后台跑，续显进度并在完成后自动刷新译文
+    state.translating = true;
+    paint(host);
+    unsubscribeTask = subscribe(() => {
+      const task = getTask(taskId);
+      if (!task || task.status === "running") return;
+      state.translating = false;
+      if (seq === renderSeq && isView("reader", host) && state.paperId === paperId) reloadDoc(host);
+    });
+    return;
+  }
+  if (mode !== "en" && !doc.translation?.count) ensureTranslations(host);
 }
 
 function pageSrc(image) {
@@ -39,6 +69,9 @@ function pageSrc(image) {
 }
 
 function paint(host) {
+  // 关键：异步任务（翻译/重新加载）完成时用户可能已经切到别的板块，
+  // 这里拒绝把阅读器旧内容重新写回 #view，否则会出现「导航高亮是文献库、内容却是阅读器」。
+  if (!isView("reader", host) || !state.doc) return;
   const doc = state.doc;
   const paper = doc.paper || {};
   const stats = doc.stats || {};
@@ -84,6 +117,7 @@ function paint(host) {
     <div id="inspector" class="inspector hidden"></div>`;
 
   $("#btn-en", host).addEventListener("click", async () => {
+    pushReaderMode(state.paperId, "en");
     state.lang = "en";
     state.translations = false;
     state.bilingual = false;
@@ -94,11 +128,13 @@ function paint(host) {
   $("#btn-bilingual", host).addEventListener("click", async () => {
     if (state.bilingual) {
       state.bilingual = false;
+      pushReaderMode(state.paperId, "zh");
       paint(host);
       return;
     }
     if (state.lang !== "zh") await toggleZh(host);
     state.bilingual = true;
+    pushReaderMode(state.paperId, "bilingual");
     paint(host);
   });
   host.querySelectorAll("[data-retry]").forEach((btn) => {
@@ -108,6 +144,8 @@ function paint(host) {
     btn.addEventListener("click", async (event) => {
       const fmt = btn.dataset.export;
       const lang = state.lang === "zh" ? "zh" : "en";
+      const taskId = `export:${state.paperId}:${fmt}`;
+      startTask(taskId, { kind: "export", label: `导出 ${fmt.toUpperCase()}`, detail: "生成文件中…" });
       setBusy(event.currentTarget, true, "生成中…");
       try {
         const { blob, filename, translated, translatable, partial } = await api.exportFile(
@@ -132,7 +170,9 @@ function paint(host) {
         } else {
           toast(`已导出 ${filename}`, "ok");
         }
+        finishTask(taskId, "done", { detail: filename });
       } catch (err) {
+        finishTask(taskId, "failed", { detail: err.message, error: err.message });
         toast(err.message || "导出失败", "err");
       } finally {
         setBusy(event.currentTarget, false);
@@ -451,15 +491,28 @@ function bindScrollSync(host) {
 }
 
 async function reloadDoc(host) {
-  state.doc = await api.document(state.paperId, state.lang, state.translations);
+  const paperId = state.paperId;
+  const doc = await api.document(paperId, state.lang, state.translations);
+  if (!isView("reader", host) || state.paperId !== paperId) return;
+  state.doc = doc;
   paint(host);
 }
 
 async function ensureTranslations(host) {
-  if (state.translating) return;
+  const paperId = state.paperId;
+  const taskId = `translate:${paperId}`;
+  // P2：任务中心已登记同名任务时直接复用，避免重复发起
+  if (state.translating || getTask(taskId)?.status === "running" || !state.doc) return;
+  const alive = () => isView("reader", host) && state.paperId === paperId;
   state.translating = true;
   state.translationError = "";
-  paint(host);
+  startTask(taskId, {
+    kind: "translate",
+    label: `翻译《${(state.doc.paper?.title || paperId).slice(0, 18)}》`,
+    detail: "准备中…",
+    progress: 2,
+  });
+  if (alive()) paint(host);
   try {
     const info = translationInfo(state.doc);
     const page1 = (state.doc.pages || [])[0] || { blocks: [] };
@@ -468,30 +521,46 @@ async function ensureTranslations(host) {
       .map((b) => b.id);
     if (info.pending && ids.length) {
       // 先翻第 1 页，尽快出中文；失败则在下方提示重试
-      const first = await api.translate(state.paperId, "zh", ids);
-      state.translating = false;
-      await reloadDoc(host);
-      state.translating = true;
+      updateTask(taskId, { progress: 8, detail: `翻译第 1 页（${ids.length} 块）` });
+      const first = await api.translate(paperId, "zh", ids);
+      updateTask(taskId, { progress: 35, detail: `第 1 页完成 ${first.count} 块` });
+      if (alive()) await reloadDoc(host);
       if (first.failed) throw new Error(`第 1 页有 ${first.failed} 块翻译失败`);
     }
-    const full = await api.translate(state.paperId, "zh");
-    state.translating = false;
-    await reloadDoc(host);
+    updateTask(taskId, { progress: 40, detail: "翻译全文（后台继续，可切换板块）" });
+    const full = await api.translate(paperId, "zh");
+    updateTask(taskId, {
+      progress: 92,
+      detail: `已翻译 ${full.count} 块${full.skipped ? `，跳过 ${full.skipped} 块` : ""}`,
+    });
+    if (alive()) await reloadDoc(host);
     if (full.failed) {
-      state.translationError = `${full.failed} 块翻译失败`;
-      toast(`翻译完成 ${full.count} 块，${full.failed} 块失败，可点「重试」`, "err");
+      finishTask(taskId, "failed", {
+        detail: `${full.failed} 块失败`,
+        error: `${full.failed} 块翻译失败`,
+      });
+      if (alive()) {
+        state.translationError = `${full.failed} 块翻译失败`;
+        toast(`翻译完成 ${full.count} 块，${full.failed} 块失败，可点「重试」`, "err");
+      }
     } else {
-      toast(
-        `翻译完成：${full.count} 块${full.skipped ? `，跳过 ${full.skipped} 块（非文本/过短）` : ""}`,
-        "ok"
-      );
+      finishTask(taskId, "done", { detail: `${full.count} 块已译` });
+      if (alive()) {
+        toast(
+          `翻译完成：${full.count} 块${full.skipped ? `，跳过 ${full.skipped} 块（非文本/过短）` : ""}`,
+          "ok"
+        );
+      }
     }
   } catch (err) {
-    state.translationError = err.message || "翻译失败";
-    toast(`${state.translationError}，可点「重试」`, "err");
+    finishTask(taskId, "failed", { detail: err.message, error: err.message });
+    if (alive()) {
+      state.translationError = err.message || "翻译失败";
+      toast(`${state.translationError}，可点「重试」`, "err");
+    }
   } finally {
     state.translating = false;
-    paint(host);
+    if (alive()) paint(host);
   }
 }
 
@@ -500,6 +569,7 @@ async function toggleZh(host) {
     // P7：再次点击 = 重试缺失块，而不是切回原文（切回原文用「原文」按钮）
     if (state.bilingual) {
       state.bilingual = false;
+      pushReaderMode(state.paperId, "zh");
       paint(host);
       return;
     }
@@ -510,6 +580,7 @@ async function toggleZh(host) {
   state.lang = "zh";
   state.translations = true;
   state.bilingual = false;
+  pushReaderMode(state.paperId, "zh");
   paint(host);
   await ensureTranslations(host);
 }

@@ -2,6 +2,8 @@
 
 import { api } from "./api.js";
 import { renderReader } from "./reader.js";
+import { setView } from "./router.js";
+import { finishTask, listTasks, runningCount, startTask, subscribe } from "./tasks.js";
 import { renderDataviz, renderDiscovery, renderGraph, renderWriting } from "./views.js";
 import {
   $,
@@ -17,7 +19,6 @@ import {
 } from "./ui.js";
 
 const state = {
-  view: "library",
   papers: [],
   selected: new Set(),
   filters: { q: "", sort: "recent", latest_only: false },
@@ -47,14 +48,30 @@ function parseHash() {
 
 async function route() {
   const { view, id, params } = parseHash();
-  state.view = view;
-  document.querySelectorAll(".tab").forEach((tab) => tab.classList.toggle("active", tab.dataset.view === view));
+  document.querySelectorAll(".tab").forEach((tab) => {
+    const active = tab.dataset.view === view;
+    tab.classList.toggle("active", active);
+    tab.setAttribute("aria-current", active ? "page" : "false");
+  });
   const host = $("#view");
+  // 唯一的视图状态源：所有模块只读 host.dataset.view（reader.js 用它拒绝迟到的异步重绘）
+  setView(host, view);
   try {
     await VIEWS[view](host, id, params);
   } catch (err) {
     host.innerHTML = `<div class="empty">页面加载失败：${escapeHtml(err.message)}</div>`;
   }
+}
+
+let routeScheduled = false;
+function scheduleRoute() {
+  // hashchange 与 popstate 在“前进/后退”时可能同时触发，合并成一次渲染
+  if (routeScheduled) return;
+  routeScheduled = true;
+  queueMicrotask(() => {
+    routeScheduled = false;
+    route();
+  });
 }
 
 function go(view) {
@@ -257,17 +274,24 @@ async function uploadFiles(host, files) {
   }
   if (pdfs.length === 1) {
     toast("正在解析，请稍候…");
+    const taskId = `upload:${pdfs[0].name}`;
+    startTask(taskId, { kind: "upload", label: `入库 ${pdfs[0].name}`, detail: "解析 / 去重 / 索引" });
     try {
       const result = await api.upload(pdfs[0]);
+      finishTask(taskId, "done", { detail: result.status === "duplicate" ? "已存在，等待确认" : "已入库" });
       showUploadResult(result, host);
     } catch (err) {
+      finishTask(taskId, "failed", { detail: err.message, error: err.message });
       toast(err.message, "err");
     }
     return;
   }
   toast(`批量上传 ${pdfs.length} 篇…`);
+  const batchId = `upload:batch:${Date.now()}`;
+  startTask(batchId, { kind: "upload", label: `批量入库 ${pdfs.length} 篇`, detail: "排队解析" });
   try {
     const result = await api.uploadMany(pdfs);
+    finishTask(batchId, "done", { detail: `成功 ${result.imported} / 重复 ${result.duplicates} / 失败 ${result.failed}` });
     openModal(
       "批量导入结果",
       `<div class="kv"><dt>总数</dt><dd>${result.total}</dd><dt>成功</dt><dd>${result.imported}</dd>
@@ -278,6 +302,7 @@ async function uploadFiles(host, files) {
     );
     renderLibrary(host);
   } catch (err) {
+    finishTask(batchId, "failed", { detail: err.message, error: err.message });
     toast(err.message, "err");
   }
 }
@@ -338,7 +363,7 @@ function renderReaderView(host, id, params) {
     return Promise.resolve();
   }
   localStorage.setItem("lastPaper", id);
-  return renderReader(host, id).then(() => {
+  return renderReader(host, id, params).then(() => {
     const page = params.get("page");
     if (page) {
       document.getElementById(`page-${page}`)?.scrollIntoView({ behavior: "smooth" });
@@ -556,17 +581,63 @@ function setGlobalStatus(status) {
     <span class="badge">OCR ${escapeHtml(ocr.active || ocr.engine || "-")}</span>`;
 }
 
+/* ----------------------------------------------------------- task center */
+
+function taskStatusLabel(status) {
+  return { running: "进行中", done: "已完成", failed: "失败" }[status] || status;
+}
+
+function taskRow(task) {
+  const elapsed = Math.max(0, Math.round(((task.finishedAt || Date.now()) - task.startedAt) / 1000));
+  return `<div class="task-row">
+    <div class="task-main">
+      <b>${escapeHtml(task.label)}</b>
+      <span class="badge ${task.status === "failed" ? "warn" : task.status === "done" ? "ok" : ""}">${taskStatusLabel(task.status)}</span>
+      <span class="dim" style="font-size:11px">${elapsed}s</span>
+    </div>
+    <div class="dim" style="font-size:12px">${escapeHtml(task.error || task.detail || "")}</div>
+    ${task.status === "running" ? `<div class="task-bar"><i style="width:${Math.min(100, task.progress || 0)}%"></i></div>` : ""}
+  </div>`;
+}
+
+function initTaskCenter() {
+  const btn = $("#tasks-btn");
+  if (!btn) return;
+  const render = () => {
+    const items = listTasks();
+    btn.hidden = items.length === 0;
+    $("#tasks-count").textContent = String(runningCount());
+    btn.classList.toggle("busy", runningCount() > 0);
+  };
+  subscribe(render);
+  render();
+  btn.addEventListener("click", () => {
+    const items = listTasks();
+    openModal(
+      "任务中心",
+      items.length
+        ? `<div class="task-list">${items.map(taskRow).join("")}</div>
+           <p class="dim" style="font-size:12px;margin-top:10px">切走板块不会中断翻译 / 导出 / 入库；回到对应视图会自动续显结果。</p>`
+        : `<div class="empty">暂无任务</div>`
+    );
+  });
+}
+
 /* ---------------------------------------------------------------- boot */
 
 function boot() {
-  document.querySelectorAll(".tab").forEach((tab) =>
-    tab.addEventListener("click", () => go(tab.dataset.view))
-  );
+  document.querySelectorAll(".tab").forEach((tab) => {
+    tab.addEventListener("click", () => go(tab.dataset.view));
+    tab.title = `点击切换到${tab.textContent}`;
+    tab.setAttribute("aria-label", `点击切换到${tab.textContent}`);
+  });
+  initTaskCenter();
   $("#modal-close").addEventListener("click", closeModal);
   document.getElementById("modal").addEventListener("click", (event) => {
     if (event.target.id === "modal") closeModal();
   });
-  window.addEventListener("hashchange", route);
+  window.addEventListener("hashchange", scheduleRoute);
+  window.addEventListener("popstate", scheduleRoute);
   api
     .status()
     .then(setGlobalStatus)

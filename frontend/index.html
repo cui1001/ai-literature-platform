@@ -9,6 +9,8 @@
   <link rel="modulepreload" href="/assets/api.js" />
   <link rel="modulepreload" href="/assets/ui.js" />
   <link rel="modulepreload" href="/assets/reader.js" />
+  <link rel="modulepreload" href="/assets/router.js" />
+  <link rel="modulepreload" href="/assets/tasks.js" />
   <link rel="modulepreload" href="/assets/views.js" />
 </head>
 <body>
@@ -23,7 +25,11 @@
       <button class="tab" data-view="writing">写作 Copilot</button>
       <button class="tab" data-view="dataviz">数据可视化</button>
       <button class="tab" data-view="system">系统状态</button>
+      <span class="nav-tip" title="顶部导航点击切换板块">点击切换</span>
     </nav>
+    <button class="btn ghost small task-btn" id="tasks-btn" hidden title="查看翻译 / 导出 / 入库等后台任务">
+      任务 <span class="task-count" id="tasks-count">0</span>
+    </button>
     <div class="global-status" id="global-status"><span class="dot"></span> 就绪</div>
   </header>
   <main id="view"><div class="empty"><span class="spinner"></span> 正在加载文献库…</div></main>
