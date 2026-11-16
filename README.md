@@ -139,16 +139,6 @@ python scripts/run_server.py --demo
 cloudflared tunnel --url http://127.0.0.1:8000   # 输出 https://xxx.trycloudflare.com
 ```
 
-## 演示视频
-
-| 项目 | 内容 |
-| --- | --- |
-| 成片 | [AgentLit_Demo_1080p.mp4](docs/demo/AgentLit_Demo_1080p.mp4)（1920×1080 / 30 fps / 3:32，中文字幕，六大模块） |
-| 分镜与录制脚本 | [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md)（10 段分镜、操作步骤、字幕全文、ffmpeg 合成命令、素材清单） |
-| 字幕文件 | [docs/demo/AgentLit_Demo.srt](docs/demo/AgentLit_Demo.srt) |
-| 视频元数据 | [docs/demo/video_meta.json](docs/demo/video_meta.json) |
-| 项目介绍 | [docs/PROJECT_INTRO.md](docs/PROJECT_INTRO.md)（项目定位、模块、技术、评测与演示说明） |
-
 ## 提交材料
 
 | 材料 | 位置 | 说明 |
@@ -162,7 +152,6 @@ cloudflared tunnel --url http://127.0.0.1:8000   # 输出 https://xxx.trycloudfl
 | 架构与命题映射 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/COMPETITION_MATRIX.md](docs/COMPETITION_MATRIX.md) | 设计决策、接口清单、六模块逐条验证 |
 | 评测报告 | [docs/EVALUATION.md](docs/EVALUATION.md) | 九项可复现评测与逐篇明细 |
 | 复验报告 | [docs/REVERIFICATION.md](docs/REVERIFICATION.md) | P0/P1/P2 逐项证据、39 篇审计、9 个指定问题、图谱与 F1–F10 |
-| 演示视频 | [docs/demo/](docs/demo/) | 3:32 模块功能演示（1080p，中文字幕）+ 分镜脚本 + 字幕 |
 | 项目介绍 | [docs/PROJECT_INTRO.md](docs/PROJECT_INTRO.md) | 七章项目说明（定位、亮点、测试、技术、图片、获奖、优化对比） |
 
 重新生成 PDF（需要本机安装 Edge；无网络也可用）：
