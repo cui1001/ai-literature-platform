@@ -22,7 +22,7 @@ python scripts/run_server.py --demo
 
 打开 <http://127.0.0.1:8000> 即可体验完整闭环：
 
-1. **文献库**：14 篇合成论文 + 1 份扫描件（60 页）已入库，质量分、OCR 标记、版本关系可见；
+1. **文献库**：14 篇合成论文 + 1 份 5 页扫描件已入库，质量分、OCR 标记、版本关系可见；
 2. **版式阅读**：150 DPI 原版页面 + bbox 覆盖层，标题树、引用双向跳转、中英对照/双语并排；
 3. **抗幻觉问答**：每个结论绑定 `[E1]` 证据角标（页码 + bbox + 原文），点击回到原文位置；
 4. **arXiv 追踪**：离线镜像检索 → 代码可得性加权 → 一键入库/点赞踩 → Sickle 风格定时追踪；
@@ -40,7 +40,7 @@ python scripts/run_server.py --demo
 | 一 · 文献管理 | 单/批量上传、sha256 + 标题 + SimHash 语义去重、版本族与「保留最新」、扫描件 OCR、一至三级标题树、表格/图/公式/参考文献/附录 | `backend/app/parsing/`、`backend/app/papers/service.py` |
 | 二 · 抗幻觉问答 | BM25 ⊕ 向量 RRF 混合检索、页码 + bbox 锚点、逐句/数值校验、9 维跨文献对比表 | `backend/app/indexing/`、`backend/app/qa/` |
 | 三 · 版式阅读 | 服务端页面栅格 + 结构化块、`[n]` ↔ References 双向跳转、划词/整篇翻译、中英对照同步滚动、Markdown/HTML/原位 PDF 导出 | `backend/app/reading/`、`frontend/assets/reader.js` |
-| 四 · 发现追踪 | arXiv 检索（在线/离线镜像）、引用含金量筛选、GitHub 代码优先、推荐理由、点赞踩反馈、定时追踪 | `backend/app/discovery/` |
+| 四 · 发现追踪 | arXiv 检索（在线/离线镜像）、相关性排序、代码可得性加权、推荐理由、点赞踩反馈、定时追踪 | `backend/app/discovery/` |
 | 五 · 图谱综述 | 引用拓扑、PageRank/介数/社区、基石与边缘论文、Future Work 提炼并排除已解决方向 | `backend/app/graph/` |
 | 六 · 写作 Copilot | 无幻觉 Abstract/Intro/Related Work/References、四类拓扑图脚本、CSV → 图表 + Caption、中译英 | `backend/app/writing/`、`backend/app/dataviz/` |
 
@@ -62,9 +62,9 @@ backend/app/
    graph/      引用图、图论指标、领域综述与 Future Work
    writing/    无幻觉大纲、拓扑图脚本、学术翻译
    dataviz/    CSV 画像、确定性 SVG、Figure Caption、matplotlib 脚本
-   providers/  LLM / Embedding / OCR / arXiv 四类能力网关（在线优先、离线降级）
+   providers/  LLM / 嵌入 / OCR / arXiv / 翻译五类能力网关（在线优先、离线降级）
    core/ db/   配置、日志、异常、哈希、文本工具；SQLite 仓储
-backend/{tests,eval}/   48 个 unittest；八段可复现评测
+backend/{tests,eval}/   49 个 unittest；九项可复现评测
 fixtures/papers/        15 个 PDF（含扫描件 scanned/udl_scan.pdf）
 fixtures/corpus/        14 篇论文真值 JSON；生成脚本 scripts/make_corpus.py；离线镜像 fixtures/arxiv/mirror.json
 ```
@@ -72,28 +72,30 @@ fixtures/corpus/        14 篇论文真值 JSON；生成脚本 scripts/make_corp
 设计取舍：阅读器不使用 PDF.js，改为**服务端栅格化 + 结构化 bbox**（任何环境版式一致、锚点像素级可定位）；
 上传走 raw body 规避 `python-multipart`；图表自研 SVG 渲染 + matplotlib 脚本导出；所有 ID 由内容哈希派生。
 
-## 评测结果（`python -m eval.run_eval`，离线，2026-11-01）
+## 评测结果（`python -m eval.run_eval`，离线，2026-11-15）
 
 | 指标 | 结果 |
 | --- | --- |
-| 解析成功率 / 平均质量 | **100%** / **0.971**（14 篇，含扫描件 OCR `winrt`） |
-| 表格 / 参考文献覆盖 | 13/14 篇抽到表格；13/14 篇抽到参考文献 |
-| 问答金标准命中 | **104/115 = 90.4%**（作者 14/14、机构 14/14、超参 29/29、硬件 10/10、指标 18/18） |
-| 引用锚点覆盖 / 校验通过 | **100%** / 62.6% |
+| 解析成功率 / 平均质量 | **100%** / **0.981**（14 篇，含 1 篇扫描件 OCR，引擎 EasyOCR） |
+| 表格 / 参考文献覆盖 | 13/14 篇抽到表格；14/14 篇抽到 ≥5 条参考文献 |
+| 问答金标准命中 | **105/115 = 91.3%**（作者 14/14、机构 14/14、超参 29/29、硬件 10/10、指标 18/18） |
+| 引用锚点覆盖 / 校验通过 | **100%** / **97.4%** |
 | 跨文献对比 | 维度覆盖 100%，12/12 单元格有锚点，GPT 参数量 117M/1.5B/175B 全部命中 |
-| 引用图谱 | 14 节点 / 10 边，PageRank 识别 2 篇基石论文 |
+| 引用图谱 | 14 节点 / 26 边，PageRank/介数识别 5 篇基石论文 |
 | 写作引用校验 | 六节齐全、References 全部来自本地库、正文编号双向一致 |
 | 图表确定性 | 相同输入两次渲染 SVG 字节一致 |
 
 完整报告见 [docs/EVALUATION.md](docs/EVALUATION.md) 与 `backend/eval/report.json`。
 
+真实语料复验（39 个 PDF，见 [docs/REVERIFICATION.md](docs/REVERIFICATION.md)）：39/39 全部处理（36 入库 + 1 版本替换 + 2 判重），库内 37 篇唯一文献；平均质量 0.994；参考文献合计 2904 条；9 个指定验收问题全部命中并通过校验；20 篇引用图谱 20 节点 / 43 边、基石 8 篇；自动综述抽取 51 条 Future Work。
+
 ## 测试与复现
 
 ```bash
 cd backend
-python -m unittest discover -s tests -v     # 48 tests OK（约 12s）
+python -m unittest discover -s tests -v     # 49 tests OK（约 12s）
 python -m eval.validate_corpus               # 逐篇解析质量检查
-python -m eval.run_eval                      # 八段评测，输出 report.json + EVALUATION.md
+python -m eval.run_eval                      # 九项评测，输出 report.json + EVALUATION.md
 ```
 
 复现性承诺：
@@ -116,13 +118,9 @@ python -m eval.run_eval                      # 八段评测，输出 report.json
 
 | 项目 | 内容 |
 | --- | --- |
-| 队伍名称 | （待补充：参赛队伍名称） |
-| 所属单位 | （待补充：学校 / 学院 / 团队） |
-| 团队成员与分工 | 单人独立完成：需求分析、系统架构设计、后端（解析 / 检索 / 问答 / 阅读 / 图谱 / 写作 / 可视化）、前端 SPA、测试与评测、文档与部署 |
-| 联系方式 | （待补充：队长邮箱或其他有效联系方式） |
-
-> 以上为赛方 2.1 要求的团队信息字段。本项目为单人独立开发，分工已如实填写；队伍名称、所属单位、联系方式未提供，保留占位符待确认后替换。
-> 代码与提交历史：<https://github.com/cui1001/ai-literature-platform>（`git log --oneline --graph` 可回溯旧原型 14 次提交 + 分阶段功能分支与 `--no-ff` 合并）。
+| 项目性质 | 单人独立开发 |
+| 分工 | 需求分析、系统架构设计、后端（解析 / 检索 / 问答 / 阅读 / 图谱 / 写作 / 可视化）、前端 SPA、测试与评测、文档与部署 |
+| 代码与提交历史 | <https://github.com/cui1001/ai-literature-platform>（`git log --oneline --graph` 可回溯旧原型 14 次提交 + 分阶段功能分支与 `--no-ff` 合并） |
 
 ## 在线演示
 
@@ -141,6 +139,16 @@ python scripts/run_server.py --demo
 cloudflared tunnel --url http://127.0.0.1:8000   # 输出 https://xxx.trycloudflare.com
 ```
 
+## 演示视频
+
+| 项目 | 内容 |
+| --- | --- |
+| 成片 | [AgentLit_Demo_1080p.mp4](docs/demo/AgentLit_Demo_1080p.mp4)（1920×1080 / 30 fps / 3:32，中文字幕，六大模块） |
+| 分镜与录制脚本 | [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md)（10 段分镜、操作步骤、字幕全文、ffmpeg 合成命令、素材清单） |
+| 字幕文件 | [docs/demo/AgentLit_Demo.srt](docs/demo/AgentLit_Demo.srt) |
+| 视频元数据 | [docs/demo/video_meta.json](docs/demo/video_meta.json) |
+| 项目介绍 | [docs/PROJECT_INTRO.md](docs/PROJECT_INTRO.md)（项目定位、模块、技术、评测与演示说明） |
+
 ## 提交材料
 
 | 材料 | 位置 | 说明 |
@@ -148,11 +156,14 @@ cloudflared tunnel --url http://127.0.0.1:8000   # 输出 https://xxx.trycloudfl
 | 代码仓库 | <https://github.com/cui1001/ai-literature-platform> | GitHub Public，默认分支 `master`，含完整提交历史（旧原型 + 分阶段功能分支与合并） |
 | 技术文档（PDF，≤30 页） | [docs/TECHNICAL_REPORT.pdf](docs/TECHNICAL_REPORT.pdf) | 由 [docs/TECHNICAL_REPORT.md](docs/TECHNICAL_REPORT.md) 生成，14 页 |
 | 技术文档源文件 | [docs/TECHNICAL_REPORT.md](docs/TECHNICAL_REPORT.md) | 可编辑版本，含架构图源文件 [docs/assets/architecture.svg](docs/assets/architecture.svg) |
-| 提交材料清单 | [docs/SUBMISSION_MATERIALS.md](docs/SUBMISSION_MATERIALS.md) | 2.1 / 2.3 / 2.4 逐项状态与待补充项 |
+| 提交材料清单 | [docs/SUBMISSION_MATERIALS.md](docs/SUBMISSION_MATERIALS.md) | 2.1 / 2.3 / 2.4 逐项状态与材料清单 |
 | 环境配置 | [backend/.env.example](backend/.env.example)、[backend/requirements.txt](backend/requirements.txt) | 环境变量模板 + 依赖清单 |
 | 部署套件 | [Dockerfile](Dockerfile)、[docker-compose.yml](docker-compose.yml)、[deploy/](deploy/)、[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | 容器镜像、systemd、Caddy、Cloudflare Tunnel 示例 |
 | 架构与命题映射 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)、[docs/COMPETITION_MATRIX.md](docs/COMPETITION_MATRIX.md) | 设计决策、接口清单、六模块逐条验证 |
-| 评测报告 | [docs/EVALUATION.md](docs/EVALUATION.md) | 八段可复现评测与逐篇明细 |
+| 评测报告 | [docs/EVALUATION.md](docs/EVALUATION.md) | 九项可复现评测与逐篇明细 |
+| 复验报告 | [docs/REVERIFICATION.md](docs/REVERIFICATION.md) | P0/P1/P2 逐项证据、39 篇审计、9 个指定问题、图谱与 F1–F10 |
+| 演示视频 | [docs/demo/](docs/demo/) | 3:32 模块功能演示（1080p，中文字幕）+ 分镜脚本 + 字幕 |
+| 项目介绍 | [docs/PROJECT_INTRO.md](docs/PROJECT_INTRO.md) | 七章项目说明（定位、亮点、测试、技术、图片、获奖、优化对比） |
 
 重新生成 PDF（需要本机安装 Edge；无网络也可用）：
 
@@ -162,7 +173,7 @@ python scripts/build_report_pdf.py        # Markdown → HTML → docs/TECHNICAL
 
 ## 已知边界
 
-- 离线问答为**抽取式**：不生成新句子，得分靠 BM25/向量召回与规则打分；citation / Future Work 类问题仍有提升空间（7/13、1/3）；
-- OCR 依赖 Windows.Media.Ocr（`winrt`）或 Tesseract，Linux 评测机无 OCR 引擎时自动回退文本层并标注 `degraded`；
+- 离线问答为**抽取式**：不生成新句子，得分靠 BM25/向量召回与规则打分；citation / Future Work 类问题仍有提升空间（citation 8/13、Future Work 1/3）；
+- OCR 引擎链为 EasyOCR / Windows.Media.Ocr（`winrt`）/ Tesseract / PyMuPDF，按文档语言排序；无 OCR 引擎的环境自动回退文本层并标注 `degraded`；
 - 阅读器页面为图片，文本选择通过 bbox 覆盖层实现，复制长段落需逐块操作；
 - 单进程 uvicorn + SQLite WAL，适合单机演示，未做多租户并发压测。

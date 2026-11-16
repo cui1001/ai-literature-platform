@@ -1,0 +1,20 @@
+{
+  "duration": 212.0,
+  "fps": 30,
+  "size": [
+    1920,
+    1080
+  ],
+  "scenes": [
+    "intro",
+    "papers",
+    "reading",
+    "citation",
+    "qa",
+    "discovery",
+    "graph",
+    "writing",
+    "dataviz",
+    "outro"
+  ]
+}
